@@ -1,0 +1,669 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ez Pos – Dashboard</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+:root{
+  --primary:#5D8AA8;--primary-dark:#4a7795;--primary-bg:rgba(93,138,168,0.08);
+  --success:#2D6A4F;--success-bg:#f0faf4;
+  --danger:#DC2626;--danger-bg:#fef2f2;
+  --warning:#B45309;--warning-bg:#fffbeb;
+  --bg:#F0F4F8;--white:#fff;--border:#E2E8F0;
+  --text:#2D3748;--muted:#718096;
+  --shadow:0 2px 8px rgba(0,0,0,0.07);--shadow-lg:0 8px 24px rgba(0,0,0,0.10);
+  --radius:12px;--sidebar-w:220px;
+}
+html,body{height:100%;font-family:system-ui,-apple-system,sans-serif;background:var(--bg);overflow:hidden;}
+.icon{display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;}
+.icon svg{width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;}
+.icon.sm svg{width:14px;height:14px;}
+.icon.lg svg{width:22px;height:22px;}
+.icon.xl svg{width:28px;height:28px;}
+
+/* ── LAYOUT ── */
+.app{display:flex;height:100vh;overflow:hidden;}
+
+/* ── SIDEBAR ── */
+.sidebar{width:var(--sidebar-w);min-width:var(--sidebar-w);height:100%;background:var(--white);border-right:1px solid var(--border);display:flex;flex-direction:column;z-index:50;transition:transform 0.28s cubic-bezier(0.4,0,0.2,1);}
+.sidebar-header{height:60px;padding:0 20px;display:flex;align-items:center;gap:10px;border-bottom:1px solid var(--border);flex-shrink:0;}
+.sidebar-logo{font-size:16px;font-weight:800;color:var(--primary);}
+.nav-section{flex:1;padding:8px 0;overflow-y:auto;}
+.nav-item{display:flex;align-items:center;gap:12px;padding:12px 20px;color:var(--muted);text-decoration:none;font-size:14px;font-weight:500;border:none;background:none;width:100%;text-align:left;cursor:pointer;transition:background 0.15s,color 0.15s;border-right:3px solid transparent;}
+.nav-item:hover{background:var(--primary-bg);color:var(--primary);}
+.nav-item.active{background:var(--primary-bg);color:var(--primary);border-right-color:var(--primary);}
+.nav-item .icon{color:inherit;}
+
+/* ── MAIN ── */
+.main-area{flex:1;display:flex;flex-direction:column;overflow:hidden;min-width:0;}
+.topbar{height:60px;background:var(--white);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 20px;gap:14px;flex-shrink:0;z-index:40;}
+.topbar-menu{background:none;border:none;cursor:pointer;color:var(--muted);padding:6px;border-radius:8px;display:flex;transition:background 0.15s;}
+.topbar-menu:hover{background:var(--bg);}
+.topbar-title{font-size:18px;font-weight:700;color:var(--text);flex:1;}
+.topbar-shift{font-size:13px;color:var(--muted);}
+.topbar-avatar{width:36px;height:36px;border-radius:50%;background:var(--primary);color:#fff;font-size:13px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+
+/* ── DASHBOARD CONTENT ── */
+.dash-content{flex:1;overflow-y:auto;padding:20px;}
+
+/* ── DATE BAR ── */
+.date-bar{display:flex;align-items:center;gap:10px;margin-bottom:20px;flex-wrap:wrap;}
+.date-tabs{display:flex;background:var(--white);border:1px solid var(--border);border-radius:10px;overflow:hidden;flex-shrink:0;}
+.date-tab{padding:8px 14px;font-size:13px;font-weight:600;color:var(--muted);background:none;border:none;cursor:pointer;transition:all 0.15s;border-right:1px solid var(--border);}
+.date-tab:last-child{border-right:none;}
+.date-tab.active{background:var(--primary);color:#fff;}
+.date-tab:hover:not(.active){background:var(--primary-bg);color:var(--primary);}
+.date-custom{display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
+.date-input-wrap{display:flex;align-items:center;gap:6px;background:var(--white);border:1px solid var(--border);border-radius:10px;padding:7px 12px;}
+.date-input-wrap label{font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.4px;}
+.date-input-wrap input[type=date]{border:none;background:none;font-size:13px;font-weight:600;color:var(--text);outline:none;cursor:pointer;}
+.date-sep{color:var(--muted);font-size:13px;}
+.apply-btn{padding:8px 16px;background:var(--primary);color:#fff;border:none;border-radius:10px;font-size:13px;font-weight:700;cursor:pointer;transition:background 0.15s;}
+.apply-btn:hover{background:var(--primary-dark);}
+.date-label{font-size:13px;color:var(--muted);font-weight:500;margin-left:auto;}
+
+/* ── STAT CARDS ── */
+.stat-grid{display:grid;gap:14px;grid-template-columns:repeat(2,1fr);margin-bottom:20px;}
+@media(min-width:600px){.stat-grid{grid-template-columns:repeat(2,1fr);}}
+@media(min-width:900px){.stat-grid{grid-template-columns:repeat(4,1fr);}}
+.stat-card{background:var(--white);border:1px solid var(--border);border-radius:var(--radius);padding:16px;box-shadow:var(--shadow);position:relative;overflow:hidden;}
+.stat-card::after{content:'';position:absolute;top:0;left:0;right:0;height:3px;border-radius:var(--radius) var(--radius) 0 0;}
+.stat-card.revenue::after{background:var(--success);}
+.stat-card.orders-c::after{background:var(--primary);}
+.stat-card.profit::after{background:#7C3AED;}
+.stat-card.avg::after{background:var(--warning);}
+.stat-icon{width:40px;height:40px;border-radius:10px;display:flex;align-items:center;justify-content:center;margin-bottom:12px;}
+.stat-card.revenue .stat-icon{background:var(--success-bg);color:var(--success);}
+.stat-card.orders-c .stat-icon{background:var(--primary-bg);color:var(--primary);}
+.stat-card.profit .stat-icon{background:#f3f0ff;color:#7C3AED;}
+.stat-card.avg .stat-icon{background:var(--warning-bg);color:var(--warning);}
+.stat-label{font-size:12px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px;}
+.stat-value{font-size:22px;font-weight:800;color:var(--text);line-height:1.1;margin-bottom:6px;}
+@media(max-width:400px){.stat-value{font-size:17px;}}
+.stat-badge{display:inline-flex;align-items:center;gap:3px;font-size:11px;font-weight:700;padding:2px 8px;border-radius:20px;}
+.stat-badge.up{background:#f0faf4;color:var(--success);}
+.stat-badge.down{background:var(--danger-bg);color:var(--danger);}
+.stat-badge.neu{background:var(--bg);color:var(--muted);}
+
+/* ── CHART SECTION ── */
+.charts-row{display:grid;gap:14px;grid-template-columns:1fr;margin-bottom:20px;}
+@media(min-width:900px){.charts-row{grid-template-columns:2fr 1fr;}}
+.chart-card{background:var(--white);border:1px solid var(--border);border-radius:var(--radius);padding:18px;box-shadow:var(--shadow);}
+.chart-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;gap:10px;}
+.chart-title{font-size:15px;font-weight:700;color:var(--text);}
+.chart-sub{font-size:12px;color:var(--muted);margin-top:2px;}
+.chart-legend{display:flex;gap:12px;flex-wrap:wrap;}
+.leg-item{display:flex;align-items:center;gap:5px;font-size:11px;font-weight:600;color:var(--muted);}
+.leg-dot{width:8px;height:8px;border-radius:50%;}
+
+/* ── SVG CHART ── */
+.chart-wrap{width:100%;overflow:hidden;}
+svg.line-chart{width:100%;display:block;}
+.chart-axis text{font-size:10px;fill:var(--muted);font-family:system-ui,-apple-system,sans-serif;}
+.chart-grid line{stroke:var(--border);stroke-dasharray:3 3;}
+.chart-area-rev{fill:rgba(45,106,79,0.08);}
+.chart-area-prof{fill:rgba(124,58,237,0.06);}
+.chart-line-rev{stroke:var(--success);stroke-width:2.5;fill:none;stroke-linecap:round;stroke-linejoin:round;}
+.chart-line-prof{stroke:#7C3AED;stroke-width:2;fill:none;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:none;}
+.chart-dot{fill:var(--white);stroke-width:2.5;}
+
+/* ── DONUT CHART ── */
+.donut-wrap{display:flex;flex-direction:column;align-items:center;gap:14px;}
+svg.donut{overflow:visible;}
+.donut-center-label{font-size:11px;fill:var(--muted);font-family:system-ui;font-weight:700;text-anchor:middle;}
+.donut-center-val{font-size:18px;fill:var(--text);font-family:system-ui;font-weight:800;text-anchor:middle;}
+.donut-legend{width:100%;display:flex;flex-direction:column;gap:8px;}
+.donut-leg-row{display:flex;align-items:center;gap:8px;}
+.donut-leg-dot{width:10px;height:10px;border-radius:3px;flex-shrink:0;}
+.donut-leg-name{flex:1;font-size:12px;color:var(--text);font-weight:600;}
+.donut-leg-pct{font-size:12px;color:var(--muted);font-weight:700;}
+.donut-leg-amt{font-size:12px;color:var(--success);font-weight:700;text-align:right;}
+
+/* ── BOTTOM ROW ── */
+.bottom-row{display:grid;gap:14px;grid-template-columns:1fr;margin-bottom:20px;}
+@media(min-width:900px){.bottom-row{grid-template-columns:1fr 1fr;}}
+
+/* ── TOP PRODUCTS TABLE ── */
+.table-card{background:var(--white);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow);overflow:hidden;}
+.table-hdr{padding:16px 18px 12px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;}
+.table-title{font-size:15px;font-weight:700;color:var(--text);}
+.see-all{font-size:12px;color:var(--primary);font-weight:600;text-decoration:none;cursor:pointer;}
+.prod-table{width:100%;border-collapse:collapse;}
+.prod-table th{font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;padding:10px 18px;text-align:left;background:var(--bg);border-bottom:1px solid var(--border);}
+.prod-table th:last-child{text-align:right;}
+.prod-table td{padding:12px 18px;font-size:13px;color:var(--text);border-bottom:1px solid var(--border);}
+.prod-table tr:last-child td{border-bottom:none;}
+.prod-table td:last-child{text-align:right;font-weight:700;color:var(--success);}
+.prod-rank{display:inline-flex;width:22px;height:22px;border-radius:6px;background:var(--bg);font-size:11px;font-weight:800;color:var(--muted);align-items:center;justify-content:center;margin-right:8px;}
+.prod-rank.gold{background:#fef9c3;color:#854d0e;}
+.prod-rank.silver{background:#f1f5f9;color:#475569;}
+.prod-rank.bronze{background:#fef3ec;color:#9a3412;}
+.prod-name-cell{display:flex;align-items:center;}
+.prod-qty-cell{font-weight:600;color:var(--muted);}
+
+/* ── RECENT SALES ── */
+.recent-card{background:var(--white);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow);overflow:hidden;}
+.recent-hdr{padding:16px 18px 12px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;}
+.sale-item{padding:12px 18px;display:flex;align-items:center;gap:12px;border-bottom:1px solid var(--border);transition:background 0.12s;}
+.sale-item:last-child{border-bottom:none;}
+.sale-item:hover{background:var(--bg);}
+.sale-icon{width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.sale-icon.cash{background:var(--success-bg);color:var(--success);}
+.sale-icon.bank{background:var(--primary-bg);color:var(--primary);}
+.sale-info{flex:1;min-width:0;}
+.sale-id{font-size:13px;font-weight:700;color:var(--text);}
+.sale-time{font-size:11px;color:var(--muted);margin-top:1px;}
+.sale-items-txt{font-size:11px;color:var(--muted);}
+.sale-amt-col{text-align:right;}
+.sale-amount{font-size:14px;font-weight:800;color:var(--success);}
+.sale-method{font-size:11px;color:var(--muted);margin-top:2px;}
+
+/* ── SHIFT SUMMARY BANNER ── */
+.shift-banner{background:linear-gradient(135deg,var(--primary) 0%,var(--primary-dark) 100%);border-radius:var(--radius);padding:16px 20px;display:flex;align-items:center;gap:16px;margin-bottom:20px;color:#fff;flex-wrap:wrap;}
+.shift-banner-icon{width:44px;height:44px;background:rgba(255,255,255,0.18);border-radius:12px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.shift-banner-info{flex:1;}
+.shift-banner-title{font-size:14px;font-weight:700;opacity:0.9;}
+.shift-banner-val{font-size:22px;font-weight:800;margin-top:2px;}
+.shift-banner-stats{display:flex;gap:20px;flex-wrap:wrap;margin-left:auto;}
+.shift-stat{text-align:center;}
+.shift-stat-val{font-size:16px;font-weight:800;}
+.shift-stat-lbl{font-size:10px;opacity:0.75;font-weight:600;text-transform:uppercase;letter-spacing:0.4px;}
+.end-shift-btn{padding:10px 18px;background:rgba(255,255,255,0.22);border:1.5px solid rgba(255,255,255,0.4);border-radius:8px;color:#fff;font-size:13px;font-weight:700;cursor:pointer;transition:all 0.15s;white-space:nowrap;flex-shrink:0;}
+.end-shift-btn:hover{background:rgba(255,255,255,0.32);}
+
+/* ── BAR CHART ── */
+.bar-chart-wrap{display:flex;align-items:flex-end;gap:6px;height:90px;padding:0 4px;}
+.bar-col{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;}
+.bar-fill{width:100%;border-radius:5px 5px 0 0;transition:height 0.4s ease;cursor:pointer;position:relative;}
+.bar-fill:hover{opacity:0.8;}
+.bar-lbl{font-size:9px;font-weight:600;color:var(--muted);white-space:nowrap;}
+.bar-val{font-size:9px;font-weight:700;color:var(--text);display:none;}
+.bar-fill:hover + .bar-val{display:block;}
+
+/* ── RESPONSIVE ── */
+@media(max-width:767px){
+  .sidebar{position:fixed;top:0;left:0;height:100%;transform:translateX(-100%);z-index:400;box-shadow:4px 0 20px rgba(0,0,0,0.15);}
+  .sidebar.open{transform:translateX(0);}
+  .sidebar-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.4);z-index:300;display:none;}
+  .sidebar-overlay.open{display:block;}
+  .topbar-shift{display:none;}
+  .date-label{display:none;}
+}
+@media(min-width:768px){
+  .topbar-shift{display:block;}
+  .sidebar-overlay{display:none !important;}
+}
+.sidebar.collapsed{width:64px;min-width:64px;}
+.sidebar.collapsed .sidebar-logo{display:none;}
+.sidebar.collapsed .nav-item span:last-child:not(.icon){display:none;}
+.sidebar.collapsed .nav-item{justify-content:center;padding:14px 0;}
+@media(min-width:768px) and (max-width:1023px){
+  .sidebar{width:64px;min-width:64px;}
+  .sidebar-logo{display:none;}
+  .nav-item span:last-child:not(.icon){display:none;}
+  .nav-item{justify-content:center;padding:14px 0;}
+  .sidebar.open-desk{width:var(--sidebar-w);min-width:var(--sidebar-w);}
+  .sidebar.open-desk .sidebar-logo{display:block;}
+  .sidebar.open-desk .nav-item span:last-child:not(.icon){display:inline;}
+  .sidebar.open-desk .nav-item{justify-content:flex-start;padding:12px 20px;}
+}
+
+/* Scrollbar */
+.dash-content::-webkit-scrollbar{width:5px;}
+.dash-content::-webkit-scrollbar-track{background:transparent;}
+.dash-content::-webkit-scrollbar-thumb{background:var(--border);border-radius:4px;}
+</style>
+</head>
+<body>
+
+<div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+<div class="app">
+  <!-- SIDEBAR -->
+  <nav class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <span class="icon lg" style="color:var(--primary);"><svg viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg></span>
+      <div class="sidebar-logo">QuickPOS</div>
+    </div>
+    <div class="nav-section">
+      <a href="dashboard.html" class="nav-item active">
+        <span class="icon"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg></span>
+        <span>Dashboard</span>
+      </a>
+      <a href="sales.html" class="nav-item">
+        <span class="icon"><svg viewBox="0 0 24 24"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg></span>
+        <span>Make a Sale</span>
+      </a>
+      <a href="orders.html" class="nav-item">
+        <span class="icon"><svg viewBox="0 0 24 24"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="2"/><path d="M9 12h6M9 16h4"/></svg></span>
+        <span>Orders</span>
+      </a>
+      <a href="products.html" class="nav-item">
+        <span class="icon"><svg viewBox="0 0 24 24"><path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/></svg></span>
+        <span>Products</span>
+      </a>
+      <a href="categories.html" class="nav-item">
+        <span class="icon"><svg viewBox="0 0 24 24"><path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83 0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg></span>
+        <span>Category</span>
+      </a>
+      <a href="reports.html" class="nav-item">
+        <span class="icon"><svg viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg></span>
+        <span>Sales</span>
+      </a>
+      <a href="users.html" class="nav-item">
+        <span class="icon"><svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg></span>
+        <span>Users</span>
+      </a>
+      <a href="settings.html" class="nav-item">
+        <span class="icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg></span>
+        <span>Settings</span>
+      </a>
+      <button class="nav-item" id="logoutBtn">
+        <span class="icon"><svg viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg></span>
+        <span>Logout</span>
+      </button>
+    </div>
+  </nav>
+
+  <div class="main-area">
+    <!-- TOP BAR -->
+    <div class="topbar">
+      <button class="topbar-menu" id="menuBtn">
+        <span class="icon lg"><svg viewBox="0 0 24 24"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg></span>
+      </button>
+      <div class="topbar-title">Dashboard</div>
+      <div class="topbar-shift" id="liveTime">Shift: 08:00 – 16:00</div>
+      <div class="topbar-avatar">OP</div>
+    </div>
+
+    <!-- DASHBOARD SCROLL AREA -->
+    <div class="dash-content" id="dashContent">
+
+      <!-- DATE FILTER BAR -->
+      <div class="date-bar">
+        <div class="date-tabs">
+          <button class="date-tab" data-range="today" onclick="setRange(this)">Today</button>
+          <button class="date-tab active" data-range="week" onclick="setRange(this)">This Week</button>
+          <button class="date-tab" data-range="month" onclick="setRange(this)">This Month</button>
+          <button class="date-tab" data-range="custom" onclick="setRange(this)">Custom</button>
+        </div>
+        <div class="date-custom" id="customRange" style="display:none;">
+          <div class="date-input-wrap">
+            <label>From</label>
+            <input type="date" id="dateFrom">
+          </div>
+          <span class="date-sep">→</span>
+          <div class="date-input-wrap">
+            <label>To</label>
+            <input type="date" id="dateTo">
+          </div>
+          <button class="apply-btn" onclick="applyCustom()">Apply</button>
+        </div>
+        <div class="date-label" id="dateRangeLabel">Apr 4 – Apr 10, 2026</div>
+      </div>
+
+      <!-- SHIFT BANNER -->
+      <div class="shift-banner">
+        <div class="shift-banner-icon">
+          <span class="icon xl" style="color:#fff;"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></span>
+        </div>
+        <div class="shift-banner-info">
+          <div class="shift-banner-title">Current Shift — Operator</div>
+          <div class="shift-banner-val">LKR 18,450.00</div>
+        </div>
+        <div class="shift-banner-stats">
+          <div class="shift-stat">
+            <div class="shift-stat-val">24</div>
+            <div class="shift-stat-lbl">Sales</div>
+          </div>
+          <div class="shift-stat">
+            <div class="shift-stat-val">08:00</div>
+            <div class="shift-stat-lbl">Started</div>
+          </div>
+          <div class="shift-stat">
+            <div class="shift-stat-val" id="shiftDuration">0h 0m</div>
+            <div class="shift-stat-lbl">Duration</div>
+          </div>
+        </div>
+        <button class="end-shift-btn" onclick="alert('Shift report will open here.')">End Shift</button>
+      </div>
+
+      <!-- STAT CARDS -->
+      <div class="stat-grid">
+        <div class="stat-card revenue">
+          <div class="stat-icon"><span class="icon"><svg viewBox="0 0 24 24"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg></span></div>
+          <div class="stat-label">Total Revenue</div>
+          <div class="stat-value" id="statRev">LKR 0</div>
+          <span class="stat-badge up" id="statRevBadge">↑ 0%</span>
+        </div>
+        <div class="stat-card orders-c">
+          <div class="stat-icon"><span class="icon"><svg viewBox="0 0 24 24"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg></span></div>
+          <div class="stat-label">Total Orders</div>
+          <div class="stat-value" id="statOrders">0</div>
+          <span class="stat-badge up" id="statOrdersBadge">↑ 0%</span>
+        </div>
+        <div class="stat-card profit">
+          <div class="stat-icon"><span class="icon"><svg viewBox="0 0 24 24"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg></span></div>
+          <div class="stat-label">Gross Profit</div>
+          <div class="stat-value" id="statProfit">LKR 0</div>
+          <span class="stat-badge up" id="statProfitBadge">↑ 0%</span>
+        </div>
+        <div class="stat-card avg">
+          <div class="stat-icon"><span class="icon"><svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg></span></div>
+          <div class="stat-label">Avg. Sale Value</div>
+          <div class="stat-value" id="statAvg">LKR 0</div>
+          <span class="stat-badge neu" id="statAvgBadge">— same</span>
+        </div>
+      </div>
+
+      <!-- CHARTS ROW -->
+      <div class="charts-row">
+        <!-- LINE CHART -->
+        <div class="chart-card">
+          <div class="chart-hdr">
+            <div>
+              <div class="chart-title">Revenue &amp; Profit</div>
+              <div class="chart-sub" id="chartSubLabel">Daily · This Week</div>
+            </div>
+            <div class="chart-legend">
+              <div class="leg-item"><div class="leg-dot" style="background:var(--success);"></div>Revenue</div>
+              <div class="leg-item"><div class="leg-dot" style="background:#7C3AED;"></div>Profit</div>
+            </div>
+          </div>
+          <div class="chart-wrap">
+            <svg class="line-chart" id="lineChartSVG" viewBox="0 0 520 160" preserveAspectRatio="none"></svg>
+          </div>
+        </div>
+
+        <!-- DONUT CHART -->
+        <div class="chart-card">
+          <div class="chart-hdr">
+            <div>
+              <div class="chart-title">Sales by Category</div>
+              <div class="chart-sub">Revenue share</div>
+            </div>
+          </div>
+          <div class="donut-wrap">
+            <svg class="donut" id="donutSVG" viewBox="0 0 160 160" width="140" height="140"></svg>
+            <div class="donut-legend" id="donutLegend"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- BOTTOM ROW -->
+      <div class="bottom-row">
+        <!-- TOP PRODUCTS -->
+        <div class="table-card">
+          <div class="table-hdr">
+            <span class="table-title">Top Products</span>
+            <a class="see-all" href="products.html">See all →</a>
+          </div>
+          <table class="prod-table">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Product</th>
+                <th>Qty Sold</th>
+                <th>Revenue</th>
+              </tr>
+            </thead>
+            <tbody id="topProdBody"></tbody>
+          </table>
+        </div>
+
+        <!-- RECENT SALES -->
+        <div class="recent-card">
+          <div class="recent-hdr">
+            <span class="table-title">Recent Sales</span>
+            <a class="see-all" href="reports.html">See all →</a>
+          </div>
+          <div id="recentSalesList"></div>
+        </div>
+      </div>
+
+    </div><!-- end dash-content -->
+  </div>
+</div>
+
+<script>
+(function(){
+  const $ = id => document.getElementById(id);
+
+  /* ── SIDEBAR ── */
+  function isMobile(){ return window.innerWidth < 768; }
+  $('menuBtn').addEventListener('click', () => {
+    const sb = $('sidebar');
+    if (isMobile()) {
+      sb.classList.toggle('open');
+      $('sidebarOverlay').classList.toggle('open', sb.classList.contains('open'));
+    } else {
+      if (window.innerWidth < 1024) sb.classList.toggle('open-desk');
+      else sb.classList.toggle('collapsed');
+    }
+  });
+  $('sidebarOverlay').addEventListener('click', () => {
+    $('sidebar').classList.remove('open');
+    $('sidebarOverlay').classList.remove('open');
+  });
+  $('logoutBtn').addEventListener('click', () => { if(confirm('Logout?')) window.location.href='login.html'; });
+
+  /* ── LIVE CLOCK & SHIFT DURATION ── */
+  const shiftStart = new Date(); shiftStart.setHours(8,0,0,0);
+  function updateClock(){
+    const now = new Date();
+    const diff = Math.max(0, now - shiftStart);
+    const h = Math.floor(diff/3600000);
+    const m = Math.floor((diff%3600000)/60000);
+    $('shiftDuration').textContent = h+'h '+m+'m';
+  }
+  updateClock(); setInterval(updateClock, 60000);
+
+  /* ── DATA ── */
+  const fmtLKR = n => 'LKR '+(+n).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});
+  const fmtK   = n => n>=1000 ? 'LKR '+(n/1000).toFixed(1)+'K' : fmtLKR(n);
+
+  const DATASETS = {
+    today: {
+      labels:['8am','9am','10am','11am','12pm','1pm','2pm','3pm'],
+      revenue:[1200,2100,1800,3200,4100,2700,3800,1550],
+      profit: [350,680,520,1050,1320,880,1180,480],
+      orders:24, totalRev:20450, totalProfit:6460,
+      revChange:'+12%', ordChange:'+5%', profChange:'+18%',
+      label:'Today, Apr 10 2026'
+    },
+    week: {
+      labels:['Mon','Tue','Wed','Thu','Fri','Sat','Sun'],
+      revenue:[18200,21500,19800,24600,31200,38400,22300],
+      profit: [5200,6400,5900,7600,9800,12100,6700],
+      orders:312, totalRev:176000, totalProfit:53700,
+      revChange:'+8%', ordChange:'+11%', profChange:'+14%',
+      label:'Apr 4 – Apr 10, 2026'
+    },
+    month: {
+      labels:['W1','W2','W3','W4'],
+      revenue:[98000,112000,87000,143000],
+      profit: [29000,34500,26000,44800],
+      orders:1240, totalRev:440000, totalProfit:134300,
+      revChange:'+22%', ordChange:'+17%', profChange:'+28%',
+      label:'April 2026'
+    }
+  };
+
+  const CATEGORIES = [
+    {name:'Food',     pct:38, color:'#2D6A4F'},
+    {name:'Drinks',   pct:26, color:'#5D8AA8'},
+    {name:'Snacks',   pct:18, color:'#7C3AED'},
+    {name:'Bakery',   pct:12, color:'#B45309'},
+    {name:'Other',    pct:6,  color:'#94A3B8'},
+  ];
+
+  const TOP_PRODUCTS = [
+    {name:'Chicken Rice',  qty:87, rev:104400},
+    {name:'Iced Coffee',   qty:74, rev:44400},
+    {name:'Cheese Pizza',  qty:52, rev:62400},
+    {name:'Fruit Juice',   qty:49, rev:24500},
+    {name:'French Fries',  qty:45, rev:24750},
+  ];
+
+  const RECENT_SALES = [
+    {id:'#1042', time:'2:48 PM', items:'Chicken Rice × 2, Iced Coffee', amt:2250, method:'cash'},
+    {id:'#1041', time:'2:31 PM', items:'Pizza × 1, Fries × 2',          amt:2300, method:'bank'},
+    {id:'#1040', time:'2:10 PM', items:'Fruit Juice × 3',                amt:1500, method:'cash'},
+    {id:'#1039', time:'1:58 PM', items:'Bread Roll × 5, Tea',            amt:1050, method:'cash'},
+    {id:'#1038', time:'1:42 PM', items:'Ice Cream × 2, Cookies × 1',     amt:1100, method:'bank'},
+  ];
+
+  let currentRange = 'week';
+
+  /* ── DATE RANGE SELECTOR ── */
+  window.setRange = function(btn){
+    document.querySelectorAll('.date-tab').forEach(t=>t.classList.remove('active'));
+    btn.classList.add('active');
+    currentRange = btn.dataset.range;
+    $('customRange').style.display = currentRange==='custom' ? 'flex' : 'none';
+    if(currentRange !== 'custom') renderDashboard(currentRange);
+  };
+  window.applyCustom = function(){
+    const f = $('dateFrom').value, t = $('dateTo').value;
+    if(!f||!t){alert('Select both dates');return;}
+    $('dateRangeLabel').textContent = f+' → '+t;
+    renderDashboard('week'); // use week data as placeholder for custom
+  };
+
+  /* ── RENDER DASHBOARD ── */
+  function renderDashboard(range){
+    const d = DATASETS[range] || DATASETS.week;
+    $('dateRangeLabel').textContent = d.label;
+    $('chartSubLabel').textContent = range==='today'?'Hourly · Today': range==='month'?'Weekly · This Month':'Daily · This Week';
+
+    // Stat cards
+    $('statRev').textContent    = fmtLKR(d.totalRev);
+    $('statOrders').textContent = d.orders.toLocaleString();
+    $('statProfit').textContent = fmtLKR(d.totalProfit);
+    $('statAvg').textContent    = fmtLKR(Math.round(d.totalRev/d.orders));
+    $('statRevBadge').textContent    = '↑ '+d.revChange;
+    $('statOrdersBadge').textContent = '↑ '+d.ordChange;
+    $('statProfitBadge').textContent = '↑ '+d.profChange;
+
+    drawLineChart(d);
+    drawDonut();
+    renderTopProducts();
+    renderRecentSales();
+  }
+
+  /* ── LINE CHART ── */
+  function drawLineChart(d){
+    const W=520, H=160, PL=42, PR=12, PT=10, PB=28;
+    const gW=W-PL-PR, gH=H-PT-PB;
+    const maxVal = Math.max(...d.revenue)*1.12;
+    const xs = d.labels.map((_,i)=>PL + i*(gW/(d.labels.length-1)));
+    const yr = v => PT + gH - (v/maxVal)*gH;
+
+    let svg = '';
+    // Grid lines
+    const ticks = [0,0.25,0.5,0.75,1];
+    ticks.forEach(t=>{
+      const y = PT + gH*(1-t);
+      svg += `<line class="chart-grid" x1="${PL}" y1="${y}" x2="${W-PR}" y2="${y}"/>`;
+      if(t>0) svg += `<text class="chart-axis" x="${PL-5}" y="${y+3}" text-anchor="end">${fmtK(maxVal*t/1.12)}</text>`;
+    });
+    // X labels
+    d.labels.forEach((lbl,i)=>{
+      svg += `<text class="chart-axis" x="${xs[i]}" y="${H-4}" text-anchor="middle">${lbl}</text>`;
+    });
+
+    // Revenue area + line
+    const revPts = xs.map((x,i)=>`${x},${yr(d.revenue[i])}`).join(' ');
+    const revArea = `${PL},${PT+gH} `+xs.map((x,i)=>`${x},${yr(d.revenue[i])}`).join(' ')+` ${W-PR},${PT+gH}`;
+    svg += `<polygon class="chart-area-rev" points="${revArea}"/>`;
+    svg += `<polyline class="chart-line-rev" points="${revPts}"/>`;
+    // Revenue dots
+    xs.forEach((x,i)=>{ svg+=`<circle cx="${x}" cy="${yr(d.revenue[i])}" r="3.5" class="chart-dot" stroke="#2D6A4F"/>`; });
+
+    // Profit area + line
+    const profPts = xs.map((x,i)=>`${x},${yr(d.profit[i])}`).join(' ');
+    const profArea = `${PL},${PT+gH} `+xs.map((x,i)=>`${x},${yr(d.profit[i])}`).join(' ')+` ${W-PR},${PT+gH}`;
+    svg += `<polygon class="chart-area-prof" points="${profArea}"/>`;
+    svg += `<polyline class="chart-line-prof" points="${profPts}"/>`;
+    xs.forEach((x,i)=>{ svg+=`<circle cx="${x}" cy="${yr(d.profit[i])}" r="3" class="chart-dot" stroke="#7C3AED"/>`; });
+
+    $('lineChartSVG').innerHTML = svg;
+  }
+
+  /* ── DONUT CHART ── */
+  function drawDonut(){
+    const cx=80, cy=80, r=58, iR=40;
+    let startAngle=-Math.PI/2, svg='';
+    const total = CATEGORIES.reduce((s,c)=>s+c.pct,0);
+    CATEGORIES.forEach(cat=>{
+      const angle = (cat.pct/total)*Math.PI*2;
+      const x1=cx+r*Math.cos(startAngle), y1=cy+r*Math.sin(startAngle);
+      const x2=cx+r*Math.cos(startAngle+angle), y2=cy+r*Math.sin(startAngle+angle);
+      const ix1=cx+iR*Math.cos(startAngle), iy1=cy+iR*Math.sin(startAngle);
+      const ix2=cx+iR*Math.cos(startAngle+angle), iy2=cy+iR*Math.sin(startAngle+angle);
+      const large=angle>Math.PI?1:0;
+      svg += `<path d="M${x1} ${y1} A${r} ${r} 0 ${large} 1 ${x2} ${y2} L${ix2} ${iy2} A${iR} ${iR} 0 ${large} 0 ${ix1} ${iy1} Z" fill="${cat.color}" opacity="0.88"/>`;
+      startAngle += angle;
+    });
+    svg += `<text class="donut-center-label" x="${cx}" y="${cy-6}">SALES</text>`;
+    svg += `<text class="donut-center-val" x="${cx}" y="${cy+12}">LKR 176K</text>`;
+    $('donutSVG').innerHTML = svg;
+
+    $('donutLegend').innerHTML = CATEGORIES.map(c=>`
+      <div class="donut-leg-row">
+        <div class="donut-leg-dot" style="background:${c.color};"></div>
+        <span class="donut-leg-name">${c.name}</span>
+        <span class="donut-leg-pct">${c.pct}%</span>
+        <span class="donut-leg-amt">${fmtK(176000*c.pct/100)}</span>
+      </div>`).join('');
+  }
+
+  /* ── TOP PRODUCTS TABLE ── */
+  function renderTopProducts(){
+    const rankClass = i => i===0?'gold':i===1?'silver':i===2?'bronze':'';
+    $('topProdBody').innerHTML = TOP_PRODUCTS.map((p,i)=>`
+      <tr>
+        <td><span class="prod-rank ${rankClass(i)}">${i+1}</span></td>
+        <td class="prod-name-cell">${p.name}</td>
+        <td class="prod-qty-cell">${p.qty}</td>
+        <td>${fmtLKR(p.rev)}</td>
+      </tr>`).join('');
+  }
+
+  /* ── RECENT SALES ── */
+  function renderRecentSales(){
+    $('recentSalesList').innerHTML = RECENT_SALES.map(s=>`
+      <div class="sale-item">
+        <div class="sale-icon ${s.method}">
+          <span class="icon sm">
+            ${s.method==='cash'
+              ? '<svg viewBox="0 0 24 24"><rect x="2" y="6" width="20" height="12" rx="2"/><circle cx="12" cy="12" r="2"/><path d="M6 12h.01M18 12h.01"/></svg>'
+              : '<svg viewBox="0 0 24 24"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>'}
+          </span>
+        </div>
+        <div class="sale-info">
+          <div class="sale-id">${s.id}</div>
+          <div class="sale-items-txt">${s.items}</div>
+        </div>
+        <div class="sale-amt-col">
+          <div class="sale-amount">${fmtLKR(s.amt)}</div>
+          <div class="sale-method">${s.time} · ${s.method==='cash'?'Cash':'Bank'}</div>
+        </div>
+      </div>`).join('');
+  }
+
+  /* ── INIT ── */
+  renderDashboard('week');
+
+  // Set default date inputs
+  const today = new Date().toISOString().split('T')[0];
+  const week  = new Date(Date.now()-6*86400000).toISOString().split('T')[0];
+  $('dateFrom').value = week;
+  $('dateTo').value   = today;
+
+})();
+</script>
+</body>
+</html>
