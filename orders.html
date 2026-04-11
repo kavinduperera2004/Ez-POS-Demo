@@ -1,0 +1,639 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>QuickPOS Pro – Orders</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+:root{
+  --primary:#5D8AA8;--primary-dark:#4a7795;--primary-bg:rgba(93,138,168,0.08);
+  --success:#2D6A4F;--success-bg:#f0faf4;
+  --danger:#DC2626;--danger-bg:#fef2f2;
+  --warning:#B45309;--warning-bg:#fffbeb;
+  --bg:#F0F4F8;--white:#fff;--border:#E2E8F0;
+  --text:#2D3748;--muted:#718096;
+  --shadow:0 2px 8px rgba(0,0,0,0.07);--shadow-lg:0 8px 24px rgba(0,0,0,0.10);
+  --radius:12px;--sidebar-w:220px;
+}
+html,body{height:100%;font-family:system-ui,-apple-system,sans-serif;background:var(--bg);overflow:hidden;}
+.icon{display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;}
+.icon svg{width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;}
+.icon.sm svg{width:14px;height:14px;}
+.icon.lg svg{width:22px;height:22px;}
+.icon.xl svg{width:32px;height:32px;}
+
+/* ── LAYOUT ── */
+.app{display:flex;height:100vh;overflow:hidden;}
+
+/* ── SIDEBAR ── */
+.sidebar{width:var(--sidebar-w);min-width:var(--sidebar-w);height:100%;background:var(--white);border-right:1px solid var(--border);display:flex;flex-direction:column;z-index:50;transition:transform 0.28s cubic-bezier(0.4,0,0.2,1);}
+.sidebar-header{height:60px;padding:0 20px;display:flex;align-items:center;gap:10px;border-bottom:1px solid var(--border);flex-shrink:0;}
+.sidebar-logo{font-size:16px;font-weight:800;color:var(--primary);}
+.nav-section{flex:1;padding:8px 0;overflow-y:auto;}
+.nav-item{display:flex;align-items:center;gap:12px;padding:12px 20px;color:var(--muted);text-decoration:none;font-size:14px;font-weight:500;border:none;background:none;width:100%;text-align:left;cursor:pointer;transition:background 0.15s,color 0.15s;border-right:3px solid transparent;}
+.nav-item:hover{background:var(--primary-bg);color:var(--primary);}
+.nav-item.active{background:var(--primary-bg);color:var(--primary);border-right-color:var(--primary);}
+.nav-item .icon{color:inherit;}
+
+/* ── MAIN ── */
+.main-area{flex:1;display:flex;flex-direction:column;overflow:hidden;min-width:0;}
+.topbar{height:60px;background:var(--white);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 20px;gap:14px;flex-shrink:0;z-index:40;}
+.topbar-menu{background:none;border:none;cursor:pointer;color:var(--muted);padding:6px;border-radius:8px;display:flex;transition:background 0.15s;}
+.topbar-menu:hover{background:var(--bg);}
+.topbar-title{font-size:18px;font-weight:700;color:var(--text);flex:1;}
+.topbar-shift{font-size:13px;color:var(--muted);}
+.topbar-avatar{width:36px;height:36px;border-radius:50%;background:var(--primary);color:#fff;font-size:13px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+
+/* ── PAGE BODY ── */
+.page-body{flex:1;display:flex;overflow:hidden;}
+.panel-left{flex:1;min-width:0;display:flex;flex-direction:column;overflow:hidden;}
+
+/* ── TOOLBAR ── */
+.toolbar{height:56px;background:var(--white);border-bottom:1px solid var(--border);padding:0 16px;display:flex;align-items:center;gap:10px;flex-shrink:0;}
+.filter-tabs{display:flex;background:var(--bg);border-radius:10px;padding:3px;gap:2px;}
+.ftab{padding:6px 13px;border-radius:8px;border:none;background:none;font-size:13px;font-weight:600;color:var(--muted);cursor:pointer;transition:all 0.15s;display:flex;align-items:center;gap:5px;white-space:nowrap;}
+.ftab.active{background:var(--white);color:var(--primary);box-shadow:var(--shadow);}
+.fbadge{font-size:10px;font-weight:700;min-width:16px;height:16px;border-radius:8px;background:var(--primary);color:#fff;display:inline-flex;align-items:center;justify-content:center;padding:0 4px;}
+.ftab[data-f="pending"] .fbadge{background:#C2410C;}
+.ftab[data-f="done"] .fbadge{background:var(--muted);}
+.tb-right{margin-left:auto;display:flex;gap:8px;}
+.qr-btn{display:flex;align-items:center;gap:6px;padding:8px 14px;background:var(--primary);color:#fff;border:none;border-radius:10px;font-size:13px;font-weight:700;cursor:pointer;transition:background 0.15s;}
+.qr-btn:hover{background:var(--primary-dark);}
+.sim-btn{padding:8px 10px;background:var(--white);border:1.5px solid var(--border);border-radius:10px;color:var(--muted);cursor:pointer;display:flex;align-items:center;transition:all 0.15s;}
+.sim-btn:hover{border-color:var(--primary);color:var(--primary);}
+
+/* ── ORDERS LIST ── */
+.orders-scroll{flex:1;overflow-y:auto;padding:14px 16px;display:flex;flex-direction:column;gap:10px;}
+.orders-scroll::-webkit-scrollbar{width:5px;}
+.orders-scroll::-webkit-scrollbar-thumb{background:var(--border);border-radius:4px;}
+
+.ocard{background:var(--white);border:1.5px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow);overflow:hidden;transition:border-color 0.18s,box-shadow 0.18s;}
+.ocard:hover{border-color:var(--primary);box-shadow:var(--shadow-lg);}
+.ocard.is-new{border-color:rgba(93,138,168,0.45);animation:newpulse 2s ease-in-out 2;}
+@keyframes newpulse{0%,100%{box-shadow:var(--shadow);}50%{box-shadow:0 0 0 4px rgba(93,138,168,0.15),var(--shadow-lg);}}
+
+.ocard-hdr{padding:11px 14px;display:flex;align-items:center;gap:8px;border-bottom:1px solid var(--border);background:var(--bg);}
+.ocard-num{font-size:14px;font-weight:800;color:var(--text);}
+.ocard-time{font-size:12px;color:var(--muted);flex:1;}
+.status-pill{font-size:10px;font-weight:700;padding:3px 9px;border-radius:20px;display:inline-flex;align-items:center;gap:4px;}
+.status-pill.pending{background:#fff7ed;color:#C2410C;}
+.status-pill.done{background:var(--success-bg);color:var(--success);}
+.sdot{width:5px;height:5px;border-radius:50%;background:currentColor;flex-shrink:0;}
+
+.ocard-body{padding:12px 14px;}
+.ocard-cust{display:flex;align-items:center;gap:8px;margin-bottom:10px;}
+.cav{width:30px;height:30px;border-radius:50%;background:var(--primary-bg);color:var(--primary);font-size:12px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.cnm{font-size:13px;font-weight:700;color:var(--text);}
+.ctbl{font-size:11px;color:var(--muted);margin-left:auto;background:var(--bg);padding:3px 9px;border-radius:6px;font-weight:600;}
+
+.ocard-items{display:flex;flex-direction:column;gap:5px;margin-bottom:10px;}
+.oi{display:flex;align-items:center;gap:8px;}
+.oiq{width:24px;height:24px;border-radius:7px;background:var(--primary-bg);color:var(--primary);font-size:11px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.oinm{flex:1;font-size:13px;color:var(--text);}
+.oipr{font-size:12px;font-weight:600;color:var(--muted);}
+
+.onote{display:flex;gap:6px;align-items:flex-start;background:var(--warning-bg);border-radius:8px;padding:7px 10px;margin-bottom:10px;font-size:12px;color:var(--warning);font-weight:600;line-height:1.4;}
+
+.ocard-ftr{display:flex;align-items:center;justify-content:space-between;padding-top:10px;border-top:1px solid var(--border);}
+.ototal{font-size:15px;font-weight:800;color:var(--success);}
+.oactions{display:flex;gap:7px;align-items:center;}
+.abtn{padding:8px 14px;border-radius:9px;border:none;font-size:13px;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:5px;transition:all 0.15s;}
+.abtn:active{transform:scale(0.97);}
+.abtn.view{background:var(--bg);color:var(--text);border:1.5px solid var(--border);}
+.abtn.view:hover{border-color:var(--primary);color:var(--primary);}
+.abtn.process{background:var(--primary);color:#fff;}
+.abtn.process:hover{background:var(--primary-dark);}
+.done-tag{font-size:12px;color:var(--success);font-weight:700;display:flex;align-items:center;gap:4px;}
+
+.empty-state{display:flex;flex-direction:column;align-items:center;justify-content:center;flex:1;gap:12px;color:var(--muted);text-align:center;padding:60px 20px;}
+
+/* ── QR PANEL ── */
+.qr-panel{width:268px;min-width:268px;background:var(--white);border-left:1px solid var(--border);display:flex;flex-direction:column;overflow-y:auto;}
+.qr-panel::-webkit-scrollbar{width:5px;}
+.qr-panel::-webkit-scrollbar-thumb{background:var(--border);border-radius:4px;}
+.qr-phdr{padding:14px 18px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:8px;}
+.qr-phdr-title{font-size:14px;font-weight:700;color:var(--text);flex:1;}
+.live-dot{width:8px;height:8px;border-radius:50%;background:#22c55e;flex-shrink:0;animation:blink 1.5s ease-in-out infinite;}
+@keyframes blink{0%,100%{opacity:1;}50%{opacity:0.25;}}
+.qr-pbody{padding:18px;display:flex;flex-direction:column;align-items:center;gap:14px;}
+.qr-hint{font-size:12px;color:var(--muted);text-align:center;line-height:1.6;}
+.qr-frame{background:#fff;border:2px solid var(--border);border-radius:14px;padding:14px;box-shadow:var(--shadow);}
+.qr-shop{font-size:15px;font-weight:800;color:var(--text);text-align:center;}
+.qr-url{font-size:11px;color:var(--primary);font-weight:600;background:var(--primary-bg);padding:7px 12px;border-radius:8px;width:100%;text-align:center;word-break:break-all;}
+.qbrow{display:flex;gap:8px;width:100%;}
+.qbtn{flex:1;padding:9px 0;border-radius:9px;border:none;font-size:12px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:5px;transition:all 0.15s;}
+.qbtn.print{background:var(--primary);color:#fff;}
+.qbtn.print:hover{background:var(--primary-dark);}
+.qbtn.copy{background:var(--bg);color:var(--text);border:1.5px solid var(--border);}
+.qbtn.copy:hover{border-color:var(--primary);color:var(--primary);}
+.qr-div{width:100%;height:1px;background:var(--border);}
+.qr-stlbl{font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;align-self:flex-start;}
+.qsr{width:100%;display:flex;justify-content:space-between;align-items:center;}
+.qsk{font-size:13px;color:var(--muted);}
+.qsv{font-size:13px;font-weight:700;color:var(--text);}
+.qsv.g{color:var(--success);}
+
+/* ── MODALS ── */
+.modal-bg{position:fixed;inset:0;background:rgba(0,0,0,0.55);z-index:500;display:flex;align-items:flex-end;justify-content:center;opacity:0;visibility:hidden;transition:opacity 0.22s;}
+.modal-bg.active{opacity:1;visibility:visible;}
+.modal-box{background:var(--white);border-radius:22px 22px 0 0;padding:24px 20px 36px;width:100%;max-width:460px;transform:translateY(40px);transition:transform 0.22s;max-height:92vh;overflow-y:auto;}
+.modal-bg.active .modal-box{transform:translateY(0);}
+@media(min-width:620px){.modal-bg{align-items:center;}.modal-box{border-radius:18px;}}
+.modal-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;}
+.modal-ttl{font-size:18px;font-weight:800;color:var(--text);}
+.modal-cls{background:none;border:none;cursor:pointer;color:var(--muted);padding:4px;border-radius:8px;}
+.modal-cls:hover{background:var(--bg);}
+
+/* view modal */
+.vm-meta{display:flex;align-items:center;gap:10px;background:var(--bg);border-radius:10px;padding:10px 14px;margin-bottom:14px;}
+.vm-av{width:36px;height:36px;border-radius:50%;background:var(--primary-bg);color:var(--primary);font-size:14px;font-weight:800;display:flex;align-items:center;justify-content:center;}
+.vm-nm{font-size:14px;font-weight:700;color:var(--text);}
+.vm-tm{font-size:12px;color:var(--muted);}
+.vm-tbl{margin-left:auto;background:var(--white);border-radius:8px;padding:4px 10px;font-size:12px;font-weight:700;color:var(--text);}
+.vm-items{display:flex;flex-direction:column;gap:8px;margin-bottom:14px;}
+.vm-item{display:flex;align-items:center;gap:10px;padding:10px 12px;background:var(--bg);border-radius:9px;}
+.vm-iq{width:28px;height:28px;border-radius:7px;background:var(--primary);color:#fff;font-size:13px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.vm-inm{flex:1;font-size:13px;font-weight:600;color:var(--text);}
+.vm-ipr{font-size:13px;font-weight:700;color:var(--success);}
+.vm-note{display:flex;gap:7px;align-items:flex-start;background:var(--warning-bg);border-radius:9px;padding:9px 12px;font-size:12px;color:var(--warning);font-weight:600;margin-bottom:14px;line-height:1.5;}
+.vm-total{display:flex;justify-content:space-between;align-items:center;padding:13px 16px;background:var(--success-bg);border-radius:10px;margin-bottom:18px;}
+.vm-tlbl{font-size:14px;font-weight:700;color:var(--text);}
+.vm-tval{font-size:24px;font-weight:800;color:var(--success);}
+.vm-btns{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.mbtn{padding:15px;border-radius:50px;border:none;font-size:15px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:7px;transition:opacity 0.15s,transform 0.1s;}
+.mbtn:hover{opacity:0.9;transform:translateY(-1px);}
+.mbtn.close{background:var(--bg);color:var(--text);border:1.5px solid var(--border);}
+.mbtn.go{background:var(--primary);color:#fff;}
+
+/* ── TOAST ── */
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(80px);background:var(--text);color:#fff;padding:12px 22px;border-radius:14px;font-size:14px;font-weight:600;z-index:999;transition:transform 0.3s cubic-bezier(0.34,1.56,0.64,1);white-space:nowrap;display:flex;align-items:center;gap:8px;box-shadow:var(--shadow-lg);pointer-events:none;}
+.toast.show{transform:translateX(-50%) translateY(0);}
+
+/* ── RESPONSIVE ── */
+@media(max-width:767px){
+  .sidebar{position:fixed;top:0;left:0;height:100%;transform:translateX(-100%);z-index:400;box-shadow:4px 0 20px rgba(0,0,0,0.15);}
+  .sidebar.open{transform:translateX(0);}
+  .sidebar-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.4);z-index:300;display:none;}
+  .sidebar-overlay.open{display:block;}
+  .topbar-shift{display:none;}
+  .qr-panel{display:none;}
+}
+@media(min-width:768px){
+  .topbar-shift{display:block;}
+  .sidebar-overlay{display:none !important;}
+  .qr-btn{display:none;}
+}
+@media(min-width:768px) and (max-width:1079px){
+  .sidebar{width:64px;min-width:64px;}
+  .sidebar-logo{display:none;}
+  .nav-item span:last-child:not(.icon){display:none;}
+  .nav-item{justify-content:center;padding:14px 0;}
+  .sidebar.open-desk{width:var(--sidebar-w);min-width:var(--sidebar-w);}
+  .sidebar.open-desk .sidebar-logo{display:block;}
+  .sidebar.open-desk .nav-item span:last-child:not(.icon){display:inline;}
+  .sidebar.open-desk .nav-item{justify-content:flex-start;padding:12px 20px;}
+  .qr-panel{display:none;}
+  .qr-btn{display:flex !important;}
+}
+@media(max-width:767px){.qr-btn{display:flex !important;}}
+.sidebar.collapsed{width:64px;min-width:64px;}
+.sidebar.collapsed .sidebar-logo{display:none;}
+.sidebar.collapsed .nav-item span:last-child:not(.icon){display:none;}
+.sidebar.collapsed .nav-item{justify-content:center;padding:14px 0;}
+
+@media print{.app{display:none!important;}.print-area{display:flex!important;}}
+.print-area{display:none;flex-direction:column;align-items:center;padding:48px 20px;gap:16px;}
+.print-shop{font-size:24px;font-weight:800;}
+.print-sub{font-size:14px;color:#555;text-align:center;}
+.print-url{font-size:13px;color:#333;margin-top:6px;}
+</style>
+</head>
+<body>
+
+<div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+<div class="app">
+  <nav class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <span class="icon lg" style="color:var(--primary);"><svg viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg></span>
+      <div class="sidebar-logo">QuickPOS</div>
+    </div>
+    <div class="nav-section">
+      <a href="dashboard.html" class="nav-item">
+        <span class="icon"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg></span>
+        <span>Dashboard</span>
+      </a>
+      <a href="sales.html" class="nav-item">
+        <span class="icon"><svg viewBox="0 0 24 24"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg></span>
+        <span>Make a Sale</span>
+      </a>
+      <a href="orders.html" class="nav-item active">
+        <span class="icon"><svg viewBox="0 0 24 24"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="2"/><path d="M9 12h6M9 16h4"/></svg></span>
+        <span>Orders</span>
+      </a>
+      <a href="products.html" class="nav-item">
+        <span class="icon"><svg viewBox="0 0 24 24"><path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/></svg></span>
+        <span>Products</span>
+      </a>
+      <a href="categories.html" class="nav-item">
+        <span class="icon"><svg viewBox="0 0 24 24"><path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83 0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg></span>
+        <span>Category</span>
+      </a>
+      <a href="reports.html" class="nav-item">
+        <span class="icon"><svg viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg></span>
+        <span>Sales</span>
+      </a>
+      <a href="users.html" class="nav-item">
+        <span class="icon"><svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg></span>
+        <span>Users</span>
+      </a>
+      <a href="settings.html" class="nav-item">
+        <span class="icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg></span>
+        <span>Settings</span>
+      </a>
+      <button class="nav-item" id="logoutBtn">
+        <span class="icon"><svg viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg></span>
+        <span>Logout</span>
+      </button>
+    </div>
+  </nav>
+
+  <div class="main-area">
+    <div class="topbar">
+      <button class="topbar-menu" id="menuBtn">
+        <span class="icon lg"><svg viewBox="0 0 24 24"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg></span>
+      </button>
+      <div class="topbar-title">Orders</div>
+      <div class="topbar-shift">Shift: 08:00 – 16:00</div>
+      <div class="topbar-avatar">OP</div>
+    </div>
+
+    <div class="page-body">
+      <div class="panel-left">
+        <!-- TOOLBAR -->
+        <div class="toolbar">
+          <div class="filter-tabs">
+            <button class="ftab active" data-f="all">All <span class="fbadge" id="cAll">0</span></button>
+            <button class="ftab" data-f="pending">Pending <span class="fbadge" id="cPending" style="background:#C2410C;">0</span></button>
+            <button class="ftab" data-f="done">Done <span class="fbadge" id="cDone" style="background:var(--muted);">0</span></button>
+          </div>
+          <div class="tb-right">
+            <button class="qr-btn" id="qrMobBtn">
+              <span class="icon sm"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><path d="M14 14h3v3h-3zM17 17h3v3h-3zM14 17h.01M17 14h.01"/></svg></span>
+              QR Code
+            </button>
+            <!-- + button to simulate a new order for demo purposes -->
+            <button class="sim-btn" title="Simulate new order (demo)" onclick="simulateOrder()">
+              <span class="icon sm"><svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></span>
+            </button>
+          </div>
+        </div>
+
+        <div class="orders-scroll" id="ordersScroll"></div>
+      </div>
+
+      <!-- QR SIDE PANEL (desktop 1080px+) -->
+      <div class="qr-panel">
+        <div class="qr-phdr">
+          <span class="icon sm" style="color:var(--primary);"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><path d="M14 14h3v3h-3zM17 17h3v3h-3zM14 17h.01M17 14h.01"/></svg></span>
+          <span class="qr-phdr-title">Shop QR Code</span>
+          <div class="live-dot" title="Orders live"></div>
+        </div>
+        <div class="qr-pbody">
+          <p class="qr-hint">Print and place this in your shop. Customers scan → see menu → place an order directly.</p>
+          <div class="qr-frame"><svg id="qrDesk" viewBox="0 0 180 180" width="168" height="168"></svg></div>
+          <div class="qr-shop">Sithara's Café</div>
+          <div class="qr-url">quickpos.lk/order/sithara-cafe</div>
+          <div class="qbrow">
+            <button class="qbtn print" onclick="printQR()">
+              <span class="icon sm"><svg viewBox="0 0 24 24"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg></span>
+              Print
+            </button>
+            <button class="qbtn copy" id="cpDesk" onclick="copyLink('cpDesk')">
+              <span class="icon sm"><svg viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg></span>
+              Copy
+            </button>
+          </div>
+          <div class="qr-div"></div>
+          <div class="qr-stlbl">Today via QR</div>
+          <div class="qsr"><span class="qsk">Orders received</span><span class="qsv" id="qrCount">18</span></div>
+          <div class="qsr"><span class="qsk">Revenue</span><span class="qsv g">LKR 24,350</span></div>
+          <div class="qsr"><span class="qsk">Avg. items / order</span><span class="qsv">2.4</span></div>
+          <div class="qsr"><span class="qsk">QR scans today</span><span class="qsv">47</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- VIEW ORDER MODAL -->
+<div class="modal-bg" id="viewModal">
+  <div class="modal-box">
+    <div class="modal-hdr">
+      <span class="modal-ttl" id="vmTitle">Order #—</span>
+      <button class="modal-cls" onclick="closeM('viewModal')"><span class="icon"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></span></button>
+    </div>
+    <div class="vm-meta">
+      <div class="vm-av" id="vmAv">?</div>
+      <div><div class="vm-nm" id="vmNm">—</div><div class="vm-tm" id="vmTm">—</div></div>
+      <div class="vm-tbl" id="vmTbl">—</div>
+    </div>
+    <div class="vm-items" id="vmItems"></div>
+    <div class="vm-note" id="vmNote" style="display:none;">
+      <span class="icon sm" style="flex-shrink:0;color:var(--warning);"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg></span>
+      <span id="vmNoteText"></span>
+    </div>
+    <div class="vm-total">
+      <span class="vm-tlbl">Order Total</span>
+      <span class="vm-tval" id="vmTotal">LKR 0.00</span>
+    </div>
+    <div class="vm-btns" id="vmBtns"></div>
+  </div>
+</div>
+
+<!-- QR MODAL (mobile/tablet) -->
+<div class="modal-bg" id="qrModal">
+  <div class="modal-box">
+    <div class="modal-hdr">
+      <span class="modal-ttl">Shop QR Code</span>
+      <button class="modal-cls" onclick="closeM('qrModal')"><span class="icon"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></span></button>
+    </div>
+    <div style="display:flex;flex-direction:column;align-items:center;gap:14px;">
+      <p style="font-size:13px;color:var(--muted);text-align:center;line-height:1.6;">Print and place in your shop. Customers scan to view your menu and place an order.</p>
+      <div class="qr-frame"><svg id="qrMob" viewBox="0 0 180 180" width="190" height="190"></svg></div>
+      <div style="font-size:15px;font-weight:800;color:var(--text);">Sithara's Café</div>
+      <div class="qr-url" style="max-width:280px;">quickpos.lk/order/sithara-cafe</div>
+      <div class="qbrow" style="max-width:280px;">
+        <button class="qbtn print" onclick="printQR()">
+          <span class="icon sm"><svg viewBox="0 0 24 24"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg></span>
+          Print
+        </button>
+        <button class="qbtn copy" id="cpMob" onclick="copyLink('cpMob')">
+          <span class="icon sm"><svg viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg></span>
+          Copy Link
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"><span id="toastMsg"></span></div>
+
+<!-- PRINT AREA -->
+<div class="print-area" id="printArea">
+  <div class="print-shop">Sithara's Café</div>
+  <div class="print-sub">Scan to view our menu and place your order</div>
+  <svg id="qrPrint" viewBox="0 0 180 180" width="260" height="260"></svg>
+  <div class="print-url">quickpos.lk/order/sithara-cafe</div>
+</div>
+
+<script>
+(function(){
+  const $  = id => document.getElementById(id);
+  const fmtLKR = n => 'LKR '+(+n).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});
+
+  /* ── SIDEBAR ── */
+  function isMob(){ return window.innerWidth < 768; }
+  $('menuBtn').addEventListener('click',()=>{
+    const sb=$('sidebar');
+    if(isMob()){ sb.classList.toggle('open'); $('sidebarOverlay').classList.toggle('open',sb.classList.contains('open')); }
+    else if(window.innerWidth<1080) sb.classList.toggle('open-desk');
+    else sb.classList.toggle('collapsed');
+  });
+  $('sidebarOverlay').addEventListener('click',()=>{ $('sidebar').classList.remove('open'); $('sidebarOverlay').classList.remove('open'); });
+  $('logoutBtn').addEventListener('click',()=>{ if(confirm('Logout?')) window.location.href='login.html'; });
+
+  /* ── QR DRAW ── */
+  function drawQR(el){
+    const p=[
+      [1,1,1,1,1,1,1,0,0,1,0,1,0,0,1,1,1,1,1,1,1],
+      [1,0,0,0,0,0,1,0,1,1,0,0,1,0,1,0,0,0,0,0,1],
+      [1,0,1,1,1,0,1,0,0,0,1,1,0,0,1,0,1,1,1,0,1],
+      [1,0,1,1,1,0,1,0,1,0,1,0,1,0,1,0,1,1,1,0,1],
+      [1,0,1,1,1,0,1,0,0,1,0,0,0,0,1,0,1,1,1,0,1],
+      [1,0,0,0,0,0,1,0,1,0,1,1,0,0,1,0,0,0,0,0,1],
+      [1,1,1,1,1,1,1,0,1,0,1,0,1,0,1,1,1,1,1,1,1],
+      [0,0,0,0,0,0,0,0,1,1,0,0,1,0,0,0,0,0,0,0,0],
+      [1,0,1,1,0,1,1,1,0,0,1,0,0,1,0,0,1,1,0,0,1],
+      [0,1,0,1,1,0,0,0,1,0,0,1,1,0,0,1,0,0,1,1,0],
+      [1,0,0,1,0,0,1,0,0,1,1,0,1,0,0,0,1,0,0,1,1],
+      [0,1,1,0,1,1,0,1,0,0,1,1,0,1,0,1,0,1,1,0,0],
+      [1,0,1,0,0,1,1,0,1,0,0,0,1,0,1,0,1,0,1,0,1],
+      [0,0,0,0,0,0,0,0,1,1,1,0,0,1,0,0,1,1,0,0,1],
+      [1,1,1,1,1,1,1,0,0,0,1,1,1,0,0,1,0,0,1,0,0],
+      [1,0,0,0,0,0,1,0,1,0,0,1,0,1,1,0,1,0,0,1,0],
+      [1,0,1,1,1,0,1,0,0,1,1,0,1,0,0,1,0,1,1,0,1],
+      [1,0,1,1,1,0,1,0,1,0,0,1,0,0,1,0,0,1,0,0,1],
+      [1,0,1,1,1,0,1,0,0,1,1,0,1,1,0,0,1,0,1,1,0],
+      [1,0,0,0,0,0,1,0,1,0,0,0,0,1,1,0,0,1,0,0,1],
+      [1,1,1,1,1,1,1,0,0,1,0,1,1,0,0,1,0,0,1,0,1],
+    ];
+    const N=p.length,cs=Math.floor(180/N),pad=Math.floor((180-cs*N)/2);
+    let h=`<rect width="180" height="180" fill="#fff"/>`;
+    for(let r=0;r<N;r++) for(let c=0;c<N;c++) if(p[r][c]) h+=`<rect x="${pad+c*cs}" y="${pad+r*cs}" width="${cs}" height="${cs}" fill="#1a1a1a" rx="1"/>`;
+    el.innerHTML=h;
+  }
+  ['qrDesk','qrMob','qrPrint'].forEach(id=>{ const el=$(id); if(el) drawQR(el); });
+
+  /* ── ORDERS DATA ── */
+  let orders = [
+    { id:1043, time:'3:12 PM', customer:'Kamal S.', table:'Table 3',
+      items:[{name:'Chicken Rice',qty:2,price:1200},{name:'Iced Coffee',qty:1,price:600}],
+      note:'Extra spicy please', status:'pending', isNew:true },
+    { id:1042, time:'3:08 PM', customer:'Nimal P.', table:'Table 1',
+      items:[{name:'Cheese Pizza',qty:1,price:1200},{name:'French Fries',qty:2,price:550},{name:'Fruit Juice',qty:1,price:500}],
+      note:'', status:'pending', isNew:true },
+    { id:1041, time:'2:40 PM', customer:'Priya M.', table:'Table 5',
+      items:[{name:'Ice Cream',qty:2,price:400},{name:'Cookies',qty:1,price:300}],
+      note:'No nuts please', status:'pending', isNew:false },
+    { id:1040, time:'2:20 PM', customer:'Suresh R.', table:'Counter',
+      items:[{name:'Bread Roll',qty:3,price:150},{name:'Tea',qty:2,price:200}],
+      note:'', status:'done', isNew:false },
+  ];
+  let nextId=1044, currentFilter='all', activeId=null;
+
+  /* ── FILTER TABS ── */
+  document.querySelectorAll('.ftab').forEach(btn=>{
+    btn.addEventListener('click',()=>{
+      document.querySelectorAll('.ftab').forEach(b=>b.classList.remove('active'));
+      btn.classList.add('active');
+      currentFilter=btn.dataset.f;
+      renderOrders();
+    });
+  });
+
+  /* ── RENDER ── */
+  function renderOrders(){
+    const list = currentFilter==='all' ? orders : orders.filter(o=>o.status===currentFilter);
+    updateCounts();
+    if(!list.length){
+      $('ordersScroll').innerHTML=`
+        <div class="empty-state">
+          <span class="icon xl" style="color:var(--border);"><svg viewBox="0 0 24 24"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="2"/><path d="M9 12h6M9 16h4"/></svg></span>
+          <div style="font-size:15px;font-weight:700;">No orders here</div>
+          <div style="font-size:13px;">Share the QR code so customers can order</div>
+        </div>`;
+      return;
+    }
+    $('ordersScroll').innerHTML = list.map(o=>{
+      const total=o.items.reduce((s,i)=>s+i.price*i.qty,0);
+      const isDone=o.status==='done';
+      return `
+        <div class="ocard${o.isNew?' is-new':''}">
+          <div class="ocard-hdr">
+            <span class="ocard-num">#${o.id}</span>
+            <span class="ocard-time">${o.time}</span>
+            <span class="status-pill ${o.status}"><span class="sdot"></span>${isDone?'Done':'Pending'}</span>
+          </div>
+          <div class="ocard-body">
+            <div class="ocard-cust">
+              <div class="cav">${o.customer[0]}</div>
+              <span class="cnm">${o.customer}</span>
+              <span class="ctbl">${o.table}</span>
+            </div>
+            <div class="ocard-items">
+              ${o.items.map(i=>`
+                <div class="oi">
+                  <span class="oiq">${i.qty}</span>
+                  <span class="oinm">${i.name}</span>
+                  <span class="oipr">${fmtLKR(i.price*i.qty)}</span>
+                </div>`).join('')}
+            </div>
+            ${o.note?`<div class="onote"><span>📝</span>${o.note}</div>`:''}
+            <div class="ocard-ftr">
+              <span class="ototal">${fmtLKR(total)}</span>
+              <div class="oactions">
+                <button class="abtn view" onclick="openView(${o.id})">View</button>
+                ${isDone
+                  ? `<span class="done-tag"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>Done</span>`
+                  : `<button class="abtn process" onclick="openView(${o.id})">
+                      <span class="icon sm"><svg viewBox="0 0 24 24"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg></span>
+                      Process
+                     </button>`}
+              </div>
+            </div>
+          </div>
+        </div>`;
+    }).join('');
+  }
+
+  function updateCounts(){
+    $('cAll').textContent=orders.length;
+    $('cPending').textContent=orders.filter(o=>o.status==='pending').length;
+    $('cDone').textContent=orders.filter(o=>o.status==='done').length;
+    const done=orders.filter(o=>o.status==='done').length;
+    $('qrCount').textContent=18+done;
+  }
+
+  /* ── VIEW MODAL ── */
+  window.openView = function(id){
+    const o=orders.find(x=>x.id===id); if(!o) return;
+    activeId=id;
+    const total=o.items.reduce((s,i)=>s+i.price*i.qty,0);
+    const isDone=o.status==='done';
+    $('vmTitle').textContent='Order #'+o.id;
+    $('vmAv').textContent=o.customer[0];
+    $('vmNm').textContent=o.customer;
+    $('vmTm').textContent=o.time;
+    $('vmTbl').textContent=o.table;
+    $('vmTotal').textContent=fmtLKR(total);
+    if(o.note){ $('vmNote').style.display='flex'; $('vmNoteText').textContent=o.note; }
+    else $('vmNote').style.display='none';
+    $('vmItems').innerHTML=o.items.map(i=>`
+      <div class="vm-item">
+        <div class="vm-iq">${i.qty}</div>
+        <span class="vm-inm">${i.name}</span>
+        <span class="vm-ipr">${fmtLKR(i.price*i.qty)}</span>
+      </div>`).join('');
+    $('vmBtns').innerHTML = isDone
+      ? `<button class="mbtn close" onclick="closeM('viewModal')" style="grid-column:1/-1;">Close</button>`
+      : `<button class="mbtn close" onclick="closeM('viewModal')">Close</button>
+         <button class="mbtn go" onclick="doProcess()">
+           <span class="icon sm"><svg viewBox="0 0 24 24"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg></span>
+           Process Order
+         </button>`;
+    $('viewModal').classList.add('active');
+  };
+
+  /* ── PROCESS → push cart to Make a Sale ── */
+  window.doProcess = function(){
+    const o=orders.find(x=>x.id===activeId); if(!o) return;
+    // mark done
+    o.status='done'; o.isNew=false;
+    // save pending cart for sales.html to pick up
+    const payload={
+      orderId:o.id,
+      customer:o.customer,
+      table:o.table,
+      items: o.items.map(i=>({ name:i.name, unitPrice:i.price, quantity:i.qty }))
+    };
+    try{ localStorage.setItem('qpos_pending_cart', JSON.stringify(payload)); }catch(e){}
+    closeM('viewModal');
+    renderOrders();
+    showToast('Sending Order #'+o.id+' to Make a Sale…');
+    setTimeout(()=>{ window.location.href='sales.html'; }, 950);
+  };
+
+  /* ── QR MODAL ── */
+  $('qrMobBtn').addEventListener('click',()=>$('qrModal').classList.add('active'));
+  window.closeM = id=>$(id).classList.remove('active');
+  document.querySelectorAll('.modal-bg').forEach(bg=>bg.addEventListener('click',e=>{ if(e.target===bg) bg.classList.remove('active'); }));
+
+  /* ── COPY ── */
+  window.copyLink = function(btnId){
+    const url='https://quickpos.lk/order/sithara-cafe';
+    if(navigator.clipboard) navigator.clipboard.writeText(url).then(()=>showToast('Link copied!'));
+    else showToast('Link: '+url);
+    const b=$(btnId); if(!b) return;
+    b.textContent='✓ Copied';
+    setTimeout(()=>{ b.innerHTML='<span class="icon sm"><svg viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg></span> Copy'; },2000);
+  };
+
+  /* ── PRINT ── */
+  window.printQR = function(){
+    $('printArea').style.display='flex';
+    window.print();
+    setTimeout(()=>$('printArea').style.display='none',400);
+  };
+
+  /* ── SIMULATE NEW ORDER (demo – the + button) ── */
+  window.simulateOrder = function(){
+    const names=['Roshan T.','Sanduni A.','Dinesh K.','Malika W.','Thilina P.','Amara J.'];
+    const tables=['Table 2','Table 4','Table 6','Counter','Table 8'];
+    const menu=[
+      {name:'Chicken Rice',price:1200},{name:'Iced Coffee',price:600},
+      {name:'Cheese Pizza',price:1200},{name:'French Fries',price:550},
+      {name:'Fruit Juice',price:500},{name:'Ice Cream',price:400},{name:'Bread Roll',price:150},
+    ];
+    const pick=a=>a[Math.floor(Math.random()*a.length)];
+    const n=1+Math.floor(Math.random()*3);
+    const items=[];
+    for(let i=0;i<n;i++){
+      const m=pick(menu), ex=items.find(x=>x.name===m.name);
+      if(ex) ex.qty++; else items.push({name:m.name,price:m.price,qty:1});
+    }
+    const now=new Date(), h=now.getHours(), m=now.getMinutes();
+    const time=`${h>12?h-12:h||12}:${m<10?'0'+m:m} ${h>=12?'PM':'AM'}`;
+    orders.unshift({ id:nextId++, status:'pending', isNew:true, time, customer:pick(names), table:pick(tables), items, note:'' });
+    if(currentFilter==='done'){
+      document.querySelectorAll('.ftab').forEach(b=>b.classList.toggle('active',b.dataset.f==='all'));
+      currentFilter='all';
+    }
+    renderOrders();
+    showToast('🔔 New order #'+(nextId-1)+' received!');
+  };
+
+  /* ── TOAST ── */
+  function showToast(msg){
+    $('toastMsg').textContent=msg;
+    $('toast').classList.add('show');
+    setTimeout(()=>$('toast').classList.remove('show'),3000);
+  }
+
+  renderOrders();
+})();
+</script>
+</body>
+</html>
