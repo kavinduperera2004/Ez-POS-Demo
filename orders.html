@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Ez POS Pro – Orders</title>
+<title>Ez POS – Orders</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
 :root{
@@ -46,11 +46,11 @@ html,body{height:100%;font-family:system-ui,-apple-system,sans-serif;background:
 .topbar-avatar{width:36px;height:36px;border-radius:50%;background:var(--primary);color:#fff;font-size:13px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
 
 /* ── PAGE BODY ── */
-.page-body{flex:1;display:flex;overflow:hidden;}
-.panel-left{flex:1;min-width:0;display:flex;flex-direction:column;overflow:hidden;}
+.page-body{flex:1;display:flex;overflow:hidden;min-height:0;}
+.panel-left{flex:1;min-width:0;display:flex;flex-direction:column;min-height:0;}
 
 /* ── TOOLBAR ── */
-.toolbar{height:56px;background:var(--white);border-bottom:1px solid var(--border);padding:0 16px;display:flex;align-items:center;gap:10px;flex-shrink:0;}
+.toolbar{background:var(--white);border-bottom:1px solid var(--border);padding:10px 16px;display:flex;align-items:center;gap:10px;flex-shrink:0;flex-wrap:wrap;}
 .filter-tabs{display:flex;background:var(--bg);border-radius:10px;padding:3px;gap:2px;}
 .ftab{padding:6px 13px;border-radius:8px;border:none;background:none;font-size:13px;font-weight:600;color:var(--muted);cursor:pointer;transition:all 0.15s;display:flex;align-items:center;gap:5px;white-space:nowrap;}
 .ftab.active{background:var(--white);color:var(--primary);box-shadow:var(--shadow);}
@@ -63,56 +63,112 @@ html,body{height:100%;font-family:system-ui,-apple-system,sans-serif;background:
 .sim-btn{padding:8px 10px;background:var(--white);border:1.5px solid var(--border);border-radius:10px;color:var(--muted);cursor:pointer;display:flex;align-items:center;transition:all 0.15s;}
 .sim-btn:hover{border-color:var(--primary);color:var(--primary);}
 
-/* ── ORDERS LIST ── */
-.orders-scroll{flex:1;overflow-y:auto;padding:14px 16px;display:flex;flex-direction:column;gap:10px;}
+/* ── ORDERS SCROLL ── */
+.orders-scroll{flex:1;overflow-y:auto;padding:14px 16px;display:flex;flex-direction:column;gap:8px;min-height:0;}
 .orders-scroll::-webkit-scrollbar{width:5px;}
 .orders-scroll::-webkit-scrollbar-thumb{background:var(--border);border-radius:4px;}
 
+/* ── ORDER CARD ── */
 .ocard{background:var(--white);border:1.5px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow);overflow:hidden;transition:border-color 0.18s,box-shadow 0.18s;}
-.ocard:hover{border-color:var(--primary);box-shadow:var(--shadow-lg);}
-.ocard.is-new{border-color:rgba(93,138,168,0.45);animation:newpulse 2s ease-in-out 2;}
-@keyframes newpulse{0%,100%{box-shadow:var(--shadow);}50%{box-shadow:0 0 0 4px rgba(93,138,168,0.15),var(--shadow-lg);}}
+.ocard:hover{border-color:var(--primary);}
+.ocard.is-new{animation:newpulse 2s ease-in-out 2;}
+@keyframes newpulse{0%,100%{box-shadow:var(--shadow);}50%{box-shadow:0 0 0 3px rgba(93,138,168,0.2),var(--shadow-lg);}}
 
-.ocard-hdr{padding:11px 14px;display:flex;align-items:center;gap:8px;border-bottom:1px solid var(--border);background:var(--bg);}
+/* ── CARD HEADER ROW — always visible ── */
+.ocard-hdr{
+  padding:12px 14px;
+  display:grid;
+  grid-template-columns:auto 1fr auto auto;
+  align-items:center;
+  gap:10px;
+  cursor:pointer;
+  user-select:none;
+  background:var(--white);
+  transition:background 0.12s;
+}
+.ocard-hdr:hover{background:#fafbfc;}
+
+.ocard-left{display:flex;align-items:center;gap:8px;}
 .ocard-num{font-size:14px;font-weight:800;color:var(--text);}
-.ocard-time{font-size:12px;color:var(--muted);flex:1;}
-.status-pill{font-size:10px;font-weight:700;padding:3px 9px;border-radius:20px;display:inline-flex;align-items:center;gap:4px;}
+.ocard-time{font-size:12px;color:var(--muted);}
+
+/* customer + table in the middle */
+.ocard-mid{display:flex;align-items:center;gap:7px;min-width:0;}
+.cav{width:26px;height:26px;border-radius:50%;background:var(--primary-bg);color:var(--primary);font-size:11px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.cnm{font-size:13px;font-weight:700;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.ctbl-pill{font-size:10px;font-weight:700;color:var(--muted);background:var(--bg);padding:2px 8px;border-radius:6px;white-space:nowrap;flex-shrink:0;}
+
+/* status + chevron */
+.ocard-right{display:flex;align-items:center;gap:8px;flex-shrink:0;}
+.status-pill{font-size:10px;font-weight:700;padding:3px 9px;border-radius:20px;display:inline-flex;align-items:center;gap:4px;white-space:nowrap;}
 .status-pill.pending{background:#fff7ed;color:#C2410C;}
 .status-pill.done{background:var(--success-bg);color:var(--success);}
 .sdot{width:5px;height:5px;border-radius:50%;background:currentColor;flex-shrink:0;}
+.chevron{color:var(--muted);transition:transform 0.22s;flex-shrink:0;}
+.ocard.open .chevron{transform:rotate(180deg);}
 
-.ocard-body{padding:12px 14px;}
-.ocard-cust{display:flex;align-items:center;gap:8px;margin-bottom:10px;}
-.cav{width:30px;height:30px;border-radius:50%;background:var(--primary-bg);color:var(--primary);font-size:12px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
-.cnm{font-size:13px;font-weight:700;color:var(--text);}
-.ctbl{font-size:11px;color:var(--muted);margin-left:auto;background:var(--bg);padding:3px 9px;border-radius:6px;font-weight:600;}
+/* ── ACTION BUTTONS ROW — always visible below header ── */
+.ocard-actions{
+  display:grid;
+  grid-template-columns:1fr 1fr 1fr;
+  gap:0;
+  border-top:1px solid var(--border);
+}
+.ocard.done-card .ocard-actions{grid-template-columns:1fr 1fr;}
+.abtn{
+  padding:10px 8px;
+  border:none;
+  background:none;
+  font-size:12px;
+  font-weight:700;
+  cursor:pointer;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:5px;
+  transition:background 0.13s,color 0.13s;
+  border-right:1px solid var(--border);
+}
+.abtn:last-child{border-right:none;}
+.abtn.view{color:var(--text);}
+.abtn.view:hover{background:var(--primary-bg);color:var(--primary);}
+.abtn.process{color:var(--primary);}
+.abtn.process:hover{background:var(--primary-bg);}
+.abtn.cancel{color:var(--danger);}
+.abtn.cancel:hover{background:var(--danger-bg);}
+.abtn.done-badge{color:var(--success);pointer-events:none;}
 
-.ocard-items{display:flex;flex-direction:column;gap:5px;margin-bottom:10px;}
+/* ── EXPANDABLE BODY ── */
+.ocard-body{
+  display:none;
+  padding:12px 14px;
+  border-top:1px solid var(--border);
+  background:var(--bg);
+  flex-direction:column;
+  gap:8px;
+}
+.ocard.open .ocard-body{display:flex;}
+
+.ocard-items{display:flex;flex-direction:column;gap:5px;}
 .oi{display:flex;align-items:center;gap:8px;}
-.oiq{width:24px;height:24px;border-radius:7px;background:var(--primary-bg);color:var(--primary);font-size:11px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
-.oinm{flex:1;font-size:13px;color:var(--text);}
-.oipr{font-size:12px;font-weight:600;color:var(--muted);}
+.oiq{width:24px;height:24px;border-radius:7px;background:var(--white);color:var(--primary);font-size:11px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0;border:1.5px solid var(--border);}
+.oinm{flex:1;font-size:13px;color:var(--text);font-weight:500;}
+.oipr{font-size:12px;font-weight:700;color:var(--muted);}
 
-.onote{display:flex;gap:6px;align-items:flex-start;background:var(--warning-bg);border-radius:8px;padding:7px 10px;margin-bottom:10px;font-size:12px;color:var(--warning);font-weight:600;line-height:1.4;}
+.ototal-row{display:flex;justify-content:space-between;align-items:center;padding-top:8px;border-top:1px solid var(--border);}
+.ototal-lbl{font-size:12px;font-weight:600;color:var(--muted);}
+.ototal{font-size:16px;font-weight:800;color:var(--success);}
 
-.ocard-ftr{display:flex;align-items:center;justify-content:space-between;padding-top:10px;border-top:1px solid var(--border);}
-.ototal{font-size:15px;font-weight:800;color:var(--success);}
-.oactions{display:flex;gap:7px;align-items:center;}
-.abtn{padding:8px 14px;border-radius:9px;border:none;font-size:13px;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:5px;transition:all 0.15s;}
-.abtn:active{transform:scale(0.97);}
-.abtn.view{background:var(--bg);color:var(--text);border:1.5px solid var(--border);}
-.abtn.view:hover{border-color:var(--primary);color:var(--primary);}
-.abtn.process{background:var(--primary);color:#fff;}
-.abtn.process:hover{background:var(--primary-dark);}
-.done-tag{font-size:12px;color:var(--success);font-weight:700;display:flex;align-items:center;gap:4px;}
+.onote{display:flex;gap:6px;align-items:flex-start;background:var(--warning-bg);border-radius:8px;padding:7px 10px;font-size:12px;color:var(--warning);font-weight:600;line-height:1.4;}
 
+/* ── EMPTY ── */
 .empty-state{display:flex;flex-direction:column;align-items:center;justify-content:center;flex:1;gap:12px;color:var(--muted);text-align:center;padding:60px 20px;}
 
 /* ── QR PANEL ── */
 .qr-panel{width:268px;min-width:268px;background:var(--white);border-left:1px solid var(--border);display:flex;flex-direction:column;overflow-y:auto;}
 .qr-panel::-webkit-scrollbar{width:5px;}
 .qr-panel::-webkit-scrollbar-thumb{background:var(--border);border-radius:4px;}
-.qr-phdr{padding:14px 18px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:8px;}
+.qr-phdr{padding:14px 18px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:8px;flex-shrink:0;}
 .qr-phdr-title{font-size:14px;font-weight:700;color:var(--text);flex:1;}
 .live-dot{width:8px;height:8px;border-radius:50%;background:#22c55e;flex-shrink:0;animation:blink 1.5s ease-in-out infinite;}
 @keyframes blink{0%,100%{opacity:1;}50%{opacity:0.25;}}
@@ -129,7 +185,7 @@ html,body{height:100%;font-family:system-ui,-apple-system,sans-serif;background:
 .qbtn.copy:hover{border-color:var(--primary);color:var(--primary);}
 .qr-div{width:100%;height:1px;background:var(--border);}
 .qr-stlbl{font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;align-self:flex-start;}
-.qsr{width:100%;display:flex;justify-content:space-between;align-items:center;}
+.qsr{width:100%;display:flex;justify-content:space-between;align-items:center;padding:3px 0;}
 .qsk{font-size:13px;color:var(--muted);}
 .qsv{font-size:13px;font-weight:700;color:var(--text);}
 .qsv.g{color:var(--success);}
@@ -144,10 +200,8 @@ html,body{height:100%;font-family:system-ui,-apple-system,sans-serif;background:
 .modal-ttl{font-size:18px;font-weight:800;color:var(--text);}
 .modal-cls{background:none;border:none;cursor:pointer;color:var(--muted);padding:4px;border-radius:8px;}
 .modal-cls:hover{background:var(--bg);}
-
-/* view modal */
 .vm-meta{display:flex;align-items:center;gap:10px;background:var(--bg);border-radius:10px;padding:10px 14px;margin-bottom:14px;}
-.vm-av{width:36px;height:36px;border-radius:50%;background:var(--primary-bg);color:var(--primary);font-size:14px;font-weight:800;display:flex;align-items:center;justify-content:center;}
+.vm-av{width:36px;height:36px;border-radius:50%;background:var(--primary-bg);color:var(--primary);font-size:14px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
 .vm-nm{font-size:14px;font-weight:700;color:var(--text);}
 .vm-tm{font-size:12px;color:var(--muted);}
 .vm-tbl{margin-left:auto;background:var(--white);border-radius:8px;padding:4px 10px;font-size:12px;font-weight:700;color:var(--text);}
@@ -163,8 +217,8 @@ html,body{height:100%;font-family:system-ui,-apple-system,sans-serif;background:
 .vm-btns{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
 .mbtn{padding:15px;border-radius:50px;border:none;font-size:15px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:7px;transition:opacity 0.15s,transform 0.1s;}
 .mbtn:hover{opacity:0.9;transform:translateY(-1px);}
-.mbtn.close{background:var(--bg);color:var(--text);border:1.5px solid var(--border);}
-.mbtn.go{background:var(--primary);color:#fff;}
+.mbtn.mclose{background:var(--bg);color:var(--text);border:1.5px solid var(--border);}
+.mbtn.mgo{background:var(--primary);color:#fff;}
 
 /* ── TOAST ── */
 .toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(80px);background:var(--text);color:#fff;padding:12px 22px;border-radius:14px;font-size:14px;font-weight:600;z-index:999;transition:transform 0.3s cubic-bezier(0.34,1.56,0.64,1);white-space:nowrap;display:flex;align-items:center;gap:8px;box-shadow:var(--shadow-lg);pointer-events:none;}
@@ -178,6 +232,7 @@ html,body{height:100%;font-family:system-ui,-apple-system,sans-serif;background:
   .sidebar-overlay.open{display:block;}
   .topbar-shift{display:none;}
   .qr-panel{display:none;}
+  .ocard-mid{display:none;}
 }
 @media(min-width:768px){
   .topbar-shift{display:block;}
@@ -271,7 +326,6 @@ html,body{height:100%;font-family:system-ui,-apple-system,sans-serif;background:
 
     <div class="page-body">
       <div class="panel-left">
-        <!-- TOOLBAR -->
         <div class="toolbar">
           <div class="filter-tabs">
             <button class="ftab active" data-f="all">All <span class="fbadge" id="cAll">0</span></button>
@@ -283,8 +337,7 @@ html,body{height:100%;font-family:system-ui,-apple-system,sans-serif;background:
               <span class="icon sm"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><path d="M14 14h3v3h-3zM17 17h3v3h-3zM14 17h.01M17 14h.01"/></svg></span>
               QR Code
             </button>
-            <!-- + button to simulate a new order for demo purposes -->
-            <button class="sim-btn" title="Simulate new order (demo)" onclick="simulateOrder()">
+            <button class="sim-btn" title="Simulate new order" onclick="simulateOrder()">
               <span class="icon sm"><svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></span>
             </button>
           </div>
@@ -298,7 +351,7 @@ html,body{height:100%;font-family:system-ui,-apple-system,sans-serif;background:
         <div class="qr-phdr">
           <span class="icon sm" style="color:var(--primary);"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><path d="M14 14h3v3h-3zM17 17h3v3h-3zM14 17h.01M17 14h.01"/></svg></span>
           <span class="qr-phdr-title">Shop QR Code</span>
-          <div class="live-dot" title="Orders live"></div>
+          <div class="live-dot"></div>
         </div>
         <div class="qr-pbody">
           <p class="qr-hint">Print and place this in your shop. Customers scan → see menu → place an order directly.</p>
@@ -352,7 +405,7 @@ html,body{height:100%;font-family:system-ui,-apple-system,sans-serif;background:
   </div>
 </div>
 
-<!-- QR MODAL (mobile/tablet) -->
+<!-- QR MODAL (mobile) -->
 <div class="modal-bg" id="qrModal">
   <div class="modal-box">
     <div class="modal-hdr">
@@ -360,7 +413,7 @@ html,body{height:100%;font-family:system-ui,-apple-system,sans-serif;background:
       <button class="modal-cls" onclick="closeM('qrModal')"><span class="icon"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></span></button>
     </div>
     <div style="display:flex;flex-direction:column;align-items:center;gap:14px;">
-      <p style="font-size:13px;color:var(--muted);text-align:center;line-height:1.6;">Print and place in your shop. Customers scan to view your menu and place an order.</p>
+      <p style="font-size:13px;color:var(--muted);text-align:center;line-height:1.6;">Print and place in your shop. Customers scan to view the menu and order.</p>
       <div class="qr-frame"><svg id="qrMob" viewBox="0 0 180 180" width="190" height="190"></svg></div>
       <div style="font-size:15px;font-weight:800;color:var(--text);">Sithara's Café</div>
       <div class="qr-url" style="max-width:280px;">quickpos.lk/order/sithara-cafe</div>
@@ -378,10 +431,8 @@ html,body{height:100%;font-family:system-ui,-apple-system,sans-serif;background:
   </div>
 </div>
 
-<!-- TOAST -->
 <div class="toast" id="toast"><span id="toastMsg"></span></div>
 
-<!-- PRINT AREA -->
 <div class="print-area" id="printArea">
   <div class="print-shop">Sithara's Café</div>
   <div class="print-sub">Scan to view our menu and place your order</div>
@@ -391,7 +442,7 @@ html,body{height:100%;font-family:system-ui,-apple-system,sans-serif;background:
 
 <script>
 (function(){
-  const $  = id => document.getElementById(id);
+  const $ = id => document.getElementById(id);
   const fmtLKR = n => 'LKR '+(+n).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});
 
   /* ── SIDEBAR ── */
@@ -437,8 +488,8 @@ html,body{height:100%;font-family:system-ui,-apple-system,sans-serif;background:
   }
   ['qrDesk','qrMob','qrPrint'].forEach(id=>{ const el=$(id); if(el) drawQR(el); });
 
-  /* ── ORDERS DATA ── */
-  let orders = [
+  /* ── DATA ── */
+  let orders=[
     { id:1043, time:'3:12 PM', customer:'Kamal S.', table:'Table 3',
       items:[{name:'Chicken Rice',qty:2,price:1200},{name:'Iced Coffee',qty:1,price:600}],
       note:'Extra spicy please', status:'pending', isNew:true },
@@ -454,7 +505,7 @@ html,body{height:100%;font-family:system-ui,-apple-system,sans-serif;background:
   ];
   let nextId=1044, currentFilter='all', activeId=null;
 
-  /* ── FILTER TABS ── */
+  /* ── FILTER ── */
   document.querySelectorAll('.ftab').forEach(btn=>{
     btn.addEventListener('click',()=>{
       document.querySelectorAll('.ftab').forEach(b=>b.classList.remove('active'));
@@ -468,31 +519,61 @@ html,body{height:100%;font-family:system-ui,-apple-system,sans-serif;background:
   function renderOrders(){
     const list = currentFilter==='all' ? orders : orders.filter(o=>o.status===currentFilter);
     updateCounts();
+
     if(!list.length){
       $('ordersScroll').innerHTML=`
         <div class="empty-state">
           <span class="icon xl" style="color:var(--border);"><svg viewBox="0 0 24 24"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="2"/><path d="M9 12h6M9 16h4"/></svg></span>
           <div style="font-size:15px;font-weight:700;">No orders here</div>
-          <div style="font-size:13px;">Share the QR code so customers can order</div>
+          <div style="font-size:13px;">Share your QR code so customers can order</div>
         </div>`;
       return;
     }
+
     $('ordersScroll').innerHTML = list.map(o=>{
-      const total=o.items.reduce((s,i)=>s+i.price*i.qty,0);
-      const isDone=o.status==='done';
+      const total = o.items.reduce((s,i)=>s+i.price*i.qty,0);
+      const isDone = o.status==='done';
+
+      const actionBtns = isDone
+        ? `<button class="abtn view" onclick="openView(${o.id},event)">
+             <span class="icon sm"><svg viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></span> View
+           </button>
+           <button class="abtn done-badge">
+             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg> Completed
+           </button>`
+        : `<button class="abtn view" onclick="openView(${o.id},event)">
+             <span class="icon sm"><svg viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></span> View
+           </button>
+           <button class="abtn process" onclick="doProcess(${o.id},event)">
+             <span class="icon sm"><svg viewBox="0 0 24 24"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg></span> Process
+           </button>
+           <button class="abtn cancel" onclick="cancelOrder(${o.id},event)">
+             <span class="icon sm"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></span> Cancel
+           </button>`;
+
       return `
-        <div class="ocard${o.isNew?' is-new':''}">
-          <div class="ocard-hdr">
-            <span class="ocard-num">#${o.id}</span>
-            <span class="ocard-time">${o.time}</span>
-            <span class="status-pill ${o.status}"><span class="sdot"></span>${isDone?'Done':'Pending'}</span>
-          </div>
-          <div class="ocard-body">
-            <div class="ocard-cust">
+        <div class="ocard${o.isNew?' is-new':''}${isDone?' done-card':''}" id="oc-${o.id}">
+          <div class="ocard-hdr" onclick="toggleCard(${o.id})">
+            <div class="ocard-left">
+              <span class="ocard-num">#${o.id}</span>
+              <span class="ocard-time">${o.time}</span>
+            </div>
+            <div class="ocard-mid">
               <div class="cav">${o.customer[0]}</div>
               <span class="cnm">${o.customer}</span>
-              <span class="ctbl">${o.table}</span>
+              <span class="ctbl-pill">${o.table}</span>
             </div>
+            <div class="ocard-right">
+              <span class="status-pill ${o.status}"><span class="sdot"></span>${isDone?'Done':'Pending'}</span>
+              <span class="icon sm chevron" style="color:var(--muted);">
+                <svg viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
+              </span>
+            </div>
+          </div>
+
+          <div class="ocard-actions${isDone?' done-card':''}">${actionBtns}</div>
+
+          <div class="ocard-body">
             <div class="ocard-items">
               ${o.items.map(i=>`
                 <div class="oi">
@@ -502,17 +583,9 @@ html,body{height:100%;font-family:system-ui,-apple-system,sans-serif;background:
                 </div>`).join('')}
             </div>
             ${o.note?`<div class="onote"><span>📝</span>${o.note}</div>`:''}
-            <div class="ocard-ftr">
+            <div class="ototal-row">
+              <span class="ototal-lbl">Order Total</span>
               <span class="ototal">${fmtLKR(total)}</span>
-              <div class="oactions">
-                <button class="abtn view" onclick="openView(${o.id})">View</button>
-                ${isDone
-                  ? `<span class="done-tag"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>Done</span>`
-                  : `<button class="abtn process" onclick="openView(${o.id})">
-                      <span class="icon sm"><svg viewBox="0 0 24 24"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg></span>
-                      Process
-                     </button>`}
-              </div>
             </div>
           </div>
         </div>`;
@@ -523,12 +596,18 @@ html,body{height:100%;font-family:system-ui,-apple-system,sans-serif;background:
     $('cAll').textContent=orders.length;
     $('cPending').textContent=orders.filter(o=>o.status==='pending').length;
     $('cDone').textContent=orders.filter(o=>o.status==='done').length;
-    const done=orders.filter(o=>o.status==='done').length;
-    $('qrCount').textContent=18+done;
+    $('qrCount').textContent=18+orders.filter(o=>o.status==='done').length;
   }
 
+  /* ── TOGGLE EXPAND ── */
+  window.toggleCard = function(id){
+    const el=$('oc-'+id); if(!el) return;
+    el.classList.toggle('open');
+  };
+
   /* ── VIEW MODAL ── */
-  window.openView = function(id){
+  window.openView = function(id, e){
+    if(e) e.stopPropagation();
     const o=orders.find(x=>x.id===id); if(!o) return;
     activeId=id;
     const total=o.items.reduce((s,i)=>s+i.price*i.qty,0);
@@ -548,40 +627,45 @@ html,body{height:100%;font-family:system-ui,-apple-system,sans-serif;background:
         <span class="vm-ipr">${fmtLKR(i.price*i.qty)}</span>
       </div>`).join('');
     $('vmBtns').innerHTML = isDone
-      ? `<button class="mbtn close" onclick="closeM('viewModal')" style="grid-column:1/-1;">Close</button>`
-      : `<button class="mbtn close" onclick="closeM('viewModal')">Close</button>
-         <button class="mbtn go" onclick="doProcess()">
+      ? `<button class="mbtn mclose" onclick="closeM('viewModal')" style="grid-column:1/-1;">Close</button>`
+      : `<button class="mbtn mclose" onclick="closeM('viewModal')">Close</button>
+         <button class="mbtn mgo" onclick="doProcess(${o.id})">
            <span class="icon sm"><svg viewBox="0 0 24 24"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg></span>
            Process Order
          </button>`;
     $('viewModal').classList.add('active');
   };
 
-  /* ── PROCESS → push cart to Make a Sale ── */
-  window.doProcess = function(){
-    const o=orders.find(x=>x.id===activeId); if(!o) return;
-    // mark done
+  /* ── PROCESS ── */
+  window.doProcess = function(id, e){
+    if(e) e.stopPropagation();
+    const oid = id !== undefined ? id : activeId;
+    const o=orders.find(x=>x.id===oid); if(!o) return;
     o.status='done'; o.isNew=false;
-    // save pending cart for sales.html to pick up
-    const payload={
-      orderId:o.id,
-      customer:o.customer,
-      table:o.table,
-      items: o.items.map(i=>({ name:i.name, unitPrice:i.price, quantity:i.qty }))
-    };
-    try{ localStorage.setItem('qpos_pending_cart', JSON.stringify(payload)); }catch(e){}
+    const payload={ orderId:o.id, customer:o.customer, table:o.table,
+      items:o.items.map(i=>({name:i.name,unitPrice:i.price,quantity:i.qty})) };
+    try{ localStorage.setItem('qpos_pending_cart',JSON.stringify(payload)); }catch(ex){}
     closeM('viewModal');
     renderOrders();
     showToast('Sending Order #'+o.id+' to Make a Sale…');
-    setTimeout(()=>{ window.location.href='sales.html'; }, 950);
+    setTimeout(()=>{ window.location.href='sales.html'; },950);
   };
 
-  /* ── QR MODAL ── */
+  /* ── CANCEL ── */
+  window.cancelOrder = function(id, e){
+    if(e) e.stopPropagation();
+    if(!confirm('Cancel order #'+id+'?')) return;
+    orders = orders.filter(x=>x.id!==id);
+    renderOrders();
+    showToast('Order #'+id+' cancelled');
+  };
+
+  /* ── MODALS ── */
   $('qrMobBtn').addEventListener('click',()=>$('qrModal').classList.add('active'));
   window.closeM = id=>$(id).classList.remove('active');
   document.querySelectorAll('.modal-bg').forEach(bg=>bg.addEventListener('click',e=>{ if(e.target===bg) bg.classList.remove('active'); }));
 
-  /* ── COPY ── */
+  /* ── COPY LINK ── */
   window.copyLink = function(btnId){
     const url='https://quickpos.lk/order/sithara-cafe';
     if(navigator.clipboard) navigator.clipboard.writeText(url).then(()=>showToast('Link copied!'));
@@ -598,9 +682,9 @@ html,body{height:100%;font-family:system-ui,-apple-system,sans-serif;background:
     setTimeout(()=>$('printArea').style.display='none',400);
   };
 
-  /* ── SIMULATE NEW ORDER (demo – the + button) ── */
+  /* ── SIMULATE ── */
   window.simulateOrder = function(){
-    const names=['Roshan T.','Sanduni A.','Dinesh K.','Malika W.','Thilina P.','Amara J.'];
+    const names=['Roshan T.','Sanduni A.','Dinesh K.','Malika W.','Thilina P.'];
     const tables=['Table 2','Table 4','Table 6','Counter','Table 8'];
     const menu=[
       {name:'Chicken Rice',price:1200},{name:'Iced Coffee',price:600},
@@ -615,8 +699,9 @@ html,body{height:100%;font-family:system-ui,-apple-system,sans-serif;background:
       if(ex) ex.qty++; else items.push({name:m.name,price:m.price,qty:1});
     }
     const now=new Date(), h=now.getHours(), m=now.getMinutes();
-    const time=`${h>12?h-12:h||12}:${m<10?'0'+m:m} ${h>=12?'PM':'AM'}`;
-    orders.unshift({ id:nextId++, status:'pending', isNew:true, time, customer:pick(names), table:pick(tables), items, note:'' });
+    orders.unshift({ id:nextId++, status:'pending', isNew:true,
+      time:`${h>12?h-12:h||12}:${m<10?'0'+m:m} ${h>=12?'PM':'AM'}`,
+      customer:pick(names), table:pick(tables), items, note:'' });
     if(currentFilter==='done'){
       document.querySelectorAll('.ftab').forEach(b=>b.classList.toggle('active',b.dataset.f==='all'));
       currentFilter='all';
