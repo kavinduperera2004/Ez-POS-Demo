@@ -218,7 +218,86 @@ html,body{height:100%;font-family:system-ui,-apple-system,sans-serif;background:
 .mbtn{padding:15px;border-radius:50px;border:none;font-size:15px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:7px;transition:opacity 0.15s,transform 0.1s;}
 .mbtn:hover{opacity:0.9;transform:translateY(-1px);}
 .mbtn.mclose{background:var(--bg);color:var(--text);border:1.5px solid var(--border);}
-.mbtn.mgo{background:var(--primary);color:#fff;}
+/* ── PROCESS BILL MODAL ── */
+.bill-modal .modal-box{max-width:480px;padding:0;display:flex;flex-direction:column;max-height:92vh;overflow:hidden;}
+.bill-modal-hdr{padding:16px 18px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-shrink:0;}
+.bill-modal-title{font-size:16px;font-weight:800;color:var(--text);}
+.bill-modal-meta{font-size:12px;color:var(--muted);margin-top:1px;}
+.bill-modal-body{flex:1;overflow-y:auto;padding:14px 16px;display:flex;flex-direction:column;gap:12px;min-height:0;}
+.bill-modal-body::-webkit-scrollbar{width:4px;}
+.bill-modal-body::-webkit-scrollbar-thumb{background:var(--border);border-radius:4px;}
+.bill-sec-lbl{font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;}
+.bill-ci{display:flex;align-items:center;gap:10px;padding:10px 12px;background:var(--bg);border-radius:10px;}
+.bill-ci-info{flex:1;min-width:0;}
+.bill-ci-name{font-size:13px;font-weight:700;color:var(--text);}
+.bill-ci-sub{font-size:11px;color:var(--muted);}
+.bill-ci-controls{display:flex;align-items:center;gap:6px;flex-shrink:0;}
+.bill-qty-btn{width:26px;height:26px;border-radius:50%;border:1.5px solid var(--border);background:#fff;color:var(--primary);font-size:15px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all 0.15s;}
+.bill-qty-btn:hover{background:var(--primary);color:#fff;border-color:var(--primary);}
+.bill-ci-qty{font-size:13px;font-weight:700;min-width:20px;text-align:center;color:var(--text);}
+.bill-ci-total{font-size:13px;font-weight:800;color:var(--success);min-width:72px;text-align:right;flex-shrink:0;}
+.bill-search-wrap{position:relative;}
+.bill-search{width:100%;padding:11px 14px 11px 38px;border:1.5px solid var(--border);border-radius:10px;font-size:14px;color:var(--text);outline:none;background:var(--bg);transition:border-color 0.15s;}
+.bill-search:focus{border-color:var(--primary);background:#fff;}
+.bill-search-icon{position:absolute;left:12px;top:50%;transform:translateY(-50%);color:var(--muted);pointer-events:none;}
+.bill-dropdown{position:absolute;top:calc(100% + 4px);left:0;right:0;background:#fff;border:1.5px solid var(--primary);border-radius:12px;box-shadow:var(--shadow-lg);z-index:100;max-height:220px;overflow-y:auto;display:none;}
+.bill-dropdown.open{display:block;}
+.bill-dropdown::-webkit-scrollbar{width:4px;}
+.bill-dropdown::-webkit-scrollbar-thumb{background:var(--border);border-radius:4px;}
+.bill-prod-row{display:flex;align-items:center;gap:10px;padding:11px 14px;border-bottom:1px solid var(--border);cursor:pointer;transition:background 0.12s;}
+.bill-prod-row:last-child{border-bottom:none;}
+.bill-prod-row:hover{background:var(--primary-bg);}
+.bill-prod-info{flex:1;min-width:0;}
+.bill-prod-name{font-size:13px;font-weight:700;color:var(--text);}
+.bill-prod-price{font-size:12px;color:var(--success);font-weight:700;}
+.bill-cust-btn{padding:5px 11px;border-radius:7px;border:1.5px solid var(--border);background:#fff;font-size:11px;font-weight:700;color:var(--primary);cursor:pointer;white-space:nowrap;transition:all 0.15s;flex-shrink:0;}
+.bill-cust-btn:hover{background:var(--primary);color:#fff;border-color:var(--primary);}
+.bill-modal-ftr{padding:14px 16px;border-top:1px solid var(--border);flex-shrink:0;}
+.bill-total-row{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:12px;}
+.bill-total-lbl{font-size:14px;font-weight:700;color:var(--text);}
+.bill-total-amt{font-size:26px;font-weight:800;color:var(--success);}
+.bill-pay-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.bill-pay-btn{padding:14px 0;border:none;border-radius:12px;font-size:15px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:7px;transition:opacity 0.15s,transform 0.1s;}
+.bill-pay-btn:hover{opacity:0.9;transform:translateY(-1px);}
+.bill-pay-btn.cash{background:var(--success);color:#fff;}
+.bill-pay-btn.bank{background:var(--primary);color:#fff;}
+.sub-bg{position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:600;display:flex;align-items:center;justify-content:center;opacity:0;visibility:hidden;transition:opacity 0.2s;}
+.sub-bg.active{opacity:1;visibility:visible;}
+.sub-box{background:#fff;border-radius:18px;padding:24px 22px;width:90%;max-width:340px;}
+.sub-title{font-size:17px;font-weight:800;color:var(--text);margin-bottom:16px;}
+.sub-row{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid var(--border);margin-bottom:14px;}
+.sub-lbl{font-size:14px;color:var(--muted);font-weight:600;}
+.sub-val{font-size:22px;font-weight:800;color:var(--success);}
+.sub-field{margin-bottom:4px;}
+.sub-field label{display:block;font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.4px;margin-bottom:6px;}
+.sub-field input{width:100%;padding:13px 14px;border:1.5px solid var(--border);border-radius:10px;font-size:22px;font-weight:700;text-align:right;color:var(--text);outline:none;transition:border-color 0.15s;}
+.sub-field input:focus{border-color:var(--primary);}
+.sub-quick{display:flex;gap:7px;flex-wrap:wrap;margin:10px 0 14px;}
+.sub-qbtn{padding:7px 12px;border:1.5px solid var(--border);border-radius:8px;background:var(--bg);font-size:12px;font-weight:700;color:var(--text);cursor:pointer;transition:all 0.15s;}
+.sub-qbtn:hover{background:var(--primary);color:#fff;border-color:var(--primary);}
+.sub-change-row{display:flex;justify-content:space-between;align-items:center;padding:10px 14px;border-radius:10px;margin-bottom:16px;}
+.sub-change-row.pos{background:var(--success-bg);}
+.sub-change-row.neg{background:var(--danger-bg);}
+.sub-change-lbl{font-size:13px;font-weight:600;color:var(--muted);}
+.sub-change-val{font-size:18px;font-weight:800;}
+.sub-change-val.pos{color:var(--success);}
+.sub-change-val.neg{color:var(--danger);}
+.sub-btns{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.sub-btn{padding:14px;border-radius:50px;border:none;font-size:14px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;transition:opacity 0.15s;}
+.sub-btn:hover{opacity:0.88;}
+.sub-btn.back{background:var(--bg);color:var(--text);border:1.5px solid var(--border);}
+.sub-btn.done{background:var(--success);color:#fff;}
+.cust-box{max-width:300px;}
+.cust-hint{font-size:11px;color:var(--primary);font-weight:600;text-align:right;margin-top:4px;min-height:14px;}
+.sale-bg{position:fixed;inset:0;background:rgba(0,0,0,0.65);z-index:700;display:flex;align-items:center;justify-content:center;opacity:0;visibility:hidden;transition:opacity 0.22s;}
+.sale-bg.active{opacity:1;visibility:visible;}
+.sale-card{background:#fff;border-radius:20px;padding:36px 28px;text-align:center;width:88%;max-width:320px;transform:scale(0.92);transition:transform 0.22s;}
+.sale-bg.active .sale-card{transform:scale(1);}
+.sale-circle{width:68px;height:68px;border-radius:50%;background:var(--success-bg);display:flex;align-items:center;justify-content:center;margin:0 auto 14px;color:var(--success);}
+.sale-ttl{font-size:22px;font-weight:800;color:var(--text);margin-bottom:6px;}
+.sale-amt{font-size:32px;font-weight:800;color:var(--success);margin-bottom:6px;}
+.sale-msg{font-size:14px;color:var(--muted);margin-bottom:26px;}
+.sale-done-btn{width:100%;padding:15px;border:none;border-radius:12px;background:var(--primary);color:#fff;font-size:16px;font-weight:700;cursor:pointer;}
 
 /* ── TOAST ── */
 .toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(80px);background:var(--text);color:#fff;padding:12px 22px;border-radius:14px;font-size:14px;font-weight:600;z-index:999;transition:transform 0.3s cubic-bezier(0.34,1.56,0.64,1);white-space:nowrap;display:flex;align-items:center;gap:8px;box-shadow:var(--shadow-lg);pointer-events:none;}
@@ -433,6 +512,224 @@ html,body{height:100%;font-family:system-ui,-apple-system,sans-serif;background:
 
 <div class="toast" id="toast"><span id="toastMsg"></span></div>
 
+<!-- PROCESS BILL MODAL -->
+<div class="modal-bg bill-modal" id="billModal">
+  <div class="modal-box">
+    <div class="bill-modal-hdr">
+      <div>
+        <div class="bill-modal-title" id="billTitle">Process Order #—</div>
+        <div class="bill-modal-meta" id="billMeta">—</div>
+      </div>
+      <button class="modal-cls" onclick="closeM('billModal')"><span class="icon"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></span></button>
+    </div>
+    <div class="bill-modal-body">
+      <!-- ORDER ITEMS -->
+      <div class="bill-sec-lbl">Order Items</div>
+      <div id="billCartItems"></div>
+      <!-- SEARCH TO ADD MORE -->
+      <div class="bill-sec-lbl" style="margin-top:4px;">Add More Items</div>
+      <div class="bill-search-wrap">
+        <span class="bill-search-icon icon sm"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></span>
+        <input type="search" class="bill-search" id="billSearch" placeholder="Search items to add…" autocomplete="off">
+        <div class="bill-dropdown" id="billDropdown"></div>
+      </div>
+    </div>
+    <div class="bill-modal-ftr">
+      <div class="bill-total-row">
+        <span class="bill-total-lbl">Total</span>
+        <span class="bill-total-amt" id="billTotalAmt">LKR 0.00</span>
+      </div>
+      <div class="bill-pay-row">
+        <button class="bill-pay-btn bank" onclick="completeBillPayment('Bank')">
+          <span class="icon sm"><svg viewBox="0 0 24 24"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg></span>
+          Bank / Card
+        </button>
+        <button class="bill-pay-btn cash" onclick="openCashModal()">
+          <span class="icon sm"><svg viewBox="0 0 24 24"><rect x="2" y="6" width="20" height="12" rx="2"/><circle cx="12" cy="12" r="2"/><path d="M6 12h.01M18 12h.01"/></svg></span>
+          Cash
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- CASH SUB-MODAL -->
+<div class="sub-bg" id="cashSubModal">
+  <div class="sub-box">
+    <div class="sub-title">Cash Payment</div>
+    <div class="sub-row">
+      <span class="sub-lbl">Total</span>
+      <span class="sub-val" id="cashSubTotal">LKR 0.00</span>
+    </div>
+    <div class="sub-field">
+      <label>Amount Received (LKR)</label>
+      <input type="number" id="cashReceived" placeholder="0.00" min="0" step="0.01" oninput="calcChange()">
+    </div>
+    <div class="sub-quick">
+      <button class="sub-qbtn" onclick="addQuick(500)">+500</button>
+      <button class="sub-qbtn" onclick="addQuick(1000)">+1000</button>
+      <button class="sub-qbtn" onclick="addQuick(2000)">+2000</button>
+      <button class="sub-qbtn" onclick="addQuick(5000)">+5000</button>
+    </div>
+    <div class="sub-change-row pos" id="changeRow">
+      <span class="sub-change-lbl">Change</span>
+      <span class="sub-change-val pos" id="changeAmt">LKR 0.00</span>
+    </div>
+    <div class="sub-btns">
+      <button class="sub-btn back" onclick="closeSub('cashSubModal')">Back</button>
+      <button class="sub-btn done" onclick="completeBillPayment('Cash')">
+        <span class="icon sm"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></span>
+        Confirm
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- CUSTOMIZE QTY SUB-MODAL -->
+<div class="sub-bg" id="custSubModal">
+  <div class="sub-box cust-box">
+    <div class="sub-title" id="custSubName">Customize</div>
+    <div style="font-size:12px;color:var(--muted);margin-bottom:14px;" id="custSubPrice">Unit price: LKR 0.00</div>
+    <div class="sub-field">
+      <label>Quantity</label>
+      <input type="number" id="custQtyInput" value="1" min="0.01" step="0.01" oninput="updateCustHint()">
+    </div>
+    <div class="sub-field">
+      <label>Total Price (LKR)</label>
+      <input type="number" id="custPriceInput" placeholder="0.00" min="0" step="0.01" oninput="custPriceEdited=true;updateCustHint()">
+    </div>
+    <div class="cust-hint" id="custHintText"></div>
+    <div class="sub-btns" style="margin-top:16px;">
+      <button class="sub-btn back" onclick="closeSub('custSubModal')">Cancel</button>
+      <button class="sub-btn done" style="background:var(--primary);" onclick="addCustItem()">
+        <span class="icon sm"><svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></span>
+        Add to Bill
+      </button>
+    </div>
+  </div>
+</div>
+
+</div>
+</div>
+
+<div class="toast" id="toast"><span id="toastMsg"></span></div>
+
+<!-- PROCESS BILL MODAL -->
+<div class="modal-bg bill-modal" id="billModal">
+  <div class="modal-box">
+    <div class="bill-modal-hdr">
+      <div>
+        <div class="bill-modal-title" id="billTitle">Process Order #—</div>
+        <div class="bill-modal-meta" id="billMeta">—</div>
+      </div>
+      <button class="modal-cls" onclick="closeM('billModal')"><span class="icon"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></span></button>
+    </div>
+    <div class="bill-modal-body">
+      <!-- LEFT: menu search -->
+      <div class="bill-left">
+        <div class="bill-search-wrap">
+          <span class="bill-search-icon icon sm"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></span>
+          <input type="search" class="bill-search" id="billSearch" placeholder="Search to add items…">
+        </div>
+        <div class="bill-items-list" id="billItemsList"></div>
+      </div>
+      <!-- RIGHT: cart -->
+      <div class="bill-right">
+        <div class="bill-cart-hdr">
+          <span class="bill-cart-title">Bill Items</span>
+          <button class="bill-cart-clear" onclick="billClearCart()">Clear all</button>
+        </div>
+        <div class="bill-cart-body" id="billCartBody"></div>
+        <div class="bill-cart-ftr">
+          <div class="bill-total-row">
+            <span class="bill-total-lbl">Total</span>
+            <span class="bill-total-amt" id="billTotalAmt">LKR 0.00</span>
+          </div>
+          <div class="bill-pay-row">
+            <button class="bill-pay-btn cash" onclick="openCashModal()">
+              <span class="icon sm"><svg viewBox="0 0 24 24"><rect x="2" y="6" width="20" height="12" rx="2"/><circle cx="12" cy="12" r="2"/><path d="M6 12h.01M18 12h.01"/></svg></span>
+              Cash
+            </button>
+            <button class="bill-pay-btn bank" onclick="completeBillPayment('Bank')">
+              <span class="icon sm"><svg viewBox="0 0 24 24"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg></span>
+              Bank / Card
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- CASH SUB-MODAL -->
+<div class="sub-bg" id="cashSubModal">
+  <div class="sub-box">
+    <div class="sub-title">Cash Payment</div>
+    <div class="sub-row">
+      <span class="sub-lbl">Total</span>
+      <span class="sub-val" id="cashSubTotal">LKR 0.00</span>
+    </div>
+    <div class="sub-field">
+      <label>Amount Received (LKR)</label>
+      <input type="number" id="cashReceived" placeholder="0.00" min="0" step="0.01" oninput="calcChange()">
+    </div>
+    <div class="sub-quick">
+      <button class="sub-qbtn" data-amt="500" onclick="addQuick(500)">+500</button>
+      <button class="sub-qbtn" data-amt="1000" onclick="addQuick(1000)">+1000</button>
+      <button class="sub-qbtn" data-amt="2000" onclick="addQuick(2000)">+2000</button>
+      <button class="sub-qbtn" data-amt="5000" onclick="addQuick(5000)">+5000</button>
+    </div>
+    <div class="sub-change-row pos" id="changeRow">
+      <span class="sub-change-lbl">Change</span>
+      <span class="sub-change-val pos" id="changeAmt">LKR 0.00</span>
+    </div>
+    <div class="sub-btns">
+      <button class="sub-btn back" onclick="closeSub('cashSubModal')">Back</button>
+      <button class="sub-btn done" onclick="completeBillPayment('Cash')">
+        <span class="icon sm"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></span>
+        Confirm
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- CUSTOMIZE QTY SUB-MODAL -->
+<div class="sub-bg" id="custSubModal">
+  <div class="sub-box cust-box">
+    <div class="sub-title" id="custSubName">Customize</div>
+    <div style="font-size:12px;color:var(--muted);margin-bottom:14px;" id="custSubPrice">Unit price: LKR 0.00</div>
+    <div class="sub-field">
+      <label>Quantity</label>
+      <input type="number" id="custQtyInput" value="1" min="0.01" step="0.01" oninput="updateCustHint()">
+    </div>
+    <div class="sub-field">
+      <label>Total Price (LKR)</label>
+      <input type="number" id="custPriceInput" placeholder="0.00" min="0" step="0.01" oninput="custPriceEdited=true;updateCustHint()">
+    </div>
+    <div class="cust-hint" id="custHintText"></div>
+    <div class="sub-btns">
+      <button class="sub-btn back" onclick="closeSub('custSubModal')">Cancel</button>
+      <button class="sub-btn done" style="background:var(--primary);" onclick="addCustItem()">
+        <span class="icon sm"><svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></span>
+        Add to Bill
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- SALE SUCCESS -->
+<div class="sale-bg" id="saleBg">
+  <div class="sale-card">
+    <div class="sale-circle">
+      <span class="icon lg"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></span>
+    </div>
+    <div class="sale-ttl">Sale Complete!</div>
+    <div class="sale-amt" id="saleAmt">LKR 0.00</div>
+    <div class="sale-msg" id="saleMsg">Paid</div>
+    <button class="sale-done-btn" onclick="closeSaleDone()">Done</button>
+  </div>
+</div>
+
 <div class="print-area" id="printArea">
   <div class="print-shop">Sithara's Café</div>
   <div class="print-sub">Scan to view our menu and place your order</div>
@@ -636,22 +933,211 @@ html,body{height:100%;font-family:system-ui,-apple-system,sans-serif;background:
     $('viewModal').classList.add('active');
   };
 
-  /* ── PROCESS ── */
+  /* ── PROCESS → open bill modal ── */
   window.doProcess = function(id, e){
     if(e) e.stopPropagation();
     const oid = id !== undefined ? id : activeId;
     const o=orders.find(x=>x.id===oid); if(!o) return;
-    o.status='done'; o.isNew=false;
-    const payload={ orderId:o.id, customer:o.customer, table:o.table,
-      items:o.items.map(i=>({name:i.name,unitPrice:i.price,quantity:i.qty})) };
-    try{ localStorage.setItem('qpos_pending_cart',JSON.stringify(payload)); }catch(ex){}
     closeM('viewModal');
-    renderOrders();
-    showToast('Sending Order #'+o.id+' to Make a Sale…');
-    setTimeout(()=>{ window.location.href='sales.html'; },950);
+    openBillModal(o);
   };
 
-  /* ── CANCEL ── */
+  /* ── BILL MODAL ── */
+  const MENU = [
+    {id:1, name:'Chicken Rice',  category:'Food',   price:1200},
+    {id:2, name:'Iced Coffee',   category:'Drinks', price:600},
+    {id:3, name:'Cheese Pizza',  category:'Food',   price:1200},
+    {id:4, name:'French Fries',  category:'Snacks', price:550},
+    {id:5, name:'Fruit Juice',   category:'Drinks', price:500},
+    {id:6, name:'Ice Cream',     category:'Snacks', price:400},
+    {id:7, name:'Bread Roll',    category:'Bakery', price:150},
+    {id:8, name:'Cookies',       category:'Bakery', price:300},
+    {id:9, name:'Tea',           category:'Drinks', price:200},
+  ];
+
+  let billCart = [];
+  let billOrderId = null;
+  let custProduct = null;
+  let custPriceEdited = false;
+
+  function openBillModal(o){
+    billOrderId = o.id;
+    billCart = o.items.map(i=>({ name:i.name, unitPrice:i.price, quantity:i.qty }));
+    $('billTitle').textContent = 'Process Order #'+o.id;
+    $('billMeta').textContent  = o.customer+' · '+o.table;
+    $('billSearch').value = '';
+    $('billDropdown').classList.remove('open');
+    renderBillCart();
+    $('billModal').classList.add('active');
+  }
+
+  function renderBillCart(){
+    const total = billCart.reduce((s,i)=>s+i.unitPrice*i.quantity, 0);
+    $('billTotalAmt').textContent = fmtLKR(total);
+    if(!billCart.length){
+      $('billCartItems').innerHTML = `<div style="padding:14px;text-align:center;color:var(--muted);font-size:13px;background:var(--bg);border-radius:10px;">No items — search to add</div>`;
+      return;
+    }
+    $('billCartItems').innerHTML = billCart.map((item,idx)=>`
+      <div class="bill-ci">
+        <div class="bill-ci-info">
+          <div class="bill-ci-name">${item.name}</div>
+          <div class="bill-ci-sub">${fmtLKR(item.unitPrice)} × ${item.quantity}</div>
+        </div>
+        <div class="bill-ci-controls">
+          <button class="bill-qty-btn" onclick="billQty(${idx},-1)">−</button>
+          <span class="bill-ci-qty">${item.quantity}</span>
+          <button class="bill-qty-btn" onclick="billQty(${idx},1)">+</button>
+        </div>
+        <div class="bill-ci-total">${fmtLKR(item.unitPrice*item.quantity)}</div>
+      </div>`).join('');
+  }
+
+  window.billQty = function(idx, delta){
+    billCart[idx].quantity += delta;
+    if(billCart[idx].quantity <= 0) billCart.splice(idx,1);
+    renderBillCart();
+  };
+
+  /* ── SEARCH DROPDOWN ── */
+  $('billSearch').addEventListener('focus', ()=> renderDropdown($('billSearch').value));
+  $('billSearch').addEventListener('input', e => renderDropdown(e.target.value));
+
+  function renderDropdown(q){
+    const query = q.trim().toLowerCase();
+    const list = query ? MENU.filter(p=>p.name.toLowerCase().includes(query)||p.category.toLowerCase().includes(query)) : MENU;
+    const dd = $('billDropdown');
+    if(!list.length){ dd.innerHTML=`<div style="padding:14px;text-align:center;color:var(--muted);font-size:13px;">No items found</div>`; }
+    else {
+      dd.innerHTML = list.map(p=>`
+        <div class="bill-prod-row" onclick="billAddItem(${p.id})">
+          <div class="bill-prod-info">
+            <div class="bill-prod-name">${p.name}</div>
+            <div class="bill-prod-price">${fmtLKR(p.price)} · ${p.category}</div>
+          </div>
+          <button class="bill-cust-btn" onclick="event.stopPropagation();openCustSub(${p.id})">Customize</button>
+        </div>`).join('');
+    }
+    dd.classList.add('open');
+  }
+
+  // close dropdown when clicking outside
+  document.addEventListener('click', e=>{
+    if(!$('billSearch').contains(e.target) && !$('billDropdown').contains(e.target)){
+      $('billDropdown').classList.remove('open');
+    }
+  });
+
+  window.billAddItem = function(id){
+    const p=MENU.find(x=>x.id===id); if(!p) return;
+    const ex=billCart.find(x=>x.name===p.name && Math.abs(x.unitPrice-p.price)<0.01);
+    if(ex) ex.quantity++;
+    else billCart.push({name:p.name, unitPrice:p.price, quantity:1});
+    renderBillCart();
+    $('billSearch').value='';
+    $('billDropdown').classList.remove('open');
+  };
+
+  /* ── CUSTOMIZE SUB-MODAL ── */
+  window.openCustSub = function(id){
+    const p=MENU.find(x=>x.id===id); if(!p) return;
+    custProduct=p; custPriceEdited=false;
+    $('custSubName').textContent=p.name;
+    $('custSubPrice').textContent='Unit price: '+fmtLKR(p.price);
+    $('custQtyInput').value='1';
+    $('custPriceInput').value=p.price.toFixed(2);
+    $('custHintText').textContent='= '+fmtLKR(p.price)+' per unit';
+    $('custSubModal').classList.add('active');
+    setTimeout(()=>$('custQtyInput').focus(),100);
+  };
+
+  window.updateCustHint = function(){
+    const qty=parseFloat($('custQtyInput').value)||0;
+    const tot=parseFloat($('custPriceInput').value)||0;
+    if(!custPriceEdited && custProduct){
+      $('custPriceInput').value=(custProduct.price*qty).toFixed(2);
+    }
+    $('custHintText').textContent = qty>0 ? '= '+fmtLKR(tot/qty)+' per unit' : '';
+  };
+
+  $('custQtyInput').addEventListener('input',()=>{
+    if(!custPriceEdited && custProduct){
+      const qty=parseFloat($('custQtyInput').value)||0;
+      $('custPriceInput').value=(custProduct.price*qty).toFixed(2);
+    }
+    updateCustHint();
+  });
+  $('custPriceInput').addEventListener('input',()=>{ custPriceEdited=true; updateCustHint(); });
+
+  window.addCustItem = function(){
+    if(!custProduct) return;
+    const qty=parseFloat($('custQtyInput').value)||0;
+    const tot=parseFloat($('custPriceInput').value)||0;
+    if(qty<=0){alert('Enter a valid quantity');return;}
+    const unitPrice = tot/qty;
+    const ex=billCart.find(x=>x.name===custProduct.name && Math.abs(x.unitPrice-unitPrice)<0.01);
+    if(ex) ex.quantity=+(ex.quantity+qty).toFixed(4);
+    else billCart.push({name:custProduct.name, unitPrice, quantity:qty});
+    renderBillCart();
+    closeSub('custSubModal');
+    custProduct=null; custPriceEdited=false;
+  };
+
+  /* ── CASH MODAL ── */
+  window.openCashModal = function(){
+    if(!billCart.length){showToast('Cart is empty');return;}
+    const total=billCart.reduce((s,i)=>s+i.unitPrice*i.quantity,0);
+    $('cashSubTotal').textContent=fmtLKR(total);
+    $('cashReceived').value='';
+    $('changeAmt').textContent=fmtLKR(0);
+    $('changeRow').className='sub-change-row pos';
+    $('changeAmt').className='sub-change-val pos';
+    $('cashSubModal').classList.add('active');
+    setTimeout(()=>$('cashReceived').focus(),100);
+  };
+
+  window.addQuick = function(amt){
+    const cur=parseFloat($('cashReceived').value)||0;
+    $('cashReceived').value=(cur+amt).toFixed(2);
+    calcChange();
+  };
+
+  window.calcChange = function(){
+    const total=billCart.reduce((s,i)=>s+i.unitPrice*i.quantity,0);
+    const rec=parseFloat($('cashReceived').value)||0;
+    const change=rec-total;
+    $('changeAmt').textContent=fmtLKR(Math.abs(change));
+    const isPos=change>=0;
+    $('changeRow').className='sub-change-row '+(isPos?'pos':'neg');
+    $('changeAmt').className='sub-change-val '+(isPos?'pos':'neg');
+    $('changeRow').querySelector('.sub-change-lbl').textContent=isPos?'Change':'Still needs';
+  };
+
+  /* ── COMPLETE PAYMENT ── */
+  window.completeBillPayment = function(method){
+    if(!billCart.length){showToast('Cart is empty');return;}
+    if(method==='Cash'){
+      const rec=parseFloat($('cashReceived').value)||0;
+      if(rec<=0){alert('Enter amount received');return;}
+    }
+    const total=billCart.reduce((s,i)=>s+i.unitPrice*i.quantity,0);
+    const rec=parseFloat($('cashReceived').value)||0;
+    const o=orders.find(x=>x.id===billOrderId);
+    if(o){o.status='done';o.isNew=false;}
+    closeSub('cashSubModal');
+    closeM('billModal');
+    renderOrders();
+    billCart=[];
+    $('saleAmt').textContent=fmtLKR(total);
+    $('saleMsg').textContent=method==='Cash'?'Cash · Change: '+fmtLKR(rec-total):'Bank / Card payment';
+    $('saleBg').classList.add('active');
+  };
+
+  window.closeSaleDone = function(){ $('saleBg').classList.remove('active'); showToast('Order completed!'); };
+  window.closeSub = function(id){ $(id).classList.remove('active'); };
+  ['cashSubModal','custSubModal'].forEach(id=>{ $(id).addEventListener('click',e=>{ if(e.target===$(id)) closeSub(id); }); });
+
+    /* ── CANCEL ── */
   window.cancelOrder = function(id, e){
     if(e) e.stopPropagation();
     if(!confirm('Cancel order #'+id+'?')) return;
