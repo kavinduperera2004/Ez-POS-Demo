@@ -1,0 +1,717 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ez POS – Products</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+:root{
+  --primary:#5D8AA8;--primary-dark:#4a7795;--primary-bg:rgba(93,138,168,0.08);
+  --success:#2D6A4F;--success-bg:#f0faf4;
+  --danger:#DC2626;--danger-bg:#fef2f2;
+  --warning:#B45309;--warning-bg:#fffbeb;
+  --bg:#F0F4F8;--white:#fff;--border:#E2E8F0;
+  --text:#2D3748;--muted:#718096;
+  --shadow:0 2px 8px rgba(0,0,0,0.07);--shadow-lg:0 8px 24px rgba(0,0,0,0.10);
+  --radius:12px;--sidebar-w:220px;
+}
+html,body{height:100%;font-family:system-ui,-apple-system,sans-serif;background:var(--bg);overflow:hidden;}
+.icon{display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;}
+.icon svg{width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;}
+.icon.sm svg{width:14px;height:14px;}
+.icon.lg svg{width:22px;height:22px;}
+.icon.xl svg{width:36px;height:36px;}
+
+/* ── LAYOUT ── */
+.app{display:flex;height:100vh;overflow:hidden;}
+
+/* ── SIDEBAR ── */
+.sidebar{width:var(--sidebar-w);min-width:var(--sidebar-w);height:100%;background:var(--white);border-right:1px solid var(--border);display:flex;flex-direction:column;z-index:50;transition:transform 0.28s cubic-bezier(0.4,0,0.2,1);}
+.sidebar-header{height:60px;padding:0 20px;display:flex;align-items:center;gap:10px;border-bottom:1px solid var(--border);flex-shrink:0;}
+.sidebar-logo{font-size:16px;font-weight:800;color:var(--primary);}
+.nav-section{flex:1;padding:8px 0;overflow-y:auto;}
+.nav-item{display:flex;align-items:center;gap:12px;padding:12px 20px;color:var(--muted);text-decoration:none;font-size:14px;font-weight:500;border:none;background:none;width:100%;text-align:left;cursor:pointer;transition:background 0.15s,color 0.15s;border-right:3px solid transparent;}
+.nav-item:hover{background:var(--primary-bg);color:var(--primary);}
+.nav-item.active{background:var(--primary-bg);color:var(--primary);border-right-color:var(--primary);}
+.nav-item .icon{color:inherit;}
+
+/* ── MAIN ── */
+.main-area{flex:1;display:flex;flex-direction:column;overflow:hidden;min-width:0;}
+.topbar{height:60px;background:var(--white);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 20px;gap:14px;flex-shrink:0;z-index:40;}
+.topbar-menu{background:none;border:none;cursor:pointer;color:var(--muted);padding:6px;border-radius:8px;display:flex;transition:background 0.15s;}
+.topbar-menu:hover{background:var(--bg);}
+.topbar-title{font-size:18px;font-weight:700;color:var(--text);flex:1;}
+.topbar-shift{font-size:13px;color:var(--muted);}
+.topbar-avatar{width:36px;height:36px;border-radius:50%;background:var(--primary);color:#fff;font-size:13px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+
+/* ── PAGE BODY ── */
+.page-body{flex:1;display:flex;flex-direction:column;overflow:hidden;min-height:0;}
+
+/* ── TOOLBAR ── */
+.toolbar{background:var(--white);border-bottom:1px solid var(--border);padding:12px 16px;display:flex;align-items:center;gap:10px;flex-shrink:0;flex-wrap:wrap;}
+.search-wrap{position:relative;flex:1;min-width:180px;max-width:320px;}
+.search-input{width:100%;padding:9px 34px 9px 36px;border:1.5px solid var(--border);border-radius:10px;font-size:14px;background:var(--bg);color:var(--text);outline:none;transition:border-color 0.15s;}
+.search-input:focus{border-color:var(--primary);background:var(--white);}
+.search-icon{position:absolute;left:10px;top:50%;transform:translateY(-50%);color:var(--muted);pointer-events:none;}
+.search-clear{position:absolute;right:8px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:var(--muted);display:none;padding:3px;}
+
+.cat-scroll{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;flex:1;}
+.cat-scroll::-webkit-scrollbar{display:none;}
+.cat-chip{padding:7px 14px;border-radius:20px;border:1.5px solid var(--border);background:var(--white);color:var(--muted);font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap;transition:all 0.15s;flex-shrink:0;}
+.cat-chip.active{background:var(--primary);border-color:var(--primary);color:#fff;}
+.cat-chip:hover:not(.active){border-color:var(--primary);color:var(--primary);}
+
+.add-btn{display:flex;align-items:center;gap:6px;padding:9px 16px;background:var(--primary);color:#fff;border:none;border-radius:10px;font-size:13px;font-weight:700;cursor:pointer;transition:background 0.15s;white-space:nowrap;flex-shrink:0;}
+.add-btn:hover{background:var(--primary-dark);}
+
+/* ── SUMMARY STRIP ── */
+.summary-strip{padding:10px 16px;display:flex;gap:20px;background:var(--white);border-bottom:1px solid var(--border);flex-shrink:0;flex-wrap:wrap;}
+.ss-item{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--muted);}
+.ss-val{font-weight:700;color:var(--text);}
+.ss-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
+
+/* ── PRODUCT TABLE ── */
+.table-wrap{flex:1;overflow-y:auto;min-height:0;}
+.table-wrap::-webkit-scrollbar{width:5px;}
+.table-wrap::-webkit-scrollbar-thumb{background:var(--border);border-radius:4px;}
+
+table{width:100%;border-collapse:collapse;}
+thead{position:sticky;top:0;z-index:10;}
+thead th{background:var(--white);padding:11px 16px;text-align:left;font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;border-bottom:2px solid var(--border);white-space:nowrap;}
+thead th.r{text-align:right;}
+tbody tr{background:var(--white);border-bottom:1px solid var(--border);transition:background 0.12s;}
+tbody tr:hover{background:#f8fafc;}
+tbody td{padding:14px 16px;font-size:14px;color:var(--text);vertical-align:middle;}
+tbody td.r{text-align:right;}
+tbody td.muted{color:var(--muted);font-size:13px;}
+
+/* product name cell */
+.prod-name-cell{display:flex;align-items:center;gap:10px;}
+.prod-icon{width:38px;height:38px;border-radius:10px;background:var(--primary-bg);color:var(--primary);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:16px;}
+.prod-name{font-weight:700;color:var(--text);font-size:14px;}
+.prod-cat{font-size:11px;color:var(--muted);margin-top:2px;}
+
+/* price cells */
+.cost-price{color:var(--muted);font-weight:600;}
+.sell-price{color:var(--success);font-weight:700;}
+.margin-pill{display:inline-flex;padding:2px 8px;border-radius:20px;font-size:11px;font-weight:700;}
+.margin-pill.good{background:var(--success-bg);color:var(--success);}
+.margin-pill.ok{background:var(--warning-bg);color:var(--warning);}
+.margin-pill.low{background:var(--danger-bg);color:var(--danger);}
+
+/* discount badge */
+.disc-badge{display:inline-flex;align-items:center;padding:2px 8px;border-radius:20px;font-size:11px;font-weight:700;background:var(--primary-bg);color:var(--primary);}
+.disc-none{color:var(--muted);font-size:13px;}
+
+/* status toggle */
+.toggle{position:relative;width:38px;height:22px;cursor:pointer;}
+.toggle input{opacity:0;width:0;height:0;position:absolute;}
+.toggle-track{position:absolute;inset:0;border-radius:11px;background:var(--border);transition:background 0.2s;}
+.toggle input:checked + .toggle-track{background:var(--success);}
+.toggle-thumb{position:absolute;top:3px;left:3px;width:16px;height:16px;border-radius:50%;background:#fff;transition:transform 0.2s;box-shadow:0 1px 3px rgba(0,0,0,0.2);}
+.toggle input:checked ~ .toggle-thumb{transform:translateX(16px);}
+
+/* row actions */
+.row-actions{display:flex;gap:6px;justify-content:flex-end;}
+.icon-btn{width:32px;height:32px;border-radius:8px;border:none;background:none;cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--muted);transition:all 0.15s;}
+.icon-btn:hover.edit{background:var(--primary-bg);color:var(--primary);}
+.icon-btn:hover.del{background:var(--danger-bg);color:var(--danger);}
+
+/* empty */
+.empty-state{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:80px 20px;gap:14px;color:var(--muted);text-align:center;}
+
+/* ── MODAL ── */
+.modal-bg{position:fixed;inset:0;background:rgba(0,0,0,0.55);z-index:500;display:flex;align-items:flex-end;justify-content:center;opacity:0;visibility:hidden;transition:opacity 0.22s;}
+.modal-bg.active{opacity:1;visibility:visible;}
+.modal-box{background:var(--white);border-radius:22px 22px 0 0;width:100%;max-width:520px;transform:translateY(40px);transition:transform 0.22s;max-height:94vh;display:flex;flex-direction:column;}
+.modal-bg.active .modal-box{transform:translateY(0);}
+@media(min-width:620px){.modal-bg{align-items:center;}.modal-box{border-radius:18px;}}
+.modal-hdr{padding:20px 22px 16px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border);flex-shrink:0;}
+.modal-ttl{font-size:18px;font-weight:800;color:var(--text);}
+.modal-cls{background:none;border:none;cursor:pointer;color:var(--muted);padding:4px;border-radius:8px;}
+.modal-cls:hover{background:var(--bg);}
+.modal-body{padding:20px 22px;overflow-y:auto;flex:1;}
+.modal-body::-webkit-scrollbar{width:4px;}
+.modal-body::-webkit-scrollbar-thumb{background:var(--border);border-radius:4px;}
+.modal-ftr{padding:16px 22px;border-top:1px solid var(--border);display:flex;gap:10px;flex-shrink:0;}
+
+/* form fields */
+.field{margin-bottom:16px;}
+.field label{display:block;font-size:11px;font-weight:700;color:var(--muted);margin-bottom:6px;text-transform:uppercase;letter-spacing:0.5px;}
+.field input,.field select,.field textarea{width:100%;padding:11px 14px;border:1.5px solid var(--border);border-radius:10px;font-size:14px;color:var(--text);background:var(--white);outline:none;transition:border-color 0.15s;font-family:inherit;}
+.field input:focus,.field select:focus,.field textarea:focus{border-color:var(--primary);}
+.field textarea{resize:vertical;min-height:72px;}
+.field-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.field-row3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;}
+.field-hint{font-size:11px;color:var(--muted);margin-top:5px;}
+.field-hint.green{color:var(--success);font-weight:600;}
+.field-hint.red{color:var(--danger);font-weight:600;}
+
+/* price preview box */
+.price-preview{background:var(--bg);border-radius:10px;padding:12px 16px;display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;border:1px solid var(--border);}
+.pp-item{text-align:center;}
+.pp-lbl{font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.4px;margin-bottom:3px;}
+.pp-val{font-size:16px;font-weight:800;}
+.pp-val.cost{color:var(--muted);}
+.pp-val.sell{color:var(--success);}
+.pp-val.margin{color:var(--primary);}
+.pp-arrow{color:var(--border);font-size:18px;}
+
+/* section divider */
+.section-lbl{font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:12px;margin-top:4px;padding-bottom:8px;border-bottom:1px solid var(--border);}
+
+/* modal btns */
+.mbtn{flex:1;padding:14px;border-radius:50px;border:none;font-size:15px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:7px;transition:opacity 0.15s,transform 0.1s;}
+.mbtn:hover{opacity:0.9;transform:translateY(-1px);}
+.mbtn.cancel{background:var(--bg);color:var(--text);border:1.5px solid var(--border);}
+.mbtn.save{background:var(--primary);color:#fff;}
+.mbtn.del-confirm{background:var(--danger);color:#fff;}
+
+/* delete confirm modal */
+.del-modal .modal-box{max-width:380px;}
+.del-modal-body{padding:24px 22px;text-align:center;}
+.del-icon{width:60px;height:60px;border-radius:50%;background:var(--danger-bg);color:var(--danger);display:flex;align-items:center;justify-content:center;margin:0 auto 14px;}
+.del-title{font-size:18px;font-weight:800;color:var(--text);margin-bottom:6px;}
+.del-sub{font-size:14px;color:var(--muted);line-height:1.5;}
+
+/* toast */
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(80px);background:var(--text);color:#fff;padding:12px 22px;border-radius:14px;font-size:14px;font-weight:600;z-index:999;transition:transform 0.3s cubic-bezier(0.34,1.56,0.64,1);white-space:nowrap;display:flex;align-items:center;gap:8px;box-shadow:var(--shadow-lg);pointer-events:none;}
+.toast.show{transform:translateX(-50%) translateY(0);}
+
+/* ── RESPONSIVE ── */
+@media(max-width:767px){
+  .sidebar{position:fixed;top:0;left:0;height:100%;transform:translateX(-100%);z-index:400;box-shadow:4px 0 20px rgba(0,0,0,0.15);}
+  .sidebar.open{transform:translateX(0);}
+  .sidebar-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.4);z-index:300;display:none;}
+  .sidebar-overlay.open{display:block;}
+  .topbar-shift{display:none;}
+  thead th.hide-mob,tbody td.hide-mob{display:none;}
+}
+@media(min-width:768px){
+  .topbar-shift{display:block;}
+  .sidebar-overlay{display:none !important;}
+}
+@media(min-width:768px) and (max-width:1023px){
+  .sidebar{width:64px;min-width:64px;}
+  .sidebar-logo{display:none;}
+  .nav-item span:last-child:not(.icon){display:none;}
+  .nav-item{justify-content:center;padding:14px 0;}
+  .sidebar.open-desk{width:var(--sidebar-w);min-width:var(--sidebar-w);}
+  .sidebar.open-desk .sidebar-logo{display:block;}
+  .sidebar.open-desk .nav-item span:last-child:not(.icon){display:inline;}
+  .sidebar.open-desk .nav-item{justify-content:flex-start;padding:12px 20px;}
+  thead th.hide-tab,tbody td.hide-tab{display:none;}
+}
+.sidebar.collapsed{width:64px;min-width:64px;}
+.sidebar.collapsed .sidebar-logo{display:none;}
+.sidebar.collapsed .nav-item span:last-child:not(.icon){display:none;}
+.sidebar.collapsed .nav-item{justify-content:center;padding:14px 0;}
+</style>
+</head>
+<body>
+
+<div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+<div class="app">
+  <!-- SIDEBAR -->
+  <nav class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <span class="icon lg" style="color:var(--primary);"><svg viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg></span>
+      <div class="sidebar-logo">Ez POS</div>
+    </div>
+    <div class="nav-section">
+      <a href="dashboard.html" class="nav-item">
+        <span class="icon"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg></span>
+        <span>Dashboard</span>
+      </a>
+      <a href="sales.html" class="nav-item">
+        <span class="icon"><svg viewBox="0 0 24 24"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg></span>
+        <span>Make a Sale</span>
+      </a>
+      <a href="orders.html" class="nav-item">
+        <span class="icon"><svg viewBox="0 0 24 24"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="2"/><path d="M9 12h6M9 16h4"/></svg></span>
+        <span>Orders</span>
+      </a>
+      <a href="products.html" class="nav-item active">
+        <span class="icon"><svg viewBox="0 0 24 24"><path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/></svg></span>
+        <span>Products</span>
+      </a>
+      <a href="categories.html" class="nav-item">
+        <span class="icon"><svg viewBox="0 0 24 24"><path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83 0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg></span>
+        <span>Category</span>
+      </a>
+      <a href="reports.html" class="nav-item">
+        <span class="icon"><svg viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg></span>
+        <span>Sales</span>
+      </a>
+      <a href="users.html" class="nav-item">
+        <span class="icon"><svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg></span>
+        <span>Users</span>
+      </a>
+      <a href="settings.html" class="nav-item">
+        <span class="icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg></span>
+        <span>Settings</span>
+      </a>
+      <button class="nav-item" id="logoutBtn">
+        <span class="icon"><svg viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg></span>
+        <span>Logout</span>
+      </button>
+    </div>
+  </nav>
+
+  <div class="main-area">
+    <div class="topbar">
+      <button class="topbar-menu" id="menuBtn">
+        <span class="icon lg"><svg viewBox="0 0 24 24"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg></span>
+      </button>
+      <div class="topbar-title">Products</div>
+      <div class="topbar-shift">Shift: 08:00 – 16:00</div>
+      <div class="topbar-avatar">OP</div>
+    </div>
+
+    <div class="page-body">
+      <!-- TOOLBAR -->
+      <div class="toolbar">
+        <div class="search-wrap">
+          <span class="search-icon icon sm"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></span>
+          <input type="search" class="search-input" id="searchInput" placeholder="Search products…">
+          <button class="search-clear icon sm" id="searchClear"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+        </div>
+        <div class="cat-scroll" id="catScroll"></div>
+        <button class="add-btn" onclick="openAdd()">
+          <span class="icon sm"><svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></span>
+          Add Product
+        </button>
+      </div>
+
+      <!-- SUMMARY STRIP -->
+      <div class="summary-strip" id="summaryStrip"></div>
+
+      <!-- TABLE -->
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Product</th>
+              <th class="r hide-mob">Cost Price</th>
+              <th class="r">Selling Price</th>
+              <th class="r hide-mob hide-tab">Discount</th>
+              <th class="r hide-mob">Margin</th>
+              <th class="hide-mob hide-tab">Status</th>
+              <th class="r">Actions</th>
+            </tr>
+          </thead>
+          <tbody id="productsTbody"></tbody>
+        </table>
+        <div id="emptyState" style="display:none;" class="empty-state">
+          <span class="icon xl" style="color:var(--border);"><svg viewBox="0 0 24 24"><path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/></svg></span>
+          <div style="font-size:15px;font-weight:700;">No products found</div>
+          <div style="font-size:13px;">Try a different search or add a new product</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ADD / EDIT MODAL -->
+<div class="modal-bg" id="productModal">
+  <div class="modal-box">
+    <div class="modal-hdr">
+      <span class="modal-ttl" id="modalTitle">Add Product</span>
+      <button class="modal-cls" onclick="closeModal('productModal')"><span class="icon"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></span></button>
+    </div>
+    <div class="modal-body">
+      <div class="section-lbl">Basic Info</div>
+      <div class="field">
+        <label>Product Name</label>
+        <input type="text" id="fName" placeholder="e.g. Chicken Rice">
+      </div>
+      <div class="field-row">
+        <div class="field">
+          <label>Category</label>
+          <select id="fCategory"></select>
+        </div>
+        <div class="field">
+          <label>Unit / Measure</label>
+          <select id="fUnit">
+            <option value="item">Item</option>
+            <option value="kg">Kilogram (kg)</option>
+            <option value="g">Gram (g)</option>
+            <option value="l">Litre (l)</option>
+            <option value="ml">Millilitre (ml)</option>
+            <option value="portion">Portion</option>
+            <option value="packet">Packet</option>
+            <option value="bottle">Bottle</option>
+            <option value="cup">Cup</option>
+            <option value="plate">Plate</option>
+          </select>
+        </div>
+      </div>
+      <div class="field">
+        <label>Description (optional)</label>
+        <textarea id="fDesc" placeholder="Short description…"></textarea>
+      </div>
+
+      <div class="section-lbl">Pricing</div>
+
+      <!-- live price preview -->
+      <div class="price-preview" id="pricePreview">
+        <div class="pp-item"><div class="pp-lbl">Cost</div><div class="pp-val cost" id="ppCost">LKR 0</div></div>
+        <div class="pp-arrow">→</div>
+        <div class="pp-item"><div class="pp-lbl">Sell</div><div class="pp-val sell" id="ppSell">LKR 0</div></div>
+        <div class="pp-arrow">→</div>
+        <div class="pp-item"><div class="pp-lbl">After Disc.</div><div class="pp-val sell" id="ppFinal">LKR 0</div></div>
+        <div class="pp-arrow">→</div>
+        <div class="pp-item"><div class="pp-lbl">Margin</div><div class="pp-val margin" id="ppMargin">0%</div></div>
+      </div>
+
+      <div class="field-row">
+        <div class="field">
+          <label>Cost Price (LKR)</label>
+          <input type="number" id="fCost" placeholder="0.00" min="0" step="0.01" oninput="updatePreview()">
+          <div class="field-hint">What you pay to make/buy it</div>
+        </div>
+        <div class="field">
+          <label>Selling Price (LKR)</label>
+          <input type="number" id="fPrice" placeholder="0.00" min="0" step="0.01" oninput="updatePreview()">
+          <div class="field-hint">What the customer pays</div>
+        </div>
+      </div>
+
+      <div class="field-row">
+        <div class="field">
+          <label>Discount Type</label>
+          <select id="fDiscType" onchange="updatePreview()">
+            <option value="none">No Discount</option>
+            <option value="pct">Percentage (%)</option>
+            <option value="flat">Flat Amount (LKR)</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Discount Value</label>
+          <input type="number" id="fDiscVal" placeholder="0" min="0" step="0.01" oninput="updatePreview()" disabled>
+          <div class="field-hint" id="discHint">Select a discount type first</div>
+        </div>
+      </div>
+
+      <div class="section-lbl">Status</div>
+      <div class="field">
+        <label>Status</label>
+        <select id="fStatus">
+          <option value="active">Active</option>
+          <option value="inactive">Inactive</option>
+        </select>
+      </div>
+    </div>
+    <div class="modal-ftr">
+      <button class="mbtn cancel" onclick="closeModal('productModal')">Cancel</button>
+      <button class="mbtn save" onclick="saveProduct()">
+        <span class="icon sm"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></span>
+        Save Product
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- DELETE CONFIRM MODAL -->
+<div class="modal-bg del-modal" id="deleteModal">
+  <div class="modal-box">
+    <div class="del-modal-body">
+      <div class="del-icon">
+        <span class="icon"><svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4a1 1 0 011-1h4a1 1 0 011 1v2"/></svg></span>
+      </div>
+      <div class="del-title" id="delTitle">Delete product?</div>
+      <div class="del-sub" id="delSub">This will permanently remove this product.</div>
+    </div>
+    <div class="modal-ftr">
+      <button class="mbtn cancel" onclick="closeModal('deleteModal')">Cancel</button>
+      <button class="mbtn del-confirm" onclick="confirmDelete()">
+        <span class="icon sm"><svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/></svg></span>
+        Delete
+      </button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"><span id="toastMsg"></span></div>
+
+<script>
+(function(){
+  const $ = id => document.getElementById(id);
+  const fmtLKR = n => 'LKR '+(+n).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});
+  const fmtShort = n => n>=1000?'LKR '+(n/1000).toFixed(1)+'K':fmtLKR(n);
+
+  /* ── SIDEBAR ── */
+  function isMob(){ return window.innerWidth < 768; }
+  $('menuBtn').addEventListener('click',()=>{
+    const sb=$('sidebar');
+    if(isMob()){ sb.classList.toggle('open'); $('sidebarOverlay').classList.toggle('open',sb.classList.contains('open')); }
+    else if(window.innerWidth<1024) sb.classList.toggle('open-desk');
+    else sb.classList.toggle('collapsed');
+  });
+  $('sidebarOverlay').addEventListener('click',()=>{ $('sidebar').classList.remove('open'); $('sidebarOverlay').classList.remove('open'); });
+  $('logoutBtn').addEventListener('click',()=>{ if(confirm('Logout?')) window.location.href='login.html'; });
+
+  /* ── DATA ── */
+  const CATEGORIES = ['All','Food','Drinks','Snacks','Bakery','Other'];
+  const CAT_COLORS = {Food:'#5D8AA8',Drinks:'#2D6A4F',Snacks:'#B45309',Bakery:'#7C3AED',Other:'#718096'};
+
+  let products = [
+    {id:1, name:'Chicken Rice',   category:'Food',   unit:'plate',   cost:550,  price:1200, discType:'none', discVal:0,  status:'active',   desc:''},
+    {id:2, name:'Iced Coffee',    category:'Drinks', unit:'cup',     cost:180,  price:600,  discType:'pct',  discVal:10, status:'active',   desc:'Cold brew with milk'},
+    {id:3, name:'Cheese Pizza',   category:'Food',   unit:'plate',   cost:480,  price:1200, discType:'none', discVal:0,  status:'active',   desc:''},
+    {id:4, name:'French Fries',   category:'Snacks', unit:'portion', cost:120,  price:550,  discType:'flat', discVal:50, status:'active',   desc:''},
+    {id:5, name:'Fruit Juice',    category:'Drinks', unit:'cup',     cost:150,  price:500,  discType:'none', discVal:0,  status:'active',   desc:''},
+    {id:6, name:'Ice Cream',      category:'Snacks', unit:'item',    cost:120,  price:400,  discType:'none', discVal:0,  status:'active',   desc:''},
+    {id:7, name:'Bread Roll',     category:'Bakery', unit:'item',    cost:40,   price:150,  discType:'none', discVal:0,  status:'active',   desc:''},
+    {id:8, name:'Cookies',        category:'Bakery', unit:'packet',  cost:100,  price:300,  discType:'pct',  discVal:5,  status:'active',   desc:''},
+    {id:9, name:'Tea',            category:'Drinks', unit:'cup',     cost:60,   price:200,  discType:'none', discVal:0,  status:'active',   desc:''},
+    {id:10,name:'Veggie Burger',  category:'Food',   unit:'plate',   cost:350,  price:900,  discType:'none', discVal:0,  status:'inactive', desc:'Seasonal item'},
+  ];
+  let nextId = 11;
+  let currentCat = 'All', searchQ = '', editingId = null, deletingId = null;
+
+  /* ── CATEGORY CHIPS ── */
+  function renderCats(){
+    $('catScroll').innerHTML = CATEGORIES.map(c=>`
+      <button class="cat-chip${c===currentCat?' active':''}" data-cat="${c}" onclick="setCat('${c}')">${c}</button>
+    `).join('');
+  }
+  window.setCat = function(cat){ currentCat=cat; renderCats(); render(); };
+
+  /* ── SEARCH ── */
+  $('searchInput').addEventListener('input', e=>{
+    searchQ = e.target.value.trim().toLowerCase();
+    $('searchClear').style.display = searchQ ? 'flex' : 'none';
+    render();
+  });
+  $('searchClear').addEventListener('click',()=>{ $('searchInput').value=''; searchQ=''; $('searchClear').style.display='none'; render(); });
+
+  /* ── PRICE HELPERS ── */
+  function finalPrice(p){
+    if(p.discType==='pct')  return p.price * (1 - p.discVal/100);
+    if(p.discType==='flat') return Math.max(0, p.price - p.discVal);
+    return p.price;
+  }
+  function margin(p){
+    const fp = finalPrice(p);
+    if(p.cost<=0) return null;
+    return ((fp - p.cost) / p.cost * 100);
+  }
+
+  /* ── SUMMARY STRIP ── */
+  function renderSummary(list){
+    const total=list.length;
+    const active=list.filter(p=>p.status==='active').length;
+    const inactive=list.filter(p=>p.status==='inactive').length;
+    $('summaryStrip').innerHTML=`
+      <div class="ss-item"><div class="ss-dot" style="background:var(--primary);"></div><span>${total} products</span></div>
+      <div class="ss-item"><div class="ss-dot" style="background:var(--success);"></div><span class="ss-val">${active}</span>&nbsp;active</div>
+      ${inactive?`<div class="ss-item"><div class="ss-dot" style="background:var(--muted);"></div><span class="ss-val">${inactive}</span>&nbsp;inactive</div>`:''}
+    `;
+  }
+
+  /* ── RENDER TABLE ── */
+  function render(){
+    let list = currentCat==='All' ? products : products.filter(p=>p.category===currentCat);
+    if(searchQ) list = list.filter(p=>p.name.toLowerCase().includes(searchQ)||p.category.toLowerCase().includes(searchQ));
+    renderSummary(list);
+
+    if(!list.length){
+      $('productsTbody').innerHTML='';
+      $('emptyState').style.display='flex';
+      return;
+    }
+    $('emptyState').style.display='none';
+
+    $('productsTbody').innerHTML = list.map(p=>{
+      const fp   = finalPrice(p);
+      const mgn  = margin(p);
+      const mgnTxt = mgn!==null ? mgn.toFixed(0)+'%' : '—';
+      const mgnCls = mgn===null?'ok':mgn>=40?'good':mgn>=20?'ok':'low';
+
+      const discTxt = p.discType==='pct' ? `<span class="disc-badge">${p.discVal}% off</span>`
+                    : p.discType==='flat'? `<span class="disc-badge">LKR ${p.discVal} off</span>`
+                    : `<span class="disc-none">—</span>`;
+
+      return `<tr>
+        <td>
+          <div class="prod-name-cell">
+            <div class="prod-icon" style="background:${CAT_COLORS[p.category]||'#718096'}18;color:${CAT_COLORS[p.category]||'#718096'};font-size:13px;font-weight:800;">${p.category[0]}</div>
+            <div>
+              <div class="prod-name">${p.name}</div>
+              <div class="prod-cat">${p.category} · ${p.unit}</div>
+            </div>
+          </div>
+        </td>
+        <td class="r cost-price hide-mob">${fmtLKR(p.cost)}</td>
+        <td class="r sell-price">${fmtLKR(fp)}</td>
+        <td class="r hide-mob hide-tab">${discTxt}</td>
+        <td class="r hide-mob"><span class="margin-pill ${mgnCls}">${mgnTxt}</span></td>
+        <td class="hide-mob hide-tab">
+          <label class="toggle" title="${p.status==='active'?'Active — click to deactivate':'Inactive — click to activate'}">
+            <input type="checkbox" ${p.status==='active'?'checked':''} onchange="toggleStatus(${p.id})">
+            <div class="toggle-track"></div>
+            <div class="toggle-thumb"></div>
+          </label>
+        </td>
+        <td class="r">
+          <div class="row-actions">
+            <button class="icon-btn edit" onclick="openEdit(${p.id})" title="Edit">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+            </button>
+            <button class="icon-btn del" onclick="openDelete(${p.id})" title="Delete">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/><path d="M10 11v6M14 11v6"/></svg>
+            </button>
+          </div>
+        </td>
+      </tr>`;
+    }).join('');
+  }
+
+  /* ── TOGGLE STATUS ── */
+  window.toggleStatus = function(id){
+    const p=products.find(x=>x.id===id); if(!p) return;
+    p.status = p.status==='active'?'inactive':'active';
+    render();
+    showToast(p.name+' is now '+p.status);
+  };
+
+  /* ── ADD MODAL ── */
+  window.openAdd = function(){
+    editingId=null;
+    $('modalTitle').textContent='Add Product';
+    clearForm();
+    populateCatSelect();
+    $('productModal').classList.add('active');
+    setTimeout(()=>$('fName').focus(),120);
+  };
+
+  /* ── EDIT MODAL ── */
+  window.openEdit = function(id){
+    const p=products.find(x=>x.id===id); if(!p) return;
+    editingId=id;
+    $('modalTitle').textContent='Edit Product';
+    populateCatSelect(p.category);
+    $('fName').value     = p.name;
+    $('fUnit').value     = p.unit;
+    $('fDesc').value     = p.desc;
+    $('fCost').value     = p.cost;
+    $('fPrice').value    = p.price;
+    $('fDiscType').value = p.discType;
+    $('fDiscVal').value  = p.discVal;
+    $('fDiscVal').disabled = p.discType==='none';
+    $('fStatus').value   = p.status;
+    updatePreview();
+    $('productModal').classList.add('active');
+  };
+
+  function populateCatSelect(selected){
+    const cats = CATEGORIES.filter(c=>c!=='All');
+    $('fCategory').innerHTML = cats.map(c=>`<option value="${c}"${c===selected?' selected':''}>${c}</option>`).join('');
+  }
+
+  function clearForm(){
+    ['fName','fDesc','fCost','fPrice','fDiscVal'].forEach(id=>$(id).value='');
+    $('fCategory').value='Food';
+    $('fUnit').value='item';
+    $('fDiscType').value='none';
+    $('fDiscVal').disabled=true;
+    $('fStatus').value='active';
+    updatePreview();
+  }
+
+  /* ── DISCOUNT TYPE CHANGE ── */
+  $('fDiscType').addEventListener('change', ()=>{
+    const t=$('fDiscType').value;
+    $('fDiscVal').disabled = t==='none';
+    if(t==='none') $('fDiscVal').value='';
+    $('discHint').textContent = t==='pct'?'Enter % off (e.g. 10 = 10%)':t==='flat'?'Amount off in LKR':'Select a discount type first';
+    updatePreview();
+  });
+
+  /* ── LIVE PRICE PREVIEW ── */
+  window.updatePreview = function(){
+    const cost  = parseFloat($('fCost').value)||0;
+    const price = parseFloat($('fPrice').value)||0;
+    const dt    = $('fDiscType').value;
+    const dv    = parseFloat($('fDiscVal').value)||0;
+    let fp = price;
+    if(dt==='pct')  fp = price*(1-dv/100);
+    if(dt==='flat') fp = Math.max(0, price-dv);
+    const mgn = cost>0 ? ((fp-cost)/cost*100) : null;
+    $('ppCost').textContent  = fmtShort(cost);
+    $('ppSell').textContent  = fmtShort(price);
+    $('ppFinal').textContent = fmtShort(fp);
+    $('ppMargin').textContent= mgn!==null ? mgn.toFixed(0)+'%' : '—';
+    $('ppMargin').style.color = mgn===null?'var(--muted)':mgn>=40?'var(--success)':mgn>=20?'var(--warning)':'var(--danger)';
+  };
+
+  /* ── SAVE ── */
+  window.saveProduct = function(){
+    const name = $('fName').value.trim();
+    if(!name){ alert('Product name is required'); $('fName').focus(); return; }
+    const cost  = parseFloat($('fCost').value)||0;
+    const price = parseFloat($('fPrice').value)||0;
+    if(price<=0){ alert('Selling price must be greater than 0'); $('fPrice').focus(); return; }
+    const dt  = $('fDiscType').value;
+    const dv  = parseFloat($('fDiscVal').value)||0;
+    if(dt==='pct' && (dv<0||dv>100)){ alert('Discount % must be between 0 and 100'); return; }
+    if(dt==='flat' && dv>price){ alert('Flat discount cannot exceed selling price'); return; }
+
+    const data = {
+      name, category:$('fCategory').value, unit:$('fUnit').value,
+      desc:$('fDesc').value.trim(), cost, price,
+      discType:dt, discVal:dv,
+      status:$('fStatus').value
+    };
+
+    if(editingId){
+      const idx=products.findIndex(x=>x.id===editingId);
+      products[idx]={...products[idx],...data};
+      showToast('✓ '+name+' updated');
+    } else {
+      products.unshift({id:nextId++,...data});
+      showToast('✓ '+name+' added');
+    }
+    closeModal('productModal');
+    render();
+  };
+
+  /* ── DELETE ── */
+  window.openDelete = function(id){
+    const p=products.find(x=>x.id===id); if(!p) return;
+    deletingId=id;
+    $('delTitle').textContent='Delete "'+p.name+'"?';
+    $('delSub').textContent='This will permanently remove this product and it will no longer appear in Make a Sale.';
+    $('deleteModal').classList.add('active');
+  };
+  window.confirmDelete = function(){
+    if(!deletingId) return;
+    const p=products.find(x=>x.id===deletingId);
+    products=products.filter(x=>x.id!==deletingId);
+    deletingId=null;
+    closeModal('deleteModal');
+    render();
+    showToast(p?p.name+' deleted':'Product deleted');
+  };
+
+  /* ── MODALS ── */
+  window.closeModal = function(id){ $(id).classList.remove('active'); };
+  document.querySelectorAll('.modal-bg').forEach(bg=>bg.addEventListener('click',e=>{ if(e.target===bg) bg.classList.remove('active'); }));
+
+  /* ── TOAST ── */
+  function showToast(msg){
+    $('toastMsg').textContent=msg;
+    $('toast').classList.add('show');
+    setTimeout(()=>$('toast').classList.remove('show'),3000);
+  }
+
+  /* ── INIT ── */
+  renderCats();
+  render();
+})();
+</script>
+</body>
+</html>
