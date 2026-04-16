@@ -227,15 +227,15 @@ html,body{height:100%;font-family:system-ui,-apple-system,sans-serif;background:
 .bill-modal-body::-webkit-scrollbar{width:4px;}
 .bill-modal-body::-webkit-scrollbar-thumb{background:var(--border);border-radius:4px;}
 .bill-sec-lbl{font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;}
-.bill-ci{display:flex;align-items:center;gap:10px;padding:10px 12px;background:var(--bg);border-radius:10px;}
+.bill-ci{display:flex;align-items:center;gap:12px;padding:12px 14px;background:var(--bg);border-radius:10px;border:1px solid var(--border);}
 .bill-ci-info{flex:1;min-width:0;}
 .bill-ci-name{font-size:13px;font-weight:700;color:var(--text);}
-.bill-ci-sub{font-size:11px;color:var(--muted);}
-.bill-ci-controls{display:flex;align-items:center;gap:6px;flex-shrink:0;}
-.bill-qty-btn{width:26px;height:26px;border-radius:50%;border:1.5px solid var(--border);background:#fff;color:var(--primary);font-size:15px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all 0.15s;}
-.bill-qty-btn:hover{background:var(--primary);color:#fff;border-color:var(--primary);}
-.bill-ci-qty{font-size:13px;font-weight:700;min-width:20px;text-align:center;color:var(--text);}
-.bill-ci-total{font-size:13px;font-weight:800;color:var(--success);min-width:72px;text-align:right;flex-shrink:0;}
+.bill-ci-sub{font-size:11px;color:var(--muted);margin-top:1px;}
+.bill-ci-controls{display:flex;align-items:center;gap:0;flex-shrink:0;background:var(--white);border:1.5px solid var(--border);border-radius:8px;overflow:hidden;}
+.bill-qty-btn{width:32px;height:32px;border:none;background:none;color:var(--primary);font-size:18px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background 0.13s;line-height:1;}
+.bill-qty-btn:hover{background:var(--primary-bg);}
+.bill-ci-qty{font-size:13px;font-weight:700;min-width:28px;text-align:center;color:var(--text);border-left:1px solid var(--border);border-right:1px solid var(--border);height:32px;display:flex;align-items:center;justify-content:center;}
+.bill-ci-total{font-size:13px;font-weight:800;color:var(--success);min-width:76px;text-align:right;flex-shrink:0;}
 .bill-search-wrap{position:relative;}
 .bill-search{width:100%;padding:11px 14px 11px 38px;border:1.5px solid var(--border);border-radius:10px;font-size:14px;color:var(--text);outline:none;background:var(--bg);transition:border-color 0.15s;}
 .bill-search:focus{border-color:var(--primary);background:#fff;}

@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ez POS – Categories</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+:root{
+  --primary:#5D8AA8;--primary-dark:#4a7795;--primary-bg:rgba(93,138,168,0.08);
+  --success:#2D6A4F;--success-bg:#f0faf4;
+  --danger:#DC2626;--danger-bg:#fef2f2;
+  --bg:#F0F4F8;--white:#fff;--border:#E2E8F0;
+  --text:#2D3748;--muted:#718096;
+  --shadow:0 2px 8px rgba(0,0,0,0.07);--shadow-lg:0 8px 24px rgba(0,0,0,0.10);
+  --radius:12px;--sidebar-w:220px;
+}
+html,body{height:100%;font-family:system-ui,-apple-system,sans-serif;background:var(--bg);overflow:hidden;}
+.icon{display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;}
+.icon svg{width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;}
+.icon.sm svg{width:14px;height:14px;}
+.icon.lg svg{width:22px;height:22px;}
+.icon.xl svg{width:40px;height:40px;}
+
+/* ── LAYOUT ── */
+.app{display:flex;height:100vh;overflow:hidden;}
+
+/* ── SIDEBAR ── */
+.sidebar{width:var(--sidebar-w);min-width:var(--sidebar-w);height:100%;background:var(--white);border-right:1px solid var(--border);display:flex;flex-direction:column;z-index:50;transition:transform 0.28s cubic-bezier(0.4,0,0.2,1);}
+.sidebar-header{height:60px;padding:0 20px;display:flex;align-items:center;gap:10px;border-bottom:1px solid var(--border);flex-shrink:0;}
+.sidebar-logo{font-size:16px;font-weight:800;color:var(--primary);}
+.nav-section{flex:1;padding:8px 0;overflow-y:auto;}
+.nav-item{display:flex;align-items:center;gap:12px;padding:12px 20px;color:var(--muted);text-decoration:none;font-size:14px;font-weight:500;border:none;background:none;width:100%;text-align:left;cursor:pointer;transition:background 0.15s,color 0.15s;border-right:3px solid transparent;}
+.nav-item:hover{background:var(--primary-bg);color:var(--primary);}
+.nav-item.active{background:var(--primary-bg);color:var(--primary);border-right-color:var(--primary);}
+.nav-item .icon{color:inherit;}
+
+/* ── MAIN ── */
+.main-area{flex:1;display:flex;flex-direction:column;overflow:hidden;min-width:0;}
+.topbar{height:60px;background:var(--white);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 20px;gap:14px;flex-shrink:0;z-index:40;}
+.topbar-menu{background:none;border:none;cursor:pointer;color:var(--muted);padding:6px;border-radius:8px;display:flex;transition:background 0.15s;}
+.topbar-menu:hover{background:var(--bg);}
+.topbar-title{font-size:18px;font-weight:700;color:var(--text);flex:1;}
+.topbar-shift{font-size:13px;color:var(--muted);}
+.topbar-avatar{width:36px;height:36px;border-radius:50%;background:var(--primary);color:#fff;font-size:13px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+
+/* ── PAGE BODY ── */
+.page-body{flex:1;display:flex;flex-direction:column;overflow:hidden;min-height:0;}
+
+/* ── TOOLBAR ── */
+.toolbar{background:var(--white);border-bottom:1px solid var(--border);padding:12px 20px;display:flex;align-items:center;gap:10px;flex-shrink:0;}
+.toolbar-left{flex:1;font-size:13px;color:var(--muted);}
+.toolbar-left span{font-weight:700;color:var(--text);}
+.add-btn{display:flex;align-items:center;gap:7px;padding:10px 18px;background:var(--primary);color:#fff;border:none;border-radius:10px;font-size:13px;font-weight:700;cursor:pointer;transition:background 0.15s;white-space:nowrap;}
+.add-btn:hover{background:var(--primary-dark);}
+
+/* ── CATEGORY LIST ── */
+.cat-scroll{flex:1;overflow-y:auto;padding:20px;min-height:0;}
+.cat-scroll::-webkit-scrollbar{width:5px;}
+.cat-scroll::-webkit-scrollbar-thumb{background:var(--border);border-radius:4px;}
+
+.cat-grid{display:flex;flex-direction:column;gap:10px;max-width:600px;margin:0 auto;}
+
+.cat-card{background:var(--white);border:1.5px solid var(--border);border-radius:var(--radius);padding:16px 18px;display:flex;align-items:center;gap:16px;box-shadow:var(--shadow);transition:border-color 0.15s,box-shadow 0.15s;}
+.cat-card:hover{border-color:var(--primary);box-shadow:var(--shadow-lg);}
+
+.cat-color-dot{width:44px;height:44px;border-radius:12px;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:13px;font-weight:800;color:#fff;}
+
+.cat-info{flex:1;min-width:0;}
+.cat-name{font-size:15px;font-weight:700;color:var(--text);}
+.cat-desc{font-size:12px;color:var(--muted);margin-top:2px;}
+
+.cat-count{font-size:12px;font-weight:700;color:var(--muted);background:var(--bg);padding:4px 12px;border-radius:20px;border:1px solid var(--border);white-space:nowrap;flex-shrink:0;}
+
+.cat-actions{display:flex;gap:6px;flex-shrink:0;}
+.icon-btn{width:34px;height:34px;border-radius:8px;border:none;background:none;cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--muted);transition:all 0.15s;}
+.icon-btn.edit:hover{background:var(--primary-bg);color:var(--primary);}
+.icon-btn.del:hover{background:var(--danger-bg);color:var(--danger);}
+
+/* empty */
+.empty-state{display:flex;flex-direction:column;align-items:center;justify-content:center;flex:1;gap:14px;color:var(--muted);text-align:center;padding:60px 20px;}
+
+/* ── MODALS ── */
+.modal-bg{position:fixed;inset:0;background:rgba(0,0,0,0.55);z-index:500;display:flex;align-items:flex-end;justify-content:center;opacity:0;visibility:hidden;transition:opacity 0.22s;}
+.modal-bg.active{opacity:1;visibility:visible;}
+.modal-box{background:var(--white);border-radius:22px 22px 0 0;padding:24px 22px 36px;width:100%;max-width:420px;transform:translateY(40px);transition:transform 0.22s;}
+.modal-bg.active .modal-box{transform:translateY(0);}
+@media(min-width:580px){.modal-bg{align-items:center;}.modal-box{border-radius:18px;}}
+.modal-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;}
+.modal-ttl{font-size:18px;font-weight:800;color:var(--text);}
+.modal-cls{background:none;border:none;cursor:pointer;color:var(--muted);padding:4px;border-radius:8px;}
+.modal-cls:hover{background:var(--bg);}
+
+/* form */
+.field{margin-bottom:16px;}
+.field label{display:block;font-size:11px;font-weight:700;color:var(--muted);margin-bottom:6px;text-transform:uppercase;letter-spacing:0.5px;}
+.field input,.field textarea{width:100%;padding:12px 14px;border:1.5px solid var(--border);border-radius:10px;font-size:14px;color:var(--text);background:var(--white);outline:none;transition:border-color 0.15s;font-family:inherit;}
+.field input:focus,.field textarea:focus{border-color:var(--primary);}
+.field textarea{resize:none;height:70px;}
+
+/* color picker row */
+.color-row{display:flex;gap:10px;flex-wrap:wrap;margin-top:6px;}
+.color-swatch{width:36px;height:36px;border-radius:10px;cursor:pointer;border:3px solid transparent;transition:transform 0.15s,border-color 0.15s;}
+.color-swatch:hover{transform:scale(1.12);}
+.color-swatch.selected{border-color:var(--text);}
+
+/* modal buttons */
+.modal-btns{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:20px;}
+.mbtn{padding:14px;border-radius:50px;border:none;font-size:15px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;transition:opacity 0.15s,transform 0.1s;}
+.mbtn:hover{opacity:0.9;transform:translateY(-1px);}
+.mbtn.cancel{background:var(--bg);color:var(--text);border:1.5px solid var(--border);}
+.mbtn.save{background:var(--primary);color:#fff;}
+.mbtn.del-confirm{background:var(--danger);color:#fff;}
+
+/* delete modal */
+.del-body{text-align:center;padding:6px 0 4px;}
+.del-icon-wrap{width:60px;height:60px;border-radius:50%;background:var(--danger-bg);color:var(--danger);display:flex;align-items:center;justify-content:center;margin:0 auto 14px;}
+.del-title{font-size:17px;font-weight:800;color:var(--text);margin-bottom:6px;}
+.del-sub{font-size:13px;color:var(--muted);line-height:1.5;}
+
+/* toast */
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(80px);background:var(--text);color:#fff;padding:12px 22px;border-radius:14px;font-size:14px;font-weight:600;z-index:999;transition:transform 0.3s cubic-bezier(0.34,1.56,0.64,1);white-space:nowrap;display:flex;align-items:center;gap:8px;box-shadow:var(--shadow-lg);pointer-events:none;}
+.toast.show{transform:translateX(-50%) translateY(0);}
+
+/* ── RESPONSIVE ── */
+@media(max-width:767px){
+  .sidebar{position:fixed;top:0;left:0;height:100%;transform:translateX(-100%);z-index:400;box-shadow:4px 0 20px rgba(0,0,0,0.15);}
+  .sidebar.open{transform:translateX(0);}
+  .sidebar-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.4);z-index:300;display:none;}
+  .sidebar-overlay.open{display:block;}
+  .topbar-shift{display:none;}
+  .cat-scroll{padding:14px;}
+}
+@media(min-width:768px){
+  .topbar-shift{display:block;}
+  .sidebar-overlay{display:none !important;}
+}
+@media(min-width:768px) and (max-width:1023px){
+  .sidebar{width:64px;min-width:64px;}
+  .sidebar-logo{display:none;}
+  .nav-item span:last-child:not(.icon){display:none;}
+  .nav-item{justify-content:center;padding:14px 0;}
+  .sidebar.open-desk{width:var(--sidebar-w);min-width:var(--sidebar-w);}
+  .sidebar.open-desk .sidebar-logo{display:block;}
+  .sidebar.open-desk .nav-item span:last-child:not(.icon){display:inline;}
+  .sidebar.open-desk .nav-item{justify-content:flex-start;padding:12px 20px;}
+}
+.sidebar.collapsed{width:64px;min-width:64px;}
+.sidebar.collapsed .sidebar-logo{display:none;}
+.sidebar.collapsed .nav-item span:last-child:not(.icon){display:none;}
+.sidebar.collapsed .nav-item{justify-content:center;padding:14px 0;}
+</style>
+</head>
+<body>
+
+<div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+<div class="app">
+  <!-- SIDEBAR -->
+  <nav class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <span class="icon lg" style="color:var(--primary);"><svg viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg></span>
+      <div class="sidebar-logo">Ez POS</div>
+    </div>
+    <div class="nav-section">
+      <a href="dashboard.html" class="nav-item">
+        <span class="icon"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg></span>
+        <span>Dashboard</span>
+      </a>
+      <a href="sales.html" class="nav-item">
+        <span class="icon"><svg viewBox="0 0 24 24"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg></span>
+        <span>Make a Sale</span>
+      </a>
+      <a href="orders.html" class="nav-item">
+        <span class="icon"><svg viewBox="0 0 24 24"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="2"/><path d="M9 12h6M9 16h4"/></svg></span>
+        <span>Orders</span>
+      </a>
+      <a href="products.html" class="nav-item">
+        <span class="icon"><svg viewBox="0 0 24 24"><path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/></svg></span>
+        <span>Products</span>
+      </a>
+      <a href="categories.html" class="nav-item active">
+        <span class="icon"><svg viewBox="0 0 24 24"><path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83 0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg></span>
+        <span>Category</span>
+      </a>
+      <a href="reports.html" class="nav-item">
+        <span class="icon"><svg viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg></span>
+        <span>Sales</span>
+      </a>
+      <a href="users.html" class="nav-item">
+        <span class="icon"><svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg></span>
+        <span>Users</span>
+      </a>
+      <a href="settings.html" class="nav-item">
+        <span class="icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg></span>
+        <span>Settings</span>
+      </a>
+      <button class="nav-item" id="logoutBtn">
+        <span class="icon"><svg viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg></span>
+        <span>Logout</span>
+      </button>
+    </div>
+  </nav>
+
+  <div class="main-area">
+    <div class="topbar">
+      <button class="topbar-menu" id="menuBtn">
+        <span class="icon lg"><svg viewBox="0 0 24 24"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg></span>
+      </button>
+      <div class="topbar-title">Category</div>
+      <div class="topbar-shift">Shift: 08:00 – 16:00</div>
+      <div class="topbar-avatar">OP</div>
+    </div>
+
+    <div class="page-body">
+      <div class="toolbar">
+        <div class="toolbar-left">
+          <span id="catCount">0</span> categories
+        </div>
+        <button class="add-btn" onclick="openAdd()">
+          <span class="icon sm"><svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></span>
+          Add Category
+        </button>
+      </div>
+
+      <div class="cat-scroll">
+        <div class="cat-grid" id="catGrid"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ADD / EDIT MODAL -->
+<div class="modal-bg" id="catModal">
+  <div class="modal-box">
+    <div class="modal-hdr">
+      <span class="modal-ttl" id="modalTitle">Add Category</span>
+      <button class="modal-cls" onclick="closeModal('catModal')">
+        <span class="icon"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></span>
+      </button>
+    </div>
+    <div class="field">
+      <label>Category Name</label>
+      <input type="text" id="fName" placeholder="e.g. Drinks">
+    </div>
+    <div class="field">
+      <label>Description (optional)</label>
+      <textarea id="fDesc" placeholder="Short description…"></textarea>
+    </div>
+    <div class="field">
+      <label>Color</label>
+      <div class="color-row" id="colorRow"></div>
+    </div>
+    <div class="modal-btns">
+      <button class="mbtn cancel" onclick="closeModal('catModal')">Cancel</button>
+      <button class="mbtn save" onclick="saveCat()">
+        <span class="icon sm"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></span>
+        Save
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- DELETE MODAL -->
+<div class="modal-bg" id="delModal">
+  <div class="modal-box">
+    <div class="modal-hdr">
+      <span class="modal-ttl">Delete Category</span>
+      <button class="modal-cls" onclick="closeModal('delModal')">
+        <span class="icon"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></span>
+      </button>
+    </div>
+    <div class="del-body">
+      <div class="del-icon-wrap">
+        <span class="icon"><svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4a1 1 0 011-1h4a1 1 0 011 1v2"/></svg></span>
+      </div>
+      <div class="del-title" id="delTitle">Delete category?</div>
+      <div class="del-sub" id="delSub">Products in this category will not be deleted but will have no category.</div>
+    </div>
+    <div class="modal-btns">
+      <button class="mbtn cancel" onclick="closeModal('delModal')">Cancel</button>
+      <button class="mbtn del-confirm" onclick="confirmDel()">
+        <span class="icon sm"><svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/></svg></span>
+        Delete
+      </button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"><span id="toastMsg"></span></div>
+
+<script>
+(function(){
+  const $ = id => document.getElementById(id);
+
+  /* ── SIDEBAR ── */
+  function isMob(){ return window.innerWidth < 768; }
+  $('menuBtn').addEventListener('click',()=>{
+    const sb=$('sidebar');
+    if(isMob()){ sb.classList.toggle('open'); $('sidebarOverlay').classList.toggle('open',sb.classList.contains('open')); }
+    else if(window.innerWidth<1024) sb.classList.toggle('open-desk');
+    else sb.classList.toggle('collapsed');
+  });
+  $('sidebarOverlay').addEventListener('click',()=>{ $('sidebar').classList.remove('open'); $('sidebarOverlay').classList.remove('open'); });
+  $('logoutBtn').addEventListener('click',()=>{ if(confirm('Logout?')) window.location.href='login.html'; });
+
+  /* ── COLORS ── */
+  const COLORS = [
+    '#5D8AA8','#2D6A4F','#B45309','#7C3AED',
+    '#DC2626','#0891B2','#059669','#D97706',
+    '#7C3AED','#BE185D','#1D4ED8','#374151',
+  ];
+  let selectedColor = COLORS[0];
+
+  function renderColorPicker(){
+    $('colorRow').innerHTML = COLORS.map(c=>`
+      <div class="color-swatch${c===selectedColor?' selected':''}"
+           style="background:${c};"
+           onclick="pickColor('${c}')"></div>
+    `).join('');
+  }
+  window.pickColor = function(c){
+    selectedColor=c;
+    renderColorPicker();
+  };
+
+  /* ── DATA ── */
+  let cats = [
+    {id:1, name:'Food',   desc:'Main meals and dishes',   color:'#5D8AA8', products:4},
+    {id:2, name:'Drinks', desc:'Beverages and juices',     color:'#2D6A4F', products:3},
+    {id:3, name:'Snacks', desc:'Light bites and snacks',   color:'#B45309', products:2},
+    {id:4, name:'Bakery', desc:'Bread, cakes and pastries',color:'#7C3AED', products:2},
+    {id:5, name:'Other',  desc:'Miscellaneous items',      color:'#374151', products:0},
+  ];
+  let nextId=6, editingId=null, deletingId=null;
+
+  /* ── RENDER ── */
+  function render(){
+    $('catCount').textContent = cats.length;
+    if(!cats.length){
+      $('catGrid').innerHTML=`
+        <div class="empty-state">
+          <span class="icon xl" style="color:var(--border);"><svg viewBox="0 0 24 24"><path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83 0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg></span>
+          <div style="font-size:15px;font-weight:700;">No categories yet</div>
+          <div style="font-size:13px;">Add a category to organise your products</div>
+        </div>`;
+      return;
+    }
+    $('catGrid').innerHTML = cats.map(c=>`
+      <div class="cat-card">
+        <div class="cat-color-dot" style="background:${c.color};">
+          ${c.name.charAt(0).toUpperCase()}
+        </div>
+        <div class="cat-info">
+          <div class="cat-name">${c.name}</div>
+          ${c.desc?`<div class="cat-desc">${c.desc}</div>`:''}
+        </div>
+        <div class="cat-count">${c.products} product${c.products!==1?'s':''}</div>
+        <div class="cat-actions">
+          <button class="icon-btn edit" onclick="openEdit(${c.id})" title="Edit">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/>
+              <path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/>
+            </svg>
+          </button>
+          <button class="icon-btn del" onclick="openDel(${c.id})" title="Delete">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="3 6 5 6 21 6"/>
+              <path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/>
+              <path d="M10 11v6M14 11v6"/>
+            </svg>
+          </button>
+        </div>
+      </div>`).join('');
+  }
+
+  /* ── ADD ── */
+  window.openAdd = function(){
+    editingId=null;
+    $('modalTitle').textContent='Add Category';
+    $('fName').value='';
+    $('fDesc').value='';
+    selectedColor=COLORS[0];
+    renderColorPicker();
+    $('catModal').classList.add('active');
+    setTimeout(()=>$('fName').focus(),120);
+  };
+
+  /* ── EDIT ── */
+  window.openEdit = function(id){
+    const c=cats.find(x=>x.id===id); if(!c) return;
+    editingId=id;
+    $('modalTitle').textContent='Edit Category';
+    $('fName').value=c.name;
+    $('fDesc').value=c.desc;
+    selectedColor=c.color;
+    renderColorPicker();
+    $('catModal').classList.add('active');
+    setTimeout(()=>$('fName').focus(),120);
+  };
+
+  /* ── SAVE ── */
+  window.saveCat = function(){
+    const name=$('fName').value.trim();
+    if(!name){ alert('Category name is required'); $('fName').focus(); return; }
+    if(editingId){
+      const c=cats.find(x=>x.id===editingId);
+      c.name=name; c.desc=$('fDesc').value.trim(); c.color=selectedColor;
+      showToast('✓ '+name+' updated');
+    } else {
+      cats.push({id:nextId++, name, desc:$('fDesc').value.trim(), color:selectedColor, products:0});
+      showToast('✓ '+name+' added');
+    }
+    closeModal('catModal');
+    render();
+  };
+
+  /* ── DELETE ── */
+  window.openDel = function(id){
+    const c=cats.find(x=>x.id===id); if(!c) return;
+    deletingId=id;
+    $('delTitle').textContent='Delete "'+c.name+'"?';
+    $('delSub').textContent = c.products>0
+      ? `This category has ${c.products} product${c.products!==1?'s':''}. They will not be deleted but will have no category.`
+      : 'This will permanently remove this category.';
+    $('delModal').classList.add('active');
+  };
+
+  window.confirmDel = function(){
+    if(!deletingId) return;
+    const c=cats.find(x=>x.id===deletingId);
+    cats=cats.filter(x=>x.id!==deletingId);
+    deletingId=null;
+    closeModal('delModal');
+    render();
+    showToast(c?c.name+' deleted':'Category deleted');
+  };
+
+  /* ── MODALS ── */
+  window.closeModal = id=>$(id).classList.remove('active');
+  document.querySelectorAll('.modal-bg').forEach(bg=>bg.addEventListener('click',e=>{ if(e.target===bg) bg.classList.remove('active'); }));
+
+  /* ── TOAST ── */
+  function showToast(msg){
+    $('toastMsg').textContent=msg;
+    $('toast').classList.add('show');
+    setTimeout(()=>$('toast').classList.remove('show'),3000);
+  }
+
+  render();
+})();
+</script>
+</body>
+</html>
