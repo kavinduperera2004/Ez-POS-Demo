@@ -1,0 +1,584 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ez POS – Sales</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+:root{
+  --primary:#5D8AA8;--primary-dark:#4a7795;--primary-bg:rgba(93,138,168,0.08);
+  --success:#2D6A4F;--success-bg:#f0faf4;
+  --danger:#DC2626;--danger-bg:#fef2f2;
+  --warning:#B45309;--warning-bg:#fffbeb;
+  --bg:#F0F4F8;--white:#fff;--border:#E2E8F0;
+  --text:#2D3748;--muted:#718096;
+  --shadow:0 2px 8px rgba(0,0,0,0.07);--shadow-lg:0 8px 24px rgba(0,0,0,0.10);
+  --radius:12px;--sidebar-w:220px;
+}
+html,body{height:100%;font-family:system-ui,-apple-system,sans-serif;background:var(--bg);overflow:hidden;}
+.icon{display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;}
+.icon svg{width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;}
+.icon.sm svg{width:14px;height:14px;}
+.icon.lg svg{width:22px;height:22px;}
+.icon.xl svg{width:36px;height:36px;}
+
+/* ── LAYOUT ── */
+.app{display:flex;height:100vh;overflow:hidden;}
+
+/* ── SIDEBAR ── */
+.sidebar{width:var(--sidebar-w);min-width:var(--sidebar-w);height:100%;background:var(--white);border-right:1px solid var(--border);display:flex;flex-direction:column;z-index:50;transition:transform 0.28s cubic-bezier(0.4,0,0.2,1);}
+.sidebar-header{height:60px;padding:0 20px;display:flex;align-items:center;gap:10px;border-bottom:1px solid var(--border);flex-shrink:0;}
+.sidebar-logo{font-size:16px;font-weight:800;color:var(--primary);}
+.nav-section{flex:1;padding:8px 0;overflow-y:auto;}
+.nav-item{display:flex;align-items:center;gap:12px;padding:12px 20px;color:var(--muted);text-decoration:none;font-size:14px;font-weight:500;border:none;background:none;width:100%;text-align:left;cursor:pointer;transition:background 0.15s,color 0.15s;border-right:3px solid transparent;}
+.nav-item:hover{background:var(--primary-bg);color:var(--primary);}
+.nav-item.active{background:var(--primary-bg);color:var(--primary);border-right-color:var(--primary);}
+.nav-item .icon{color:inherit;}
+
+/* ── MAIN ── */
+.main-area{flex:1;display:flex;flex-direction:column;overflow:hidden;min-width:0;}
+.topbar{height:60px;background:var(--white);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 20px;gap:14px;flex-shrink:0;}
+.topbar-menu{background:none;border:none;cursor:pointer;color:var(--muted);padding:6px;border-radius:8px;display:flex;transition:background 0.15s;}
+.topbar-menu:hover{background:var(--bg);}
+.topbar-title{font-size:18px;font-weight:700;color:var(--text);flex:1;}
+.topbar-shift{font-size:13px;color:var(--muted);}
+.topbar-avatar{width:36px;height:36px;border-radius:50%;background:var(--primary);color:#fff;font-size:13px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+
+/* ── PAGE BODY ── */
+.page-body{flex:1;display:flex;flex-direction:column;overflow:hidden;min-height:0;}
+
+/* ── FILTERS BAR ── */
+.filters-bar{background:var(--white);border-bottom:1px solid var(--border);padding:12px 16px;display:flex;flex-direction:column;gap:10px;flex-shrink:0;}
+.filters-row{display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
+
+/* search */
+.search-wrap{position:relative;flex:1;min-width:180px;max-width:300px;}
+.search-input{width:100%;padding:9px 34px 9px 36px;border:1.5px solid var(--border);border-radius:10px;font-size:13px;background:var(--bg);color:var(--text);outline:none;transition:border-color 0.15s;}
+.search-input:focus{border-color:var(--primary);background:var(--white);}
+.search-icon{position:absolute;left:10px;top:50%;transform:translateY(-50%);color:var(--muted);pointer-events:none;}
+
+/* date tabs */
+.date-tabs{display:flex;background:var(--bg);border-radius:10px;padding:3px;gap:2px;}
+.dtab{padding:6px 13px;border-radius:8px;border:none;background:none;font-size:12px;font-weight:600;color:var(--muted);cursor:pointer;transition:all 0.15s;white-space:nowrap;}
+.dtab.active{background:var(--white);color:var(--primary);box-shadow:var(--shadow);}
+.dtab:hover:not(.active){color:var(--primary);}
+
+/* date inputs */
+.date-range{display:flex;align-items:center;gap:8px;}
+.date-range input{padding:8px 10px;border:1.5px solid var(--border);border-radius:9px;font-size:12px;color:var(--text);outline:none;background:var(--white);cursor:pointer;}
+.date-range input:focus{border-color:var(--primary);}
+.date-sep{font-size:12px;color:var(--muted);}
+
+/* payment filter */
+.pay-filter{padding:8px 12px;border:1.5px solid var(--border);border-radius:10px;font-size:13px;color:var(--text);background:var(--white);outline:none;cursor:pointer;}
+.pay-filter:focus{border-color:var(--primary);}
+
+/* summary pills */
+.summary-row{display:flex;gap:12px;flex-wrap:wrap;}
+.sum-pill{display:flex;align-items:center;gap:6px;background:var(--bg);border:1px solid var(--border);border-radius:20px;padding:5px 14px;font-size:12px;font-weight:600;color:var(--muted);}
+.sum-pill .val{font-weight:800;color:var(--text);}
+.sum-pill .val.green{color:var(--success);}
+
+/* ── TABLE ── */
+.table-wrap{flex:1;overflow-y:auto;min-height:0;}
+.table-wrap::-webkit-scrollbar{width:5px;}
+.table-wrap::-webkit-scrollbar-thumb{background:var(--border);border-radius:4px;}
+table{width:100%;border-collapse:collapse;}
+thead{position:sticky;top:0;z-index:10;}
+thead th{background:var(--white);padding:11px 16px;text-align:left;font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;border-bottom:2px solid var(--border);white-space:nowrap;}
+thead th.r{text-align:right;}
+tbody tr{background:var(--white);border-bottom:1px solid var(--border);transition:background 0.12s;cursor:pointer;}
+tbody tr:hover{background:#f8fafc;}
+tbody td{padding:13px 16px;font-size:13px;color:var(--text);vertical-align:middle;}
+tbody td.r{text-align:right;}
+tbody td.muted{color:var(--muted);}
+
+/* invoice id */
+.inv-id{font-weight:700;color:var(--primary);}
+
+/* payment method badge */
+.pay-badge{display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700;}
+.pay-badge.cash{background:var(--success-bg);color:var(--success);}
+.pay-badge.bank{background:var(--primary-bg);color:var(--primary);}
+
+/* amount */
+.amount-cell{font-weight:800;color:var(--success);}
+
+/* row action */
+.row-btn{width:32px;height:32px;border-radius:8px;border:none;background:none;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;color:var(--muted);transition:all 0.15s;}
+.row-btn:hover{background:var(--primary-bg);color:var(--primary);}
+
+/* empty */
+.empty-state{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:80px 20px;gap:14px;color:var(--muted);text-align:center;}
+
+/* ── RECEIPT MODAL ── */
+.modal-bg{position:fixed;inset:0;background:rgba(0,0,0,0.55);z-index:500;display:flex;align-items:flex-end;justify-content:center;opacity:0;visibility:hidden;transition:opacity 0.22s;}
+.modal-bg.active{opacity:1;visibility:visible;}
+.modal-box{background:var(--white);border-radius:22px 22px 0 0;width:100%;max-width:460px;transform:translateY(40px);transition:transform 0.22s;max-height:92vh;display:flex;flex-direction:column;}
+.modal-bg.active .modal-box{transform:translateY(0);}
+@media(min-width:600px){.modal-bg{align-items:center;}.modal-box{border-radius:18px;}}
+.modal-hdr{padding:18px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-shrink:0;}
+.modal-ttl{font-size:17px;font-weight:800;color:var(--text);}
+.modal-cls{background:none;border:none;cursor:pointer;color:var(--muted);padding:4px;border-radius:8px;}
+.modal-cls:hover{background:var(--bg);}
+.modal-body{padding:18px 20px;overflow-y:auto;flex:1;}
+.modal-body::-webkit-scrollbar{width:4px;}
+.modal-body::-webkit-scrollbar-thumb{background:var(--border);border-radius:4px;}
+.modal-ftr{padding:14px 20px;border-top:1px solid var(--border);display:flex;gap:10px;flex-shrink:0;}
+
+/* receipt styles */
+.receipt-shop{text-align:center;margin-bottom:16px;}
+.receipt-shop-name{font-size:18px;font-weight:800;color:var(--text);}
+.receipt-shop-sub{font-size:12px;color:var(--muted);margin-top:3px;}
+.receipt-meta{display:grid;grid-template-columns:1fr 1fr;gap:6px;background:var(--bg);border-radius:10px;padding:12px 14px;margin-bottom:14px;border:1px solid var(--border);}
+.receipt-meta-item .lbl{font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.4px;}
+.receipt-meta-item .val{font-size:13px;font-weight:700;color:var(--text);margin-top:2px;}
+.receipt-items{display:flex;flex-direction:column;gap:0;margin-bottom:14px;}
+.receipt-item{display:flex;align-items:center;padding:10px 0;border-bottom:1px solid var(--border);}
+.receipt-item:last-child{border-bottom:none;}
+.ri-qty{width:28px;height:28px;border-radius:7px;background:var(--primary-bg);color:var(--primary);font-size:11px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.ri-name{flex:1;font-size:13px;font-weight:600;color:var(--text);margin-left:10px;}
+.ri-unit{font-size:11px;color:var(--muted);margin-top:1px;}
+.ri-total{font-size:13px;font-weight:800;color:var(--success);}
+.receipt-total-box{background:var(--success-bg);border-radius:10px;padding:12px 16px;display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;}
+.rt-lbl{font-size:14px;font-weight:700;color:var(--text);}
+.rt-val{font-size:24px;font-weight:800;color:var(--success);}
+.receipt-pay-row{display:flex;justify-content:space-between;align-items:center;padding:8px 0;font-size:13px;border-bottom:1px solid var(--border);}
+.receipt-pay-row:last-child{border-bottom:none;}
+.receipt-pay-row .lbl{color:var(--muted);font-weight:600;}
+.receipt-pay-row .val{font-weight:700;color:var(--text);}
+.receipt-footer{text-align:center;font-size:12px;color:var(--muted);margin-top:14px;padding-top:14px;border-top:1px dashed var(--border);}
+
+/* modal buttons */
+.mbtn{flex:1;padding:13px;border-radius:50px;border:none;font-size:14px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;transition:opacity 0.15s,transform 0.1s;}
+.mbtn:hover{opacity:0.9;transform:translateY(-1px);}
+.mbtn.close{background:var(--bg);color:var(--text);border:1.5px solid var(--border);}
+.mbtn.print{background:var(--primary);color:#fff;}
+
+/* toast */
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(80px);background:var(--text);color:#fff;padding:12px 22px;border-radius:14px;font-size:14px;font-weight:600;z-index:999;transition:transform 0.3s cubic-bezier(0.34,1.56,0.64,1);white-space:nowrap;display:flex;align-items:center;gap:8px;box-shadow:var(--shadow-lg);pointer-events:none;}
+.toast.show{transform:translateX(-50%) translateY(0);}
+
+/* ── PRINT STYLES ── */
+@media print{
+  .app,.topbar,.filters-bar,.modal-hdr,.modal-ftr{display:none!important;}
+  .receipt-print{display:block!important;}
+}
+.receipt-print{display:none;}
+
+/* ── RESPONSIVE ── */
+@media(max-width:767px){
+  .sidebar{position:fixed;top:0;left:0;height:100%;transform:translateX(-100%);z-index:400;box-shadow:4px 0 20px rgba(0,0,0,0.15);}
+  .sidebar.open{transform:translateX(0);}
+  .sidebar-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.4);z-index:300;display:none;}
+  .sidebar-overlay.open{display:block;}
+  .topbar-shift{display:none;}
+  thead th.hide-mob,tbody td.hide-mob{display:none;}
+}
+@media(min-width:768px){
+  .topbar-shift{display:block;}
+  .sidebar-overlay{display:none !important;}
+}
+@media(min-width:768px) and (max-width:1023px){
+  .sidebar{width:64px;min-width:64px;}
+  .sidebar-logo{display:none;}
+  .nav-item span:last-child:not(.icon){display:none;}
+  .nav-item{justify-content:center;padding:14px 0;}
+  .sidebar.open-desk{width:var(--sidebar-w);min-width:var(--sidebar-w);}
+  .sidebar.open-desk .sidebar-logo{display:block;}
+  .sidebar.open-desk .nav-item span:last-child:not(.icon){display:inline;}
+  .sidebar.open-desk .nav-item{justify-content:flex-start;padding:12px 20px;}
+}
+.sidebar.collapsed{width:64px;min-width:64px;}
+.sidebar.collapsed .sidebar-logo{display:none;}
+.sidebar.collapsed .nav-item span:last-child:not(.icon){display:none;}
+.sidebar.collapsed .nav-item{justify-content:center;padding:14px 0;}
+</style>
+</head>
+<body>
+
+<div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+<div class="app">
+  <!-- SIDEBAR -->
+  <nav class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <span class="icon lg" style="color:var(--primary);"><svg viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg></span>
+      <div class="sidebar-logo">Ez POS</div>
+    </div>
+    <div class="nav-section">
+      <a href="dashboard.html" class="nav-item">
+        <span class="icon"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg></span>
+        <span>Dashboard</span>
+      </a>
+      <a href="sales.html" class="nav-item">
+        <span class="icon"><svg viewBox="0 0 24 24"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg></span>
+        <span>Make a Sale</span>
+      </a>
+      <a href="orders.html" class="nav-item">
+        <span class="icon"><svg viewBox="0 0 24 24"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="2"/><path d="M9 12h6M9 16h4"/></svg></span>
+        <span>Orders</span>
+      </a>
+      <a href="products.html" class="nav-item">
+        <span class="icon"><svg viewBox="0 0 24 24"><path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/></svg></span>
+        <span>Products</span>
+      </a>
+      <a href="categories.html" class="nav-item">
+        <span class="icon"><svg viewBox="0 0 24 24"><path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83 0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg></span>
+        <span>Category</span>
+      </a>
+      <a href="reports.html" class="nav-item active">
+        <span class="icon"><svg viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg></span>
+        <span>Sales</span>
+      </a>
+      <a href="users.html" class="nav-item">
+        <span class="icon"><svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg></span>
+        <span>Users</span>
+      </a>
+      <a href="settings.html" class="nav-item">
+        <span class="icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg></span>
+        <span>Settings</span>
+      </a>
+      <button class="nav-item" id="logoutBtn">
+        <span class="icon"><svg viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg></span>
+        <span>Logout</span>
+      </button>
+    </div>
+  </nav>
+
+  <div class="main-area">
+    <div class="topbar">
+      <button class="topbar-menu" id="menuBtn">
+        <span class="icon lg"><svg viewBox="0 0 24 24"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg></span>
+      </button>
+      <div class="topbar-title">Sales</div>
+      <div class="topbar-shift">Shift: 08:00 – 16:00</div>
+      <div class="topbar-avatar">OP</div>
+    </div>
+
+    <div class="page-body">
+      <!-- FILTERS -->
+      <div class="filters-bar">
+        <div class="filters-row">
+          <!-- search -->
+          <div class="search-wrap">
+            <span class="search-icon icon sm"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></span>
+            <input type="search" class="search-input" id="searchInput" placeholder="Search invoice or items…">
+          </div>
+          <!-- date quick tabs -->
+          <div class="date-tabs">
+            <button class="dtab active" data-d="today" onclick="setDateTab(this)">Today</button>
+            <button class="dtab" data-d="week"  onclick="setDateTab(this)">This Week</button>
+            <button class="dtab" data-d="month" onclick="setDateTab(this)">This Month</button>
+            <button class="dtab" data-d="all"   onclick="setDateTab(this)">All</button>
+          </div>
+          <!-- payment filter -->
+          <select class="pay-filter" id="payFilter" onchange="renderTable()">
+            <option value="">All Payments</option>
+            <option value="Cash">Cash</option>
+            <option value="Bank">Bank / Card</option>
+          </select>
+        </div>
+        <!-- summary -->
+        <div class="summary-row" id="summaryRow"></div>
+      </div>
+
+      <!-- TABLE -->
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Invoice</th>
+              <th class="hide-mob">Date &amp; Time</th>
+              <th class="hide-mob">Items</th>
+              <th>Payment</th>
+              <th class="r">Total</th>
+              <th class="r">Actions</th>
+            </tr>
+          </thead>
+          <tbody id="salesBody"></tbody>
+        </table>
+        <div id="emptyState" style="display:none;" class="empty-state">
+          <span class="icon xl" style="color:var(--border);"><svg viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg></span>
+          <div style="font-size:15px;font-weight:700;">No sales found</div>
+          <div style="font-size:13px;">Try adjusting your filters</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- RECEIPT MODAL -->
+<div class="modal-bg" id="receiptModal">
+  <div class="modal-box">
+    <div class="modal-hdr">
+      <span class="modal-ttl" id="receiptTitle">Receipt</span>
+      <button class="modal-cls" onclick="closeReceipt()"><span class="icon"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></span></button>
+    </div>
+    <div class="modal-body" id="receiptBody"></div>
+    <div class="modal-ftr">
+      <button class="mbtn close" onclick="closeReceipt()">Close</button>
+      <button class="mbtn print" onclick="printReceipt()">
+        <span class="icon sm"><svg viewBox="0 0 24 24"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg></span>
+        Print Receipt
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- PRINT AREA -->
+<div class="receipt-print" id="printArea"></div>
+
+<div class="toast" id="toast"><span id="toastMsg"></span></div>
+
+<script>
+(function(){
+  const $ = id => document.getElementById(id);
+  const fmtLKR = n => 'LKR '+(+n).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});
+
+  /* ── SIDEBAR ── */
+  function isMob(){ return window.innerWidth < 768; }
+  $('menuBtn').addEventListener('click',()=>{
+    const sb=$('sidebar');
+    if(isMob()){ sb.classList.toggle('open'); $('sidebarOverlay').classList.toggle('open',sb.classList.contains('open')); }
+    else if(window.innerWidth<1024) sb.classList.toggle('open-desk');
+    else sb.classList.toggle('collapsed');
+  });
+  $('sidebarOverlay').addEventListener('click',()=>{ $('sidebar').classList.remove('open'); $('sidebarOverlay').classList.remove('open'); });
+  $('logoutBtn').addEventListener('click',()=>{ if(confirm('Logout?')) window.location.href='login.html'; });
+
+  /* ── SALES DATA ── */
+  const SALES = [
+    { id:'INV-1043', date:'2026-04-16', time:'3:12 PM', method:'Cash',
+      items:[{name:'Chicken Rice',qty:2,price:1200},{name:'Iced Coffee',qty:1,price:600}],
+      cashReceived:3500 },
+    { id:'INV-1042', date:'2026-04-16', time:'3:08 PM', method:'Bank',
+      items:[{name:'Cheese Pizza',qty:1,price:1200},{name:'French Fries',qty:2,price:550},{name:'Fruit Juice',qty:1,price:500}],
+      cashReceived:null },
+    { id:'INV-1041', date:'2026-04-16', time:'2:40 PM', method:'Cash',
+      items:[{name:'Ice Cream',qty:2,price:400},{name:'Cookies',qty:1,price:300}],
+      cashReceived:1200 },
+    { id:'INV-1040', date:'2026-04-16', time:'2:20 PM', method:'Bank',
+      items:[{name:'Bread Roll',qty:3,price:150},{name:'Tea',qty:2,price:200}],
+      cashReceived:null },
+    { id:'INV-1039', date:'2026-04-16', time:'1:55 PM', method:'Cash',
+      items:[{name:'Chicken Rice',qty:1,price:1200},{name:'Fruit Juice',qty:2,price:500}],
+      cashReceived:2500 },
+    { id:'INV-1038', date:'2026-04-16', time:'1:30 PM', method:'Cash',
+      items:[{name:'Iced Coffee',qty:3,price:600},{name:'Cookies',qty:2,price:300}],
+      cashReceived:2500 },
+    { id:'INV-1037', date:'2026-04-15', time:'4:45 PM', method:'Bank',
+      items:[{name:'Cheese Pizza',qty:2,price:1200},{name:'French Fries',qty:1,price:550}],
+      cashReceived:null },
+    { id:'INV-1036', date:'2026-04-15', time:'4:10 PM', method:'Cash',
+      items:[{name:'Tea',qty:4,price:200},{name:'Bread Roll',qty:5,price:150}],
+      cashReceived:2000 },
+    { id:'INV-1035', date:'2026-04-15', time:'3:22 PM', method:'Bank',
+      items:[{name:'Chicken Rice',qty:3,price:1200},{name:'Iced Coffee',qty:2,price:600}],
+      cashReceived:null },
+    { id:'INV-1034', date:'2026-04-14', time:'2:10 PM', method:'Cash',
+      items:[{name:'Ice Cream',qty:3,price:400},{name:'Fruit Juice',qty:1,price:500}],
+      cashReceived:2000 },
+    { id:'INV-1033', date:'2026-04-14', time:'1:05 PM', method:'Bank',
+      items:[{name:'Cheese Pizza',qty:1,price:1200},{name:'Tea',qty:2,price:200}],
+      cashReceived:null },
+    { id:'INV-1032', date:'2026-04-13', time:'5:00 PM', method:'Cash',
+      items:[{name:'Chicken Rice',qty:2,price:1200},{name:'French Fries',qty:2,price:550},{name:'Iced Coffee',qty:2,price:600}],
+      cashReceived:5000 },
+  ];
+
+  // add computed total
+  SALES.forEach(s=>{ s.total=s.items.reduce((sum,i)=>sum+i.price*i.qty,0); });
+
+  const total = s => s.total;
+  let currentDate = 'today';
+  let searchQ = '';
+
+  /* ── DATE FILTER ── */
+  window.setDateTab = function(btn){
+    document.querySelectorAll('.dtab').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+    currentDate = btn.dataset.d;
+    renderTable();
+  };
+
+  function filterByDate(sale){
+    const today = new Date().toISOString().split('T')[0];
+    const d = new Date(today);
+    if(currentDate==='today') return sale.date===today;
+    if(currentDate==='week'){
+      const w = new Date(d); w.setDate(d.getDate()-6);
+      return sale.date>=w.toISOString().split('T')[0];
+    }
+    if(currentDate==='month'){
+      return sale.date.slice(0,7)===today.slice(0,7);
+    }
+    return true;
+  }
+
+  /* ── RENDER TABLE ── */
+  function renderTable(){
+    const pay = $('payFilter').value;
+    searchQ = $('searchInput').value.trim().toLowerCase();
+
+    let list = SALES.filter(s=>{
+      if(!filterByDate(s)) return false;
+      if(pay && s.method!==pay) return false;
+      if(searchQ){
+        const hit = s.id.toLowerCase().includes(searchQ)
+          || s.items.some(i=>i.name.toLowerCase().includes(searchQ));
+        if(!hit) return false;
+      }
+      return true;
+    });
+
+    // summary
+    const totalAmt = list.reduce((s,x)=>s+x.total,0);
+    const cashAmt  = list.filter(x=>x.method==='Cash').reduce((s,x)=>s+x.total,0);
+    const bankAmt  = list.filter(x=>x.method==='Bank').reduce((s,x)=>s+x.total,0);
+    $('summaryRow').innerHTML = `
+      <div class="sum-pill">${list.length} sale${list.length!==1?'s':''}</div>
+      <div class="sum-pill">Total <span class="val green">${fmtLKR(totalAmt)}</span></div>
+      <div class="sum-pill">Cash <span class="val">${fmtLKR(cashAmt)}</span></div>
+      <div class="sum-pill">Bank <span class="val">${fmtLKR(bankAmt)}</span></div>
+    `;
+
+    if(!list.length){
+      $('salesBody').innerHTML='';
+      $('emptyState').style.display='flex';
+      return;
+    }
+    $('emptyState').style.display='none';
+
+    $('salesBody').innerHTML = list.map(s=>{
+      const itemSummary = s.items.length===1
+        ? s.items[0].name
+        : s.items[0].name+' + '+(s.items.length-1)+' more';
+      return `<tr onclick="openReceipt('${s.id}')">
+        <td><span class="inv-id">${s.id}</span></td>
+        <td class="muted hide-mob">${s.date} · ${s.time}</td>
+        <td class="muted hide-mob">${itemSummary}</td>
+        <td>
+          <span class="pay-badge ${s.method==='Cash'?'cash':'bank'}">
+            ${s.method==='Cash'
+              ? `<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="6" width="20" height="12" rx="2"/><circle cx="12" cy="12" r="2"/></svg>`
+              : `<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>`}
+            ${s.method}
+          </span>
+        </td>
+        <td class="r amount-cell">${fmtLKR(s.total)}</td>
+        <td class="r">
+          <button class="row-btn" onclick="event.stopPropagation();openReceipt('${s.id}')" title="View & Print">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="6 9 6 2 18 2 18 9"/>
+              <path d="M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2"/>
+              <rect x="6" y="14" width="12" height="8"/>
+            </svg>
+          </button>
+        </td>
+      </tr>`;
+    }).join('');
+  }
+
+  /* ── RECEIPT MODAL ── */
+  window.openReceipt = function(id){
+    const s = SALES.find(x=>x.id===id); if(!s) return;
+    $('receiptTitle').textContent = id;
+
+    const change = s.method==='Cash' && s.cashReceived ? s.cashReceived - s.total : null;
+
+    $('receiptBody').innerHTML = `
+      <div class="receipt-shop">
+        <div class="receipt-shop-name">Sithara's Café</div>
+        <div class="receipt-shop-sub">quickpos.lk · Thank you for your visit!</div>
+      </div>
+
+      <div class="receipt-meta">
+        <div class="receipt-meta-item">
+          <div class="lbl">Invoice</div>
+          <div class="val">${s.id}</div>
+        </div>
+        <div class="receipt-meta-item">
+          <div class="lbl">Date</div>
+          <div class="val">${s.date}</div>
+        </div>
+        <div class="receipt-meta-item">
+          <div class="lbl">Time</div>
+          <div class="val">${s.time}</div>
+        </div>
+        <div class="receipt-meta-item">
+          <div class="lbl">Payment</div>
+          <div class="val">${s.method}</div>
+        </div>
+      </div>
+
+      <div class="receipt-items">
+        ${s.items.map(i=>`
+          <div class="receipt-item">
+            <div class="ri-qty">${i.qty}</div>
+            <div class="ri-name">
+              ${i.name}
+              <div class="ri-unit">${fmtLKR(i.price)} × ${i.qty}</div>
+            </div>
+            <div class="ri-total">${fmtLKR(i.price*i.qty)}</div>
+          </div>`).join('')}
+      </div>
+
+      <div class="receipt-total-box">
+        <span class="rt-lbl">Total</span>
+        <span class="rt-val">${fmtLKR(s.total)}</span>
+      </div>
+
+      ${s.method==='Cash' ? `
+        <div class="receipt-pay-row">
+          <span class="lbl">Cash Received</span>
+          <span class="val">${fmtLKR(s.cashReceived||s.total)}</span>
+        </div>
+        <div class="receipt-pay-row">
+          <span class="lbl">Change</span>
+          <span class="val" style="color:var(--success);">${fmtLKR(change||0)}</span>
+        </div>` : `
+        <div class="receipt-pay-row">
+          <span class="lbl">Bank / Card Payment</span>
+          <span class="val" style="color:var(--primary);">Paid</span>
+        </div>`}
+
+      <div class="receipt-footer">Ez POS · Powered by QuickPOS.lk</div>
+    `;
+
+    $('receiptModal').classList.add('active');
+  };
+
+  window.closeReceipt = function(){ $('receiptModal').classList.remove('active'); };
+
+  /* close on bg click */
+  $('receiptModal').addEventListener('click',e=>{ if(e.target===$('receiptModal')) closeReceipt(); });
+
+  /* ── PRINT ── */
+  window.printReceipt = function(){
+    $('printArea').innerHTML = $('receiptBody').innerHTML;
+    $('printArea').classList.remove('receipt-print');
+    $('printArea').style.display='block';
+    window.print();
+    setTimeout(()=>{ $('printArea').style.display='none'; },500);
+  };
+
+  /* ── SEARCH ── */
+  $('searchInput').addEventListener('input', ()=>renderTable());
+
+  /* ── TOAST ── */
+  function showToast(msg){
+    $('toastMsg').textContent=msg;
+    $('toast').classList.add('show');
+    setTimeout(()=>$('toast').classList.remove('show'),3000);
+  }
+
+  /* ── INIT ── */
+  // default to today tab — but since demo data has today's date, show "All" to see everything
+  document.querySelector('.dtab[data-d="all"]').click();
+
+})();
+</script>
+</body>
+</html>
