@@ -12,42 +12,76 @@
   --danger:#DC2626;--danger-bg:#fef2f2;
   --warning:#B45309;--warning-bg:#fffbeb;
   --purple:#7C3AED;--purple-bg:#f3f0ff;
+  --orange:#C2560C;--orange-bg:#fff7ed;
   --bg:#F0F4F8;--white:#fff;--border:#E2E8F0;
   --text:#2D3748;--muted:#718096;
   --shadow:0 2px 8px rgba(0,0,0,0.07);--shadow-lg:0 8px 24px rgba(0,0,0,0.12);
   --radius:12px;--sidebar-w:220px;
 }
 html,body{height:100%;font-family:system-ui,-apple-system,sans-serif;background:var(--bg);}
-.sidebar-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.4);z-index:49;display:none;}
-.sidebar-overlay.open{display:block;}
 .icon{display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;}
 .icon svg{width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;}
 .icon.sm svg{width:14px;height:14px;}
 .icon.lg svg{width:22px;height:22px;}
-.icon.xl svg{width:28px;height:28px;}
 
 /* ── LAYOUT ── */
 .app{display:flex;height:100vh;overflow:hidden;}
 
+/* ── SIDEBAR OVERLAY ── */
+.sidebar-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.4);z-index:300;display:none;}
+.sidebar-overlay.open{display:block;}
+
 /* ── SIDEBAR ── */
-.sidebar{width:var(--sidebar-w);min-width:var(--sidebar-w);height:100%;background:var(--white);border-right:1px solid var(--border);display:flex;flex-direction:column;z-index:50;transition:transform 0.28s cubic-bezier(0.4,0,0.2,1);flex-shrink:0;}
+.sidebar{width:var(--sidebar-w);min-width:var(--sidebar-w);height:100%;background:var(--white);border-right:1px solid var(--border);display:flex;flex-direction:column;z-index:400;flex-shrink:0;overflow:hidden;
+  transition:width .28s cubic-bezier(.4,0,.2,1),min-width .28s cubic-bezier(.4,0,.2,1),transform .28s cubic-bezier(.4,0,.2,1);}
+
+/* mobile: slide */
 @media(max-width:767px){
-  .sidebar{position:fixed;top:0;left:0;height:100%;transform:translateX(-100%);z-index:400;box-shadow:4px 0 20px rgba(0,0,0,0.15);}
+  .sidebar{position:fixed;top:0;left:0;height:100%;transform:translateX(-100%);box-shadow:4px 0 20px rgba(0,0,0,.15);}
   .sidebar.open{transform:translateX(0);}
+  .sidebar-overlay{display:none;}
+  .sidebar-overlay.open{display:block;}
 }
+/* tablet: icon-only default, expand on toggle */
+@media(min-width:768px) and (max-width:1023px){
+  .sidebar-overlay{display:none !important;}
+  .sidebar{width:64px;min-width:64px;}
+  .sidebar .sidebar-logo{display:none;}
+  .sidebar .nav-item span:not(.icon){display:none;}
+  .sidebar .nav-item{justify-content:center;padding:14px 0;}
+  .sidebar .stab-label{display:none;}
+  .sidebar .stab{justify-content:center;padding:14px 0;border-right:none;}
+  .sidebar.open-desk{width:var(--sidebar-w);min-width:var(--sidebar-w);}
+  .sidebar.open-desk .sidebar-logo{display:block;}
+  .sidebar.open-desk .nav-item span:not(.icon){display:inline;}
+  .sidebar.open-desk .nav-item{justify-content:flex-start;padding:12px 20px;}
+  .sidebar.open-desk .stab-label{display:inline;}
+  .sidebar.open-desk .stab{justify-content:flex-start;padding:11px 16px;border-right:3px solid transparent;}
+  .sidebar.open-desk .stab.active{border-right-color:var(--primary);}
+}
+/* desktop: collapsible */
+@media(min-width:1024px){
+  .sidebar-overlay{display:none !important;}
+  .sidebar.collapsed{width:64px;min-width:64px;}
+  .sidebar.collapsed .sidebar-logo{display:none;}
+  .sidebar.collapsed .nav-item span:not(.icon){display:none;}
+  .sidebar.collapsed .nav-item{justify-content:center;padding:14px 0;}
+  .sidebar.collapsed .stab-label{display:none;}
+  .sidebar.collapsed .stab{justify-content:center;padding:14px 0;border-right:none;}
+}
+
 .sidebar-header{height:60px;padding:0 20px;display:flex;align-items:center;gap:10px;border-bottom:1px solid var(--border);flex-shrink:0;}
-.sidebar-logo{font-size:16px;font-weight:800;color:var(--primary);}
-.nav-section{flex:1;padding:8px 0;overflow-y:auto;}
-.nav-item{display:flex;align-items:center;gap:12px;padding:12px 20px;color:var(--muted);text-decoration:none;font-size:14px;font-weight:500;border:none;background:none;width:100%;text-align:left;cursor:pointer;transition:background 0.15s,color 0.15s;border-right:3px solid transparent;}
+.sidebar-logo{font-size:16px;font-weight:800;color:var(--primary);white-space:nowrap;}
+.nav-section{flex:1;padding:8px 0;overflow-y:auto;overflow-x:hidden;}
+.nav-item{display:flex;align-items:center;gap:12px;padding:12px 20px;color:var(--muted);text-decoration:none;font-size:14px;font-weight:500;border:none;background:none;width:100%;text-align:left;cursor:pointer;transition:background .15s,color .15s;border-right:3px solid transparent;white-space:nowrap;}
 .nav-item:hover{background:var(--primary-bg);color:var(--primary);}
 .nav-item.active{background:var(--primary-bg);color:var(--primary);border-right-color:var(--primary);}
-.nav-item .icon{color:inherit;}
 .nav-bottom{padding:12px 0;border-top:1px solid var(--border);flex-shrink:0;}
 
 /* ── MAIN ── */
 .main-area{flex:1;display:flex;flex-direction:column;overflow:hidden;min-width:0;}
-.topbar{height:60px;background:var(--white);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 20px;gap:14px;flex-shrink:0;z-index:40;}
-.topbar-menu{background:none;border:none;cursor:pointer;color:var(--muted);padding:6px;border-radius:8px;display:flex;transition:background 0.15s;}
+.topbar{height:60px;background:var(--white);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 20px;gap:14px;flex-shrink:0;}
+.topbar-menu{background:none;border:none;cursor:pointer;color:var(--muted);padding:6px;border-radius:8px;display:flex;transition:background .15s;}
 .topbar-menu:hover{background:var(--bg);}
 .topbar-title{font-size:18px;font-weight:700;color:var(--text);flex:1;}
 .topbar-avatar{width:36px;height:36px;border-radius:50%;background:var(--primary);color:#fff;font-size:13px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
@@ -55,30 +89,25 @@ html,body{height:100%;font-family:system-ui,-apple-system,sans-serif;background:
 /* ── SETTINGS LAYOUT ── */
 .settings-wrap{flex:1;display:flex;overflow:hidden;min-height:0;}
 
-/* ── LEFT TABS ── */
+/* ── INNER TABS ── */
 .settings-tabs{width:200px;min-width:200px;background:var(--white);border-right:1px solid var(--border);display:flex;flex-direction:column;padding:12px 0;overflow-y:auto;flex-shrink:0;}
 @media(max-width:680px){.settings-tabs{width:52px;min-width:52px;}}
-.stab{display:flex;align-items:center;gap:10px;padding:11px 16px;color:var(--muted);font-size:13px;font-weight:500;cursor:pointer;border:none;background:none;width:100%;text-align:left;border-right:3px solid transparent;transition:all 0.15s;}
+.stab{display:flex;align-items:center;gap:10px;padding:11px 16px;color:var(--muted);font-size:13px;font-weight:500;cursor:pointer;border:none;background:none;width:100%;text-align:left;border-right:3px solid transparent;transition:all .15s;white-space:nowrap;}
 .stab:hover{background:var(--primary-bg);color:var(--primary);}
 .stab.active{background:var(--primary-bg);color:var(--primary);border-right-color:var(--primary);font-weight:700;}
-.stab .icon{flex-shrink:0;}
-.stab-label{white-space:nowrap;overflow:hidden;}
+.stab .icon{flex-shrink:0;color:inherit;}
 @media(max-width:680px){.stab-label{display:none;}.stab{justify-content:center;padding:14px 0;border-right:none;border-bottom:3px solid transparent;}.stab.active{border-bottom-color:var(--primary);border-right:none;}}
 
-/* ── SETTINGS CONTENT ── */
+/* ── CONTENT ── */
 .settings-content{flex:1;overflow-y:auto;padding:24px;display:flex;flex-direction:column;gap:20px;}
 .settings-content::-webkit-scrollbar{width:5px;}
 .settings-content::-webkit-scrollbar-thumb{background:var(--border);border-radius:4px;}
-
 .section{display:none;}
 .section.active{display:flex;flex-direction:column;gap:16px;}
-
-/* ── SECTION HEADER ── */
-.sec-hdr{margin-bottom:4px;}
 .sec-hdr h2{font-size:17px;font-weight:800;color:var(--text);}
 .sec-hdr p{font-size:13px;color:var(--muted);margin-top:3px;}
 
-/* ── SETTING CARD ── */
+/* ── CARD ── */
 .scard{background:var(--white);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;box-shadow:var(--shadow);}
 .scard-hdr{padding:14px 18px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px;}
 .scard-hdr-icon{width:34px;height:34px;border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
@@ -88,57 +117,52 @@ html,body{height:100%;font-family:system-ui,-apple-system,sans-serif;background:
 .scard-row{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:10px 0;border-bottom:1px solid var(--border);}
 .scard-row:last-child{border-bottom:none;padding-bottom:0;}
 .scard-row:first-child{padding-top:0;}
-.sr-info{flex:1;min-width:0;}
+.sr-info{flex:1;}
 .sr-label{font-size:14px;font-weight:600;color:var(--text);}
 .sr-desc{font-size:12px;color:var(--muted);margin-top:2px;}
 
-/* ── TOGGLE SWITCH ── */
+/* ── TOGGLE ── */
 .toggle{position:relative;width:46px;height:26px;flex-shrink:0;cursor:pointer;}
 .toggle input{opacity:0;width:0;height:0;position:absolute;}
-.toggle-track{position:absolute;inset:0;border-radius:13px;background:var(--border);transition:background 0.2s;}
-.toggle input:checked ~ .toggle-track{background:var(--primary);}
-.toggle-thumb{position:absolute;top:3px;left:3px;width:20px;height:20px;border-radius:50%;background:#fff;box-shadow:0 1px 4px rgba(0,0,0,0.25);transition:left 0.2s;}
-.toggle input:checked ~ .toggle-thumb{left:23px;}
+.toggle-track{position:absolute;inset:0;border-radius:13px;background:var(--border);transition:background .2s;}
+.toggle input:checked~.toggle-track{background:var(--primary);}
+.toggle-thumb{position:absolute;top:3px;left:3px;width:20px;height:20px;border-radius:50%;background:#fff;box-shadow:0 1px 4px rgba(0,0,0,.25);transition:left .2s;}
+.toggle input:checked~.toggle-thumb{left:23px;}
 
-/* ── FORM ELEMENTS ── */
+/* ── FORM ── */
 .form-group{display:flex;flex-direction:column;gap:6px;}
-.form-label{font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;}
-.form-input{padding:10px 14px;border:1.5px solid var(--border);border-radius:10px;font-size:14px;color:var(--text);background:var(--bg);outline:none;transition:border-color 0.15s;font-family:inherit;width:100%;}
+.form-label{font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;}
+.form-input{padding:10px 14px;border:1.5px solid var(--border);border-radius:10px;font-size:14px;color:var(--text);background:var(--bg);outline:none;transition:border-color .15s;font-family:inherit;width:100%;}
 .form-input:focus{border-color:var(--primary);background:var(--white);}
 .form-textarea{resize:vertical;min-height:72px;line-height:1.5;}
 .form-hint{font-size:11px;color:var(--muted);}
 .form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
-.form-select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23718096' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center;padding-right:36px;cursor:pointer;}
+.form-select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23718096' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center;padding-right:36px;}
 
-/* ── SAVE BTN ── */
-.save-bar{display:flex;justify-content:flex-end;gap:10px;padding-top:4px;}
-.btn-save{padding:10px 24px;background:var(--primary);color:#fff;border:none;border-radius:10px;font-size:14px;font-weight:700;cursor:pointer;transition:background 0.15s;font-family:inherit;display:flex;align-items:center;gap:7px;}
+/* ── BUTTONS ── */
+.save-bar{display:flex;justify-content:flex-end;padding-top:4px;}
+.btn-save{padding:10px 24px;background:var(--primary);color:#fff;border:none;border-radius:10px;font-size:14px;font-weight:700;cursor:pointer;transition:background .15s;font-family:inherit;display:flex;align-items:center;gap:7px;}
 .btn-save:hover{background:var(--primary-dark);}
 .btn-save.saved{background:var(--success);}
-.btn-cancel{padding:10px 18px;background:var(--white);color:var(--text);border:1.5px solid var(--border);border-radius:10px;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit;}
-.btn-cancel:hover{border-color:var(--primary);color:var(--primary);}
+.btn-upload{display:inline-flex;align-items:center;gap:6px;padding:8px 16px;background:var(--primary-bg);color:var(--primary);border:1.5px solid var(--primary);border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;transition:all .15s;}
+.btn-upload:hover{background:var(--primary);color:#fff;}
+.btn-remove-logo{display:inline-flex;align-items:center;gap:6px;padding:8px 16px;background:var(--white);color:var(--danger);border:1.5px solid var(--danger);border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;}
+.btn-remove-logo:hover{background:var(--danger-bg);}
 .btn-danger-outline{padding:10px 18px;background:var(--white);color:var(--danger);border:1.5px solid var(--danger);border-radius:10px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;}
 .btn-danger-outline:hover{background:var(--danger-bg);}
 
 /* ── LOGO UPLOAD ── */
 .logo-upload-wrap{display:flex;align-items:center;gap:16px;flex-wrap:wrap;}
-.logo-preview{width:80px;height:80px;border-radius:12px;border:2px dashed var(--border);background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;transition:all 0.15s;flex-shrink:0;overflow:hidden;position:relative;}
+.logo-preview{width:80px;height:80px;border-radius:12px;border:2px dashed var(--border);background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;transition:all .15s;flex-shrink:0;overflow:hidden;}
 .logo-preview:hover{border-color:var(--primary);background:var(--primary-bg);}
 .logo-preview img{width:100%;height:100%;object-fit:contain;display:none;}
 .logo-preview .upload-hint{font-size:10px;color:var(--muted);text-align:center;margin-top:4px;line-height:1.3;}
 .logo-actions{display:flex;flex-direction:column;gap:8px;}
-.btn-upload{display:inline-flex;align-items:center;gap:6px;padding:8px 16px;background:var(--primary-bg);color:var(--primary);border:1.5px solid var(--primary);border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;transition:all 0.15s;}
-.btn-upload:hover{background:var(--primary);color:#fff;}
-.btn-remove-logo{display:inline-flex;align-items:center;gap:6px;padding:8px 16px;background:var(--white);color:var(--danger);border:1.5px solid var(--danger);border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;transition:all 0.15s;}
-.btn-remove-logo:hover{background:var(--danger-bg);}
-.logo-hint{font-size:11px;color:var(--muted);line-height:1.5;max-width:240px;}
+.logo-hint{font-size:11px;color:var(--muted);line-height:1.5;max-width:220px;}
 
 /* ── RECEIPT PREVIEW ── */
 .receipt-preview-wrap{background:#f8f8f8;border:1px solid var(--border);border-radius:10px;padding:16px;display:flex;justify-content:center;}
-.receipt{width:100%;max-width:216px;/* 3 inch = ~216px at 72dpi */background:#fff;border:1px dashed #ccc;padding:14px 12px;font-family:'Courier New',monospace;font-size:11px;color:#222;line-height:1.6;border-radius:4px;}
-.receipt-logo{text-align:center;margin-bottom:8px;}
-.receipt-logo img{max-width:80px;max-height:50px;object-fit:contain;display:none;}
-.receipt-logo-placeholder{font-size:16px;font-weight:900;color:#222;letter-spacing:1px;}
+.receipt{width:100%;max-width:216px;background:#fff;border:1px dashed #ccc;padding:14px 12px;font-family:'Courier New',monospace;font-size:11px;color:#222;line-height:1.6;border-radius:4px;}
 .receipt-biz-name{text-align:center;font-size:13px;font-weight:900;margin-bottom:2px;}
 .receipt-biz-addr{text-align:center;font-size:10px;color:#555;margin-bottom:2px;}
 .receipt-biz-phone{text-align:center;font-size:10px;color:#555;}
@@ -149,18 +173,18 @@ html,body{height:100%;font-family:system-ui,-apple-system,sans-serif;background:
 .receipt-total-row{display:flex;justify-content:space-between;font-weight:900;font-size:12px;margin:2px 0;}
 .receipt-footer{text-align:center;font-size:10px;color:#555;margin-top:4px;line-height:1.5;}
 .receipt-thank{text-align:center;font-size:11px;font-weight:700;margin-top:6px;}
+.receipt-logo{text-align:center;margin-bottom:8px;}
+.receipt-logo img{max-width:80px;max-height:50px;object-fit:contain;display:none;}
 
-/* ── COLOR PICKER ROW ── */
-.color-row{display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
-.color-swatch{width:30px;height:30px;border-radius:8px;cursor:pointer;border:2px solid transparent;transition:transform 0.1s,border-color 0.1s;flex-shrink:0;}
-.color-swatch:hover{transform:scale(1.12);}
-.color-swatch.selected{border-color:var(--text);}
-.color-custom{width:30px;height:30px;border-radius:8px;border:1.5px dashed var(--border);cursor:pointer;overflow:hidden;padding:0;background:none;}
-.color-custom input[type=color]{width:200%;height:200%;transform:translate(-25%,-25%);cursor:pointer;border:none;padding:0;}
+/* ── INFO BOX ── */
+.info-box{background:var(--primary-bg);border:1px solid rgba(93,138,168,.25);border-radius:10px;padding:12px 16px;display:flex;gap:10px;align-items:flex-start;}
+.info-box .icon{color:var(--primary);flex-shrink:0;margin-top:1px;}
+.info-box p{font-size:13px;color:var(--text);line-height:1.5;}
+.info-box p strong{color:var(--primary);}
 
-/* ── PLAN CARD ── */
-.plan-cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;}
-.plan-card{border:2px solid var(--border);border-radius:12px;padding:16px;cursor:pointer;transition:all 0.15s;position:relative;}
+/* ── PLANS ── */
+.plan-cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(175px,1fr));gap:12px;}
+.plan-card{border:2px solid var(--border);border-radius:12px;padding:16px;cursor:pointer;transition:all .15s;position:relative;}
 .plan-card:hover{border-color:var(--primary);}
 .plan-card.current{border-color:var(--primary);background:var(--primary-bg);}
 .plan-badge{position:absolute;top:-1px;right:12px;background:var(--primary);color:#fff;font-size:10px;font-weight:700;padding:2px 10px;border-radius:0 0 8px 8px;}
@@ -169,13 +193,23 @@ html,body{height:100%;font-family:system-ui,-apple-system,sans-serif;background:
 .plan-price span{font-size:12px;font-weight:500;color:var(--muted);}
 .plan-features{list-style:none;display:flex;flex-direction:column;gap:5px;}
 .plan-features li{font-size:12px;color:var(--muted);display:flex;align-items:center;gap:5px;}
-.plan-features li::before{content:'✓';color:var(--success);font-weight:700;font-size:12px;flex-shrink:0;}
+.plan-features li::before{content:'✓';color:var(--success);font-weight:700;flex-shrink:0;}
 
-/* ── INFO BOX ── */
-.info-box{background:var(--primary-bg);border:1px solid rgba(93,138,168,0.25);border-radius:10px;padding:12px 16px;display:flex;gap:10px;align-items:flex-start;}
-.info-box .icon{color:var(--primary);flex-shrink:0;margin-top:1px;}
-.info-box p{font-size:13px;color:var(--text);line-height:1.5;}
-.info-box p strong{color:var(--primary);}
+/* ── MINI STATS ── */
+.mini-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;}
+.mini-stat{background:var(--bg);border-radius:10px;padding:12px;text-align:center;border:1px solid var(--border);}
+.mini-stat-val{font-size:18px;font-weight:800;color:var(--text);}
+.mini-stat-lbl{font-size:11px;color:var(--muted);margin-top:2px;}
+
+/* ── CONTACT ── */
+.contact-card{background:var(--bg);border-radius:10px;padding:16px;display:flex;align-items:center;gap:14px;border:1px solid var(--border);}
+.contact-avatar{width:44px;height:44px;border-radius:50%;background:var(--primary);color:#fff;font-size:16px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.contact-name{font-size:14px;font-weight:700;color:var(--text);}
+.contact-role{font-size:12px;color:var(--muted);}
+.contact-links{display:flex;gap:8px;margin-top:8px;flex-wrap:wrap;}
+.contact-link{display:inline-flex;align-items:center;gap:5px;padding:5px 12px;border-radius:8px;font-size:12px;font-weight:600;text-decoration:none;transition:all .15s;}
+.cl-wa{background:#dcfce7;color:#166534;}.cl-wa:hover{background:#bbf7d0;}
+.cl-email{background:var(--primary-bg);color:var(--primary);}.cl-email:hover{background:var(--primary);color:#fff;}
 
 /* ── DANGER ZONE ── */
 .danger-zone{border:1.5px solid var(--danger);border-radius:var(--radius);overflow:hidden;}
@@ -183,79 +217,40 @@ html,body{height:100%;font-family:system-ui,-apple-system,sans-serif;background:
 .danger-zone-hdr h3{font-size:13px;font-weight:700;color:var(--danger);}
 .danger-zone-body{padding:16px 18px;display:flex;flex-direction:column;gap:14px;}
 
-/* ── STAT MINI ── */
-.mini-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;}
-.mini-stat{background:var(--bg);border-radius:10px;padding:12px;text-align:center;border:1px solid var(--border);}
-.mini-stat-val{font-size:18px;font-weight:800;color:var(--text);}
-.mini-stat-lbl{font-size:11px;color:var(--muted);margin-top:2px;}
-
-/* ── CONTACT CARD ── */
-.contact-card{background:var(--bg);border-radius:10px;padding:16px;display:flex;align-items:center;gap:14px;border:1px solid var(--border);}
-.contact-avatar{width:44px;height:44px;border-radius:50%;background:var(--primary);color:#fff;font-size:16px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
-.contact-name{font-size:14px;font-weight:700;color:var(--text);}
-.contact-role{font-size:12px;color:var(--muted);}
-.contact-links{display:flex;gap:8px;margin-top:8px;}
-.contact-link{display:inline-flex;align-items:center;gap:5px;padding:5px 12px;border-radius:8px;font-size:12px;font-weight:600;text-decoration:none;transition:all 0.15s;}
-.cl-wa{background:#dcfce7;color:#166534;}
-.cl-wa:hover{background:#bbf7d0;}
-.cl-email{background:var(--primary-bg);color:var(--primary);}
-.cl-email:hover{background:var(--primary);color:#fff;}
-
-/* ── MOBILE ── */
 @media(max-width:600px){
   .settings-content{padding:14px;}
   .form-row{grid-template-columns:1fr;}
-  .mini-stats{grid-template-columns:repeat(3,1fr);}
-  .plan-cards{grid-template-columns:1fr 1fr;}
+  .receipt-preview-col{display:none;}
 }
 </style>
 </head>
 <body>
 
 <div class="sidebar-overlay" id="sidebarOverlay"></div>
-
 <div class="app">
 
-<!-- ── SIDEBAR ── -->
+<!-- SIDEBAR -->
 <nav class="sidebar" id="sidebar">
   <div class="sidebar-header">
-    <span class="icon lg" style="color:var(--primary);"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg></span>
+    <span class="icon lg" style="color:var(--primary);flex-shrink:0;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg></span>
     <div class="sidebar-logo">Ez POS</div>
   </div>
   <div class="nav-section">
-    <a href="dashboard.html" class="nav-item">
-      <span class="icon"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg></span><span>Dashboard</span>
-    </a>
-    <a href="sales.html" class="nav-item">
-      <span class="icon"><svg viewBox="0 0 24 24"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg></span><span>Make a Sale</span>
-    </a>
-    <a href="orders.html" class="nav-item">
-      <span class="icon"><svg viewBox="0 0 24 24"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="2"/><path d="M9 12h6M9 16h4"/></svg></span><span>Orders</span>
-    </a>
-    <a href="products.html" class="nav-item">
-      <span class="icon"><svg viewBox="0 0 24 24"><path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/></svg></span><span>Products</span>
-    </a>
-    <a href="categories.html" class="nav-item">
-      <span class="icon"><svg viewBox="0 0 24 24"><path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83 0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg></span><span>Category</span>
-    </a>
-    <a href="reports.html" class="nav-item">
-      <span class="icon"><svg viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg></span><span>Sales</span>
-    </a>
-    <a href="users.html" class="nav-item">
-      <span class="icon"><svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg></span><span>Users</span>
-    </a>
-    <a href="settings.html" class="nav-item active">
-      <span class="icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg></span><span>Settings</span>
-    </a>
+    <a href="dashboard.html" class="nav-item"><span class="icon"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg></span><span>Dashboard</span></a>
+    <a href="sales.html" class="nav-item"><span class="icon"><svg viewBox="0 0 24 24"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg></span><span>Make a Sale</span></a>
+    <a href="orders.html" class="nav-item"><span class="icon"><svg viewBox="0 0 24 24"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="2"/><path d="M9 12h6M9 16h4"/></svg></span><span>Orders</span></a>
+    <a href="products.html" class="nav-item"><span class="icon"><svg viewBox="0 0 24 24"><path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/></svg></span><span>Products</span></a>
+    <a href="categories.html" class="nav-item"><span class="icon"><svg viewBox="0 0 24 24"><path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83 0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg></span><span>Category</span></a>
+    <a href="reports.html" class="nav-item"><span class="icon"><svg viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg></span><span>Sales</span></a>
+    <a href="users.html" class="nav-item"><span class="icon"><svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg></span><span>Users</span></a>
+    <a href="settings.html" class="nav-item active"><span class="icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg></span><span>Settings</span></a>
   </div>
   <div class="nav-bottom">
-    <button class="nav-item" id="logoutBtn">
-      <span class="icon"><svg viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg></span><span>Logout</span>
-    </button>
+    <button class="nav-item" id="logoutBtn"><span class="icon"><svg viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg></span><span>Logout</span></button>
   </div>
 </nav>
 
-<!-- ── MAIN ── -->
+<!-- MAIN -->
 <div class="main-area">
   <div class="topbar">
     <button class="topbar-menu" id="menuBtn">
@@ -267,242 +262,110 @@ html,body{height:100%;font-family:system-ui,-apple-system,sans-serif;background:
 
   <div class="settings-wrap">
 
-    <!-- ── SETTINGS TABS ── -->
+    <!-- Inner tab nav -->
     <div class="settings-tabs">
-      <button class="stab active" data-tab="business" onclick="switchTab('business',this)">
-        <span class="icon"><svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></span>
-        <span class="stab-label">Business</span>
-      </button>
-      <button class="stab" data-tab="receipt" onclick="switchTab('receipt',this)">
-        <span class="icon"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg></span>
-        <span class="stab-label">Receipt</span>
-      </button>
-      <button class="stab" data-tab="features" onclick="switchTab('features',this)">
-        <span class="icon"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 9h.01M15 9h.01M9 15h.01M15 15h.01M12 9h.01M12 15h.01M9 12h.01M15 12h.01M12 12h.01"/></svg></span>
-        <span class="stab-label">Features</span>
-      </button>
-      <button class="stab" data-tab="printer" onclick="switchTab('printer',this)">
-        <span class="icon"><svg viewBox="0 0 24 24"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg></span>
-        <span class="stab-label">Printer</span>
-      </button>
-      <button class="stab" data-tab="account" onclick="switchTab('account',this)">
-        <span class="icon"><svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></span>
-        <span class="stab-label">Account</span>
-      </button>
-      <button class="stab" data-tab="billing" onclick="switchTab('billing',this)">
-        <span class="icon"><svg viewBox="0 0 24 24"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg></span>
-        <span class="stab-label">Plan</span>
-      </button>
-      <button class="stab" data-tab="support" onclick="switchTab('support',this)">
-        <span class="icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></span>
-        <span class="stab-label">Support</span>
-      </button>
+      <button class="stab active" onclick="switchTab('business',this)"><span class="icon"><svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></span><span class="stab-label">Business</span></button>
+      <button class="stab" onclick="switchTab('receipt',this)"><span class="icon"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/></svg></span><span class="stab-label">Receipt</span></button>
+      <button class="stab" onclick="switchTab('features',this)"><span class="icon"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 9h.01M15 9h.01M9 15h.01M15 15h.01M12 9h.01M12 15h.01"/></svg></span><span class="stab-label">Features</span></button>
+      <button class="stab" onclick="switchTab('printer',this)"><span class="icon"><svg viewBox="0 0 24 24"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg></span><span class="stab-label">Printer</span></button>
+      <button class="stab" onclick="switchTab('account',this)"><span class="icon"><svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></span><span class="stab-label">Account</span></button>
+      <button class="stab" onclick="switchTab('billing',this)"><span class="icon"><svg viewBox="0 0 24 24"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg></span><span class="stab-label">Plan</span></button>
+      <button class="stab" onclick="switchTab('support',this)"><span class="icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></span><span class="stab-label">Support</span></button>
     </div>
 
-    <!-- ── SETTINGS CONTENT AREA ── -->
+    <!-- Content -->
     <div class="settings-content">
 
-      <!-- ════════ BUSINESS ════════ -->
+      <!-- BUSINESS -->
       <div class="section active" id="tab-business">
-        <div class="sec-hdr"><h2>Business Info</h2><p>This info appears on your receipts and customer-facing pages.</p></div>
-
+        <div class="sec-hdr"><h2>Business Info</h2><p>Appears on your receipts and customer-facing pages.</p></div>
         <div class="scard">
-          <div class="scard-hdr">
-            <div class="scard-hdr-icon" style="background:var(--primary-bg);color:var(--primary);"><span class="icon"><svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/></svg></span></div>
-            <div><div class="scard-title">Shop Details</div><div class="scard-sub">Name, address, contact info</div></div>
-          </div>
+          <div class="scard-hdr"><div class="scard-hdr-icon" style="background:var(--primary-bg);color:var(--primary);"><span class="icon"><svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/></svg></span></div><div><div class="scard-title">Shop Details</div><div class="scard-sub">Name, address, contact info</div></div></div>
           <div class="scard-body">
-            <div class="form-group">
-              <div class="form-label">Business Name</div>
-              <input class="form-input" type="text" id="bizName" value="Saman's Kitchen" oninput="updateReceiptPreview()">
-            </div>
+            <div class="form-group"><div class="form-label">Business Name</div><input class="form-input" type="text" id="bizName" value="Saman's Kitchen" oninput="updateReceiptPreview()"></div>
             <div class="form-row">
-              <div class="form-group">
-                <div class="form-label">Phone Number</div>
-                <input class="form-input" type="tel" id="bizPhone" value="077 123 4567" oninput="updateReceiptPreview()">
-              </div>
-              <div class="form-group">
-                <div class="form-label">WhatsApp (optional)</div>
-                <input class="form-input" type="tel" id="bizWA" value="" placeholder="07X XXX XXXX">
-              </div>
+              <div class="form-group"><div class="form-label">Phone Number</div><input class="form-input" type="tel" id="bizPhone" value="077 123 4567" oninput="updateReceiptPreview()"></div>
+              <div class="form-group"><div class="form-label">WhatsApp (optional)</div><input class="form-input" type="tel" placeholder="07X XXX XXXX"></div>
             </div>
-            <div class="form-group">
-              <div class="form-label">Address</div>
-              <textarea class="form-input form-textarea" id="bizAddress" rows="2" oninput="updateReceiptPreview()">No. 12, Main Street, Colombo 03</textarea>
-            </div>
+            <div class="form-group"><div class="form-label">Address</div><textarea class="form-input form-textarea" id="bizAddress" rows="2" oninput="updateReceiptPreview()">No. 12, Main Street, Colombo 03</textarea></div>
             <div class="form-row">
-              <div class="form-group">
-                <div class="form-label">Email (optional)</div>
-                <input class="form-input" type="email" id="bizEmail" placeholder="shop@example.lk">
-              </div>
-              <div class="form-group">
-                <div class="form-label">Currency</div>
-                <select class="form-input form-select" id="bizCurrency">
-                  <option value="LKR" selected>LKR – Sri Lankan Rupee</option>
-                  <option value="USD">USD – US Dollar</option>
-                </select>
-              </div>
+              <div class="form-group"><div class="form-label">Email (optional)</div><input class="form-input" type="email" placeholder="shop@example.lk"></div>
+              <div class="form-group"><div class="form-label">Currency</div><select class="form-input form-select"><option selected>LKR – Sri Lankan Rupee</option><option>USD – US Dollar</option></select></div>
             </div>
-            <div class="form-group">
-              <div class="form-label">Business Registration No. (optional)</div>
-              <input class="form-input" type="text" id="bizReg" placeholder="e.g. PV 00012345">
-              <div class="form-hint">Shown on receipts if filled</div>
-            </div>
+            <div class="form-group"><div class="form-label">Business Reg. No. (optional)</div><input class="form-input" type="text" placeholder="e.g. PV 00012345"><div class="form-hint">Shown on receipts if filled</div></div>
           </div>
         </div>
-
         <div class="scard">
-          <div class="scard-hdr">
-            <div class="scard-hdr-icon" style="background:#fef9c3;color:#854d0e;"><span class="icon"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="12" cy="12" r="3"/></svg></span></div>
-            <div><div class="scard-title">Logo</div><div class="scard-sub">Shown on receipts and the menu QR page</div></div>
-          </div>
+          <div class="scard-hdr"><div class="scard-hdr-icon" style="background:#fef9c3;color:#854d0e;"><span class="icon"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="12" cy="12" r="3"/></svg></span></div><div><div class="scard-title">Logo</div><div class="scard-sub">Shown on receipts and the QR menu page</div></div></div>
           <div class="scard-body">
             <div class="logo-upload-wrap">
               <div class="logo-preview" id="logoPreview" onclick="document.getElementById('logoFileInput').click()">
-                <img id="logoImg" src="" alt="Logo">
+                <img id="logoImg" src="" alt="">
                 <span class="icon" style="color:var(--muted);"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="12" cy="12" r="3"/></svg></span>
                 <div class="upload-hint">Tap to upload</div>
               </div>
               <div class="logo-actions">
-                <button class="btn-upload" onclick="document.getElementById('logoFileInput').click()">
-                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="16 16 12 12 8 16"/><line x1="12" y1="12" x2="12" y2="21"/><path d="M20.39 18.39A5 5 0 0018 9h-1.26A8 8 0 103 16.3"/></svg>
-                  Upload Logo
-                </button>
-                <button class="btn-remove-logo" id="removeLogoBtn" style="display:none;" onclick="removeLogo()">
-                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/></svg>
-                  Remove
-                </button>
+                <button class="btn-upload" onclick="document.getElementById('logoFileInput').click()"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="16 16 12 12 8 16"/><line x1="12" y1="12" x2="12" y2="21"/><path d="M20.39 18.39A5 5 0 0018 9h-1.26A8 8 0 103 16.3"/></svg> Upload Logo</button>
+                <button class="btn-remove-logo" id="removeLogoBtn" style="display:none;" onclick="removeLogo()"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/></svg> Remove</button>
                 <input type="file" id="logoFileInput" accept="image/*" style="display:none;" onchange="handleLogoUpload(event)">
               </div>
-              <div class="logo-hint">PNG or JPG, max 2MB.<br>Will be resized to fit the 3" receipt width.</div>
+              <div class="logo-hint">PNG or JPG, max 2MB.<br>Resized to fit the 3" receipt.</div>
             </div>
           </div>
         </div>
-
-        <div class="save-bar">
-          <button class="btn-save" onclick="saveSection('business')">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
-            Save Changes
-          </button>
-        </div>
+        <div class="save-bar"><button class="btn-save" onclick="saveSection('business')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg> Save Changes</button></div>
       </div>
 
-      <!-- ════════ RECEIPT ════════ -->
+      <!-- RECEIPT -->
       <div class="section" id="tab-receipt">
         <div class="sec-hdr"><h2>Receipt Customization</h2><p>Tailored for 3-inch (80mm) thermal printers.</p></div>
-
-        <div style="display:grid;grid-template-columns:1fr auto;gap:16px;align-items:start;flex-wrap:wrap;">
+        <div style="display:grid;grid-template-columns:1fr auto;gap:16px;align-items:start;">
           <div style="display:flex;flex-direction:column;gap:14px;min-width:0;">
-
             <div class="scard">
-              <div class="scard-hdr">
-                <div class="scard-hdr-icon" style="background:var(--success-bg);color:var(--success);"><span class="icon"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></span></div>
-                <div><div class="scard-title">Header & Footer</div><div class="scard-sub">What prints at top and bottom of every receipt</div></div>
-              </div>
+              <div class="scard-hdr"><div class="scard-hdr-icon" style="background:var(--success-bg);color:var(--success);"><span class="icon"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></span></div><div><div class="scard-title">Header & Footer</div><div class="scard-sub">What prints at the top and bottom</div></div></div>
               <div class="scard-body">
-                <div class="form-group">
-                  <div class="form-label">Receipt Header Text (optional)</div>
-                  <input class="form-input" type="text" id="rcptHeader" placeholder="e.g. Welcome to Saman's Kitchen!" oninput="updateReceiptPreview()">
-                  <div class="form-hint">Prints below your logo and business name</div>
-                </div>
-                <div class="form-group">
-                  <div class="form-label">Footer / Thank-you Message</div>
-                  <input class="form-input" type="text" id="rcptFooter" value="Thank you! Visit again 🙏" oninput="updateReceiptPreview()">
-                </div>
-                <div class="form-group">
-                  <div class="form-label">Footer Note (optional)</div>
-                  <input class="form-input" type="text" id="rcptNote" placeholder="e.g. No refunds after 10 minutes" oninput="updateReceiptPreview()">
-                </div>
+                <div class="form-group"><div class="form-label">Header Text (optional)</div><input class="form-input" type="text" id="rcptHeader" placeholder="e.g. Welcome!" oninput="updateReceiptPreview()"><div class="form-hint">Prints below your logo</div></div>
+                <div class="form-group"><div class="form-label">Footer / Thank-you Message</div><input class="form-input" type="text" id="rcptFooter" value="Thank you! Visit again 🙏" oninput="updateReceiptPreview()"></div>
+                <div class="form-group"><div class="form-label">Footer Note (optional)</div><input class="form-input" type="text" id="rcptNote" placeholder="e.g. No refunds after 10 minutes" oninput="updateReceiptPreview()"></div>
               </div>
             </div>
-
             <div class="scard">
-              <div class="scard-hdr">
-                <div class="scard-hdr-icon" style="background:var(--purple-bg);color:var(--purple);"><span class="icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg></span></div>
-                <div><div class="scard-title">Receipt Options</div><div class="scard-sub">What to show / hide on the printed receipt</div></div>
-              </div>
+              <div class="scard-hdr"><div class="scard-hdr-icon" style="background:var(--purple-bg);color:var(--purple);"><span class="icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg></span></div><div><div class="scard-title">Receipt Options</div><div class="scard-sub">Show or hide fields on the printed receipt</div></div></div>
               <div class="scard-body">
-                <div class="scard-row">
-                  <div class="sr-info"><div class="sr-label">Show Logo on Receipt</div><div class="sr-desc">Prints your uploaded logo at the top</div></div>
-                  <label class="toggle"><input type="checkbox" id="tgl-rcptLogo" checked onchange="updateReceiptPreview()"><div class="toggle-track"></div><div class="toggle-thumb"></div></label>
-                </div>
-                <div class="scard-row">
-                  <div class="sr-info"><div class="sr-label">Show Business Address</div><div class="sr-desc">Print address below the business name</div></div>
-                  <label class="toggle"><input type="checkbox" id="tgl-rcptAddr" checked onchange="updateReceiptPreview()"><div class="toggle-track"></div><div class="toggle-thumb"></div></label>
-                </div>
-                <div class="scard-row">
-                  <div class="sr-info"><div class="sr-label">Show Cashier Name</div><div class="sr-desc">Prints which staff member made the sale</div></div>
-                  <label class="toggle"><input type="checkbox" id="tgl-cashierName" checked onchange="updateReceiptPreview()"><div class="toggle-track"></div><div class="toggle-thumb"></div></label>
-                </div>
-                <div class="scard-row">
-                  <div class="sr-info"><div class="sr-label">Show Table Number</div><div class="sr-desc">Prints the table on each receipt</div></div>
-                  <label class="toggle"><input type="checkbox" id="tgl-tableNo" onchange="updateReceiptPreview()"><div class="toggle-track"></div><div class="toggle-thumb"></div></label>
-                </div>
-                <div class="scard-row">
-                  <div class="sr-info"><div class="sr-label">Show Item Cost Price</div><div class="sr-desc">Prints cost alongside selling price (internal use)</div></div>
-                  <label class="toggle"><input type="checkbox" id="tgl-costPrice"><div class="toggle-track"></div><div class="toggle-thumb"></div></label>
-                </div>
-                <div class="scard-row">
-                  <div class="sr-info"><div class="sr-label">Show Discount Line</div><div class="sr-desc">Display discount amount if applied</div></div>
-                  <label class="toggle"><input type="checkbox" id="tgl-discount" checked onchange="updateReceiptPreview()"><div class="toggle-track"></div><div class="toggle-thumb"></div></label>
-                </div>
-                <div class="scard-row">
-                  <div class="sr-info"><div class="sr-label">Show Tax / VAT Line</div><div class="sr-desc">Print tax breakdown if applicable</div></div>
-                  <label class="toggle"><input type="checkbox" id="tgl-tax" onchange="updateReceiptPreview()"><div class="toggle-track"></div><div class="toggle-thumb"></div></label>
-                </div>
+                <div class="scard-row"><div class="sr-info"><div class="sr-label">Show Logo</div><div class="sr-desc">Prints your logo at the top</div></div><label class="toggle"><input type="checkbox" id="tgl-rcptLogo" checked onchange="updateReceiptPreview()"><div class="toggle-track"></div><div class="toggle-thumb"></div></label></div>
+                <div class="scard-row"><div class="sr-info"><div class="sr-label">Show Address</div><div class="sr-desc">Print address below business name</div></div><label class="toggle"><input type="checkbox" id="tgl-rcptAddr" checked onchange="updateReceiptPreview()"><div class="toggle-track"></div><div class="toggle-thumb"></div></label></div>
+                <div class="scard-row"><div class="sr-info"><div class="sr-label">Show Cashier Name</div><div class="sr-desc">Prints which staff made the sale</div></div><label class="toggle"><input type="checkbox" id="tgl-cashierName" checked onchange="updateReceiptPreview()"><div class="toggle-track"></div><div class="toggle-thumb"></div></label></div>
+                <div class="scard-row"><div class="sr-info"><div class="sr-label">Show Table Number</div><div class="sr-desc">Prints the table on each receipt</div></div><label class="toggle"><input type="checkbox" id="tgl-tableNo" onchange="updateReceiptPreview()"><div class="toggle-track"></div><div class="toggle-thumb"></div></label></div>
+                <div class="scard-row"><div class="sr-info"><div class="sr-label">Show Discount Line</div><div class="sr-desc">Display discount amount if applied</div></div><label class="toggle"><input type="checkbox" id="tgl-discount" checked onchange="updateReceiptPreview()"><div class="toggle-track"></div><div class="toggle-thumb"></div></label></div>
+                <div class="scard-row"><div class="sr-info"><div class="sr-label">Show Tax / VAT Line</div><div class="sr-desc">Print tax breakdown if applicable</div></div><label class="toggle"><input type="checkbox" id="tgl-tax" onchange="updateReceiptPreview()"><div class="toggle-track"></div><div class="toggle-thumb"></div></label></div>
               </div>
             </div>
-
             <div class="scard">
-              <div class="scard-hdr">
-                <div class="scard-hdr-icon" style="background:var(--warning-bg);color:var(--warning);"><span class="icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"/></svg></span></div>
-                <div><div class="scard-title">Social & QR on Receipt</div><div class="scard-sub">Print links customers can scan</div></div>
-              </div>
+              <div class="scard-hdr"><div class="scard-hdr-icon" style="background:var(--warning-bg);color:var(--warning);"><span class="icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"/></svg></span></div><div><div class="scard-title">Social & QR on Receipt</div><div class="scard-sub">Print links customers can scan</div></div></div>
               <div class="scard-body">
-                <div class="scard-row">
-                  <div class="sr-info"><div class="sr-label">Print Menu QR Code</div><div class="sr-desc">Customers can re-scan to order again</div></div>
-                  <label class="toggle"><input type="checkbox" id="tgl-menuQR"><div class="toggle-track"></div><div class="toggle-thumb"></div></label>
-                </div>
-                <div class="scard-row">
-                  <div class="sr-info"><div class="sr-label">Print WiFi Password</div><div class="sr-desc">Share your shop WiFi on the receipt</div></div>
-                  <label class="toggle"><input type="checkbox" id="tgl-wifi" onchange="toggleWifiField()"><div class="toggle-track"></div><div class="toggle-thumb"></div></label>
-                </div>
+                <div class="scard-row"><div class="sr-info"><div class="sr-label">Print Menu QR Code</div><div class="sr-desc">Customers can re-scan to order again</div></div><label class="toggle"><input type="checkbox" id="tgl-menuQR"><div class="toggle-track"></div><div class="toggle-thumb"></div></label></div>
+                <div class="scard-row"><div class="sr-info"><div class="sr-label">Print WiFi Password</div><div class="sr-desc">Share your shop WiFi on the receipt</div></div><label class="toggle"><input type="checkbox" id="tgl-wifi" onchange="toggleWifiField()"><div class="toggle-track"></div><div class="toggle-thumb"></div></label></div>
                 <div id="wifiField" style="display:none;">
-                  <div class="form-row">
-                    <div class="form-group">
-                      <div class="form-label">WiFi Name (SSID)</div>
-                      <input class="form-input" type="text" id="wifiSSID" placeholder="ShopWiFi">
-                    </div>
-                    <div class="form-group">
-                      <div class="form-label">WiFi Password</div>
-                      <input class="form-input" type="text" id="wifiPass" placeholder="password123">
-                    </div>
+                  <div class="form-row" style="margin-top:8px;">
+                    <div class="form-group"><div class="form-label">WiFi Name</div><input class="form-input" type="text" placeholder="ShopWiFi"></div>
+                    <div class="form-group"><div class="form-label">Password</div><input class="form-input" type="text" placeholder="password123"></div>
                   </div>
                 </div>
               </div>
             </div>
-
           </div>
-
-          <!-- RECEIPT PREVIEW (sticky) -->
-          <div style="width:230px;flex-shrink:0;position:sticky;top:0;">
-            <div style="font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px;text-align:center;">Live Preview · 3" Thermal</div>
+          <!-- Live Preview -->
+          <div style="width:230px;flex-shrink:0;position:sticky;top:0;" class="receipt-preview-col">
+            <div style="font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px;text-align:center;">Live Preview · 3" Thermal</div>
             <div class="receipt-preview-wrap">
-              <div class="receipt" id="receiptPreview">
-                <div class="receipt-logo" id="rp-logo">
-                  <img id="rp-logo-img" src="" alt="">
-                  <div class="receipt-logo-placeholder" id="rp-logo-text" style="display:none;">📷 LOGO</div>
-                </div>
+              <div class="receipt">
+                <div class="receipt-logo" id="rp-logo"><img id="rp-logo-img" src="" alt=""></div>
                 <div class="receipt-biz-name" id="rp-bizname">Saman's Kitchen</div>
                 <div class="receipt-biz-addr" id="rp-addr">No. 12, Main Street, Colombo 03</div>
                 <div class="receipt-biz-phone" id="rp-phone">Tel: 077 123 4567</div>
                 <div class="receipt-divider"></div>
-                <div class="receipt-header-row">
-                  <span>Date: 18/04/2026</span><span>Order #1042</span>
-                </div>
-                <div class="receipt-header-row" id="rp-cashier-row">
-                  <span>Cashier: Kasun</span><span id="rp-table-cell" style="display:none;">Table: 4</span>
-                </div>
+                <div class="receipt-header-row"><span>18/04/2026</span><span>#1042</span></div>
+                <div class="receipt-header-row" id="rp-cashier-row"><span>Cashier: Kasun</span><span id="rp-table-cell" style="display:none;">Table: 4</span></div>
                 <div class="receipt-divider"></div>
                 <div class="receipt-item"><span><span class="qty">1x</span> Rice &amp; Curry</span><span>950.00</span></div>
                 <div class="receipt-item"><span><span class="qty">2x</span> Water Bottle</span><span>160.00</span></div>
@@ -520,398 +383,147 @@ html,body{height:100%;font-family:system-ui,-apple-system,sans-serif;background:
             </div>
           </div>
         </div>
-
-        <div class="save-bar">
-          <button class="btn-save" onclick="saveSection('receipt')">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
-            Save Receipt Settings
-          </button>
-        </div>
+        <div class="save-bar"><button class="btn-save" onclick="saveSection('receipt')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg> Save Receipt Settings</button></div>
       </div>
 
-      <!-- ════════ FEATURES ════════ -->
+      <!-- FEATURES -->
       <div class="section" id="tab-features">
         <div class="sec-hdr"><h2>Features</h2><p>Turn on or off parts of the POS to match your workflow.</p></div>
-
         <div class="scard">
-          <div class="scard-hdr">
-            <div class="scard-hdr-icon" style="background:var(--orange-bg);color:var(--orange);"><span class="icon"><svg viewBox="0 0 24 24"><path d="M18 8h1a4 4 0 010 8h-1"/><path d="M2 8h16v9a4 4 0 01-4 4H6a4 4 0 01-4-4V8z"/><line x1="6" y1="1" x2="6" y2="4"/><line x1="10" y1="1" x2="10" y2="4"/><line x1="14" y1="1" x2="14" y2="4"/></svg></span></div>
-            <div><div class="scard-title">Kitchen & Orders</div><div class="scard-sub">KOT and table management features</div></div>
-          </div>
+          <div class="scard-hdr"><div class="scard-hdr-icon" style="background:var(--orange-bg);color:var(--orange);"><span class="icon"><svg viewBox="0 0 24 24"><path d="M18 8h1a4 4 0 010 8h-1"/><path d="M2 8h16v9a4 4 0 01-4 4H6a4 4 0 01-4-4V8z"/><line x1="6" y1="1" x2="6" y2="4"/><line x1="10" y1="1" x2="10" y2="4"/><line x1="14" y1="1" x2="14" y2="4"/></svg></span></div><div><div class="scard-title">Kitchen & Orders</div><div class="scard-sub">KOT and table management</div></div></div>
           <div class="scard-body">
-            <div class="scard-row">
-              <div class="sr-info">
-                <div class="sr-label">KOT – Kitchen Order Ticket</div>
-                <div class="sr-desc">Automatically prints a KOT slip to the kitchen printer when a sale is made</div>
-              </div>
-              <label class="toggle"><input type="checkbox" id="tgl-kot" checked><div class="toggle-track"></div><div class="toggle-thumb"></div></label>
-            </div>
-            <div class="scard-row">
-              <div class="sr-info">
-                <div class="sr-label">Table Management</div>
-                <div class="sr-desc">Enable table numbers in orders and on receipts — great for dine-in restaurants</div>
-              </div>
-              <label class="toggle"><input type="checkbox" id="tgl-table"><div class="toggle-track"></div><div class="toggle-thumb"></div></label>
-            </div>
+            <div class="scard-row"><div class="sr-info"><div class="sr-label">KOT – Kitchen Order Ticket</div><div class="sr-desc">Automatically sends a KOT to the kitchen display when a sale is made</div></div><label class="toggle"><input type="checkbox" id="tgl-kot" checked><div class="toggle-track"></div><div class="toggle-thumb"></div></label></div>
+            <div class="scard-row"><div class="sr-info"><div class="sr-label">Table Management</div><div class="sr-desc">Enable table numbers in orders and receipts — great for dine-in</div></div><label class="toggle"><input type="checkbox" id="tgl-table"><div class="toggle-track"></div><div class="toggle-thumb"></div></label></div>
           </div>
         </div>
-
         <div class="scard">
-          <div class="scard-hdr">
-            <div class="scard-hdr-icon" style="background:var(--primary-bg);color:var(--primary);"><span class="icon"><svg viewBox="0 0 24 24"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 002 1.61h9.72a2 2 0 002-1.61L23 6H6"/></svg></span></div>
-            <div><div class="scard-title">Sales & Payments</div><div class="scard-sub">Control how sales and payment methods work</div></div>
-          </div>
+          <div class="scard-hdr"><div class="scard-hdr-icon" style="background:var(--primary-bg);color:var(--primary);"><span class="icon"><svg viewBox="0 0 24 24"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 002 1.61h9.72a2 2 0 002-1.61L23 6H6"/></svg></span></div><div><div class="scard-title">Sales & Payments</div><div class="scard-sub">Control payment methods and cashier permissions</div></div></div>
           <div class="scard-body">
-            <div class="scard-row">
-              <div class="sr-info"><div class="sr-label">QR / Online Orders</div><div class="sr-desc">Customers scan QR to place orders from their phone</div></div>
-              <label class="toggle"><input type="checkbox" id="tgl-qrOrders" checked><div class="toggle-track"></div><div class="toggle-thumb"></div></label>
-            </div>
-            <div class="scard-row">
-              <div class="sr-info"><div class="sr-label">Cash Payment</div><div class="sr-desc">Allow cash as a payment method at checkout</div></div>
-              <label class="toggle"><input type="checkbox" id="tgl-cash" checked><div class="toggle-track"></div><div class="toggle-thumb"></div></label>
-            </div>
-            <div class="scard-row">
-              <div class="sr-info"><div class="sr-label">Card / Bank Transfer</div><div class="sr-desc">Allow card or bank transfer as payment</div></div>
-              <label class="toggle"><input type="checkbox" id="tgl-card" checked><div class="toggle-track"></div><div class="toggle-thumb"></div></label>
-            </div>
-            <div class="scard-row">
-              <div class="sr-info"><div class="sr-label">Discounts on Sale</div><div class="sr-desc">Allow cashiers to apply a discount during checkout</div></div>
-              <label class="toggle"><input type="checkbox" id="tgl-discountSale" checked><div class="toggle-track"></div><div class="toggle-thumb"></div></label>
-            </div>
-            <div class="scard-row">
-              <div class="sr-info"><div class="sr-label">Cashier Can Void a Sale</div><div class="sr-desc">Let cashiers cancel/void completed sales</div></div>
-              <label class="toggle"><input type="checkbox" id="tgl-voidSale"><div class="toggle-track"></div><div class="toggle-thumb"></div></label>
-            </div>
+            <div class="scard-row"><div class="sr-info"><div class="sr-label">QR / Online Orders</div><div class="sr-desc">Customers scan QR to place orders from their phone</div></div><label class="toggle"><input type="checkbox" id="tgl-qrOrders" checked><div class="toggle-track"></div><div class="toggle-thumb"></div></label></div>
+            <div class="scard-row"><div class="sr-info"><div class="sr-label">Cash Payment</div><div class="sr-desc">Allow cash as a payment method at checkout</div></div><label class="toggle"><input type="checkbox" id="tgl-cash" checked><div class="toggle-track"></div><div class="toggle-thumb"></div></label></div>
+            <div class="scard-row"><div class="sr-info"><div class="sr-label">Card / Bank Transfer</div><div class="sr-desc">Allow card or bank transfer as payment</div></div><label class="toggle"><input type="checkbox" id="tgl-card" checked><div class="toggle-track"></div><div class="toggle-thumb"></div></label></div>
+            <div class="scard-row"><div class="sr-info"><div class="sr-label">Discounts on Sale</div><div class="sr-desc">Allow cashiers to apply a discount during checkout</div></div><label class="toggle"><input type="checkbox" id="tgl-discountSale" checked><div class="toggle-track"></div><div class="toggle-thumb"></div></label></div>
+            <div class="scard-row"><div class="sr-info"><div class="sr-label">Cashier Can Void a Sale</div><div class="sr-desc">Let cashiers cancel/void completed sales</div></div><label class="toggle"><input type="checkbox" id="tgl-voidSale"><div class="toggle-track"></div><div class="toggle-thumb"></div></label></div>
           </div>
         </div>
-
-        <div class="scard">
-          <div class="scard-hdr">
-            <div class="scard-hdr-icon" style="background:var(--success-bg);color:var(--success);"><span class="icon"><svg viewBox="0 0 24 24"><path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/></svg></span></div>
-            <div><div class="scard-title">Inventory</div><div class="scard-sub">Stock tracking settings</div></div>
-          </div>
-          <div class="scard-body">
-            <div class="scard-row">
-              <div class="sr-info"><div class="sr-label">Track Stock Levels</div><div class="sr-desc">Deduct stock automatically when a sale is made</div></div>
-              <label class="toggle"><input type="checkbox" id="tgl-stock" checked><div class="toggle-track"></div><div class="toggle-thumb"></div></label>
-            </div>
-            <div class="scard-row">
-              <div class="sr-info"><div class="sr-label">Low Stock Alerts</div><div class="sr-desc">Get notified when an item falls below minimum stock</div></div>
-              <label class="toggle"><input type="checkbox" id="tgl-lowStock" checked><div class="toggle-track"></div><div class="toggle-thumb"></div></label>
-            </div>
-            <div class="scard-row">
-              <div class="sr-info"><div class="sr-label">Allow Selling Out-of-Stock Items</div><div class="sr-desc">Show but still allow adding OOS items to cart</div></div>
-              <label class="toggle"><input type="checkbox" id="tgl-oosAllow"><div class="toggle-track"></div><div class="toggle-thumb"></div></label>
-            </div>
-          </div>
-        </div>
-
-        <div class="save-bar">
-          <button class="btn-save" onclick="saveSection('features')">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
-            Save Features
-          </button>
-        </div>
+        <div class="save-bar"><button class="btn-save" onclick="saveSection('features')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg> Save Features</button></div>
       </div>
 
-      <!-- ════════ PRINTER ════════ -->
+      <!-- PRINTER -->
       <div class="section" id="tab-printer">
         <div class="sec-hdr"><h2>Printer Settings</h2><p>Configure your 3-inch (80mm) thermal printer.</p></div>
-
-        <div class="info-box">
-          <span class="icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg></span>
-          <p>Ez POS is optimised for <strong>3-inch (80mm) thermal receipt printers</strong>. Make sure your printer is connected and the correct driver is installed on the device you use for printing.</p>
-        </div>
-
+        <div class="info-box"><span class="icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg></span><p>Ez POS is optimised for <strong>3-inch (80mm) thermal receipt printers</strong>. Make sure your printer is connected and the correct driver is installed.</p></div>
         <div class="scard">
-          <div class="scard-hdr">
-            <div class="scard-hdr-icon" style="background:var(--primary-bg);color:var(--primary);"><span class="icon"><svg viewBox="0 0 24 24"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg></span></div>
-            <div><div class="scard-title">Receipt Printer</div><div class="scard-sub">Main printer for customer receipts</div></div>
-          </div>
+          <div class="scard-hdr"><div class="scard-hdr-icon" style="background:var(--primary-bg);color:var(--primary);"><span class="icon"><svg viewBox="0 0 24 24"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg></span></div><div><div class="scard-title">Receipt Printer</div><div class="scard-sub">Main printer for customer receipts</div></div></div>
           <div class="scard-body">
             <div class="form-row">
-              <div class="form-group">
-                <div class="form-label">Paper Width</div>
-                <select class="form-input form-select">
-                  <option selected>80mm (3 inch)</option>
-                  <option>58mm (2 inch)</option>
-                </select>
-              </div>
-              <div class="form-group">
-                <div class="form-label">Connection Type</div>
-                <select class="form-input form-select" id="printerConn" onchange="togglePrinterIP()">
-                  <option>USB</option>
-                  <option>Network (Ethernet/WiFi)</option>
-                  <option>Bluetooth</option>
-                </select>
-              </div>
+              <div class="form-group"><div class="form-label">Paper Width</div><select class="form-input form-select"><option selected>80mm (3 inch)</option><option>58mm (2 inch)</option></select></div>
+              <div class="form-group"><div class="form-label">Connection Type</div><select class="form-input form-select" id="printerConn" onchange="togglePrinterIP()"><option>USB</option><option>Network (Ethernet/WiFi)</option><option>Bluetooth</option></select></div>
             </div>
-            <div id="printerIPField" style="display:none;">
-              <div class="form-group">
-                <div class="form-label">Printer IP Address</div>
-                <input class="form-input" type="text" placeholder="e.g. 192.168.1.100">
-              </div>
-            </div>
-            <div class="scard-row">
-              <div class="sr-info"><div class="sr-label">Auto-Print Receipt on Sale</div><div class="sr-desc">Automatically print when a sale is completed</div></div>
-              <label class="toggle"><input type="checkbox" id="tgl-autoPrint" checked><div class="toggle-track"></div><div class="toggle-thumb"></div></label>
-            </div>
-            <div class="scard-row">
-              <div class="sr-info"><div class="sr-label">Print Test Page</div><div class="sr-desc">Send a test print to check alignment</div></div>
-              <div><button class="btn-save" style="padding:8px 16px;font-size:13px;" onclick="alert('Test page sent to printer!')">
-                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
-                Print Test
-              </button></div>
-            </div>
+            <div id="printerIPField" style="display:none;"><div class="form-group"><div class="form-label">Printer IP Address</div><input class="form-input" type="text" placeholder="192.168.1.100"></div></div>
+            <div class="scard-row"><div class="sr-info"><div class="sr-label">Auto-Print Receipt on Sale</div><div class="sr-desc">Automatically print when a sale is completed</div></div><label class="toggle"><input type="checkbox" id="tgl-autoPrint" checked><div class="toggle-track"></div><div class="toggle-thumb"></div></label></div>
+            <div class="scard-row"><div class="sr-info"><div class="sr-label">Print Test Page</div><div class="sr-desc">Send a test print to check alignment</div></div><button class="btn-save" style="padding:8px 16px;font-size:13px;" onclick="alert('Test page sent!')"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg> Print Test</button></div>
           </div>
         </div>
-
-        <div class="scard">
-          <div class="scard-hdr">
-            <div class="scard-hdr-icon" style="background:var(--orange-bg);color:var(--orange);"><span class="icon"><svg viewBox="0 0 24 24"><path d="M18 8h1a4 4 0 010 8h-1"/><path d="M2 8h16v9a4 4 0 01-4 4H6a4 4 0 01-4-4V8z"/></svg></span></div>
-            <div><div class="scard-title">KOT Printer (Kitchen)</div><div class="scard-sub">Separate printer in the kitchen for order tickets</div></div>
-          </div>
-          <div class="scard-body">
-            <div class="scard-row">
-              <div class="sr-info"><div class="sr-label">Separate KOT Printer</div><div class="sr-desc">Use a different printer for kitchen tickets</div></div>
-              <label class="toggle"><input type="checkbox" id="tgl-kotPrinter" onchange="toggleKOTPrinter()"><div class="toggle-track"></div><div class="toggle-thumb"></div></label>
-            </div>
-            <div id="kotPrinterFields" style="display:none;">
-              <div class="form-row" style="margin-top:10px;">
-                <div class="form-group">
-                  <div class="form-label">KOT Paper Width</div>
-                  <select class="form-input form-select"><option selected>80mm (3 inch)</option><option>58mm (2 inch)</option></select>
-                </div>
-                <div class="form-group">
-                  <div class="form-label">Connection</div>
-                  <select class="form-input form-select"><option>USB</option><option>Network</option><option>Bluetooth</option></select>
-                </div>
-              </div>
-              <div class="form-group" style="margin-top:10px;">
-                <div class="form-label">KOT Printer IP (if Network)</div>
-                <input class="form-input" type="text" placeholder="192.168.1.101">
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div class="save-bar">
-          <button class="btn-save" onclick="saveSection('printer')">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
-            Save Printer Settings
-          </button>
-        </div>
+        <div class="save-bar"><button class="btn-save" onclick="saveSection('printer')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg> Save Printer Settings</button></div>
       </div>
 
-      <!-- ════════ ACCOUNT ════════ -->
+      <!-- ACCOUNT -->
       <div class="section" id="tab-account">
         <div class="sec-hdr"><h2>Owner Account</h2><p>Update your personal login credentials.</p></div>
-
         <div class="scard">
-          <div class="scard-hdr">
-            <div class="scard-hdr-icon" style="background:#fef9c3;color:#854d0e;"><span class="icon"><svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></span></div>
-            <div><div class="scard-title">Profile</div><div class="scard-sub">How you appear in the system</div></div>
-          </div>
+          <div class="scard-hdr"><div class="scard-hdr-icon" style="background:#fef9c3;color:#854d0e;"><span class="icon"><svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></span></div><div><div class="scard-title">Profile</div><div class="scard-sub">How you appear in the system</div></div></div>
           <div class="scard-body">
             <div class="form-row">
-              <div class="form-group">
-                <div class="form-label">Full Name</div>
-                <input class="form-input" type="text" value="Nuwan Silva">
-              </div>
-              <div class="form-group">
-                <div class="form-label">Username</div>
-                <input class="form-input" type="text" value="nuwan">
-              </div>
+              <div class="form-group"><div class="form-label">Full Name</div><input class="form-input" type="text" value="Nuwan Silva"></div>
+              <div class="form-group"><div class="form-label">Username</div><input class="form-input" type="text" value="nuwan"></div>
             </div>
-            <div class="form-group">
-              <div class="form-label">Email Address</div>
-              <input class="form-input" type="email" value="nuwan@ezpos.lk">
-              <div class="form-hint">This is your unique login ID</div>
-            </div>
-            <div class="form-group">
-              <div class="form-label">Phone</div>
-              <input class="form-input" type="tel" value="077 123 4567">
-            </div>
+            <div class="form-group"><div class="form-label">Email Address</div><input class="form-input" type="email" value="nuwan@ezpos.lk"><div class="form-hint">This is your unique login ID</div></div>
+            <div class="form-group"><div class="form-label">Phone</div><input class="form-input" type="tel" value="077 123 4567"></div>
           </div>
         </div>
-
         <div class="scard">
-          <div class="scard-hdr">
-            <div class="scard-hdr-icon" style="background:var(--danger-bg);color:var(--danger);"><span class="icon"><svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg></span></div>
-            <div><div class="scard-title">Security</div><div class="scard-sub">Change your password and PIN</div></div>
-          </div>
+          <div class="scard-hdr"><div class="scard-hdr-icon" style="background:var(--danger-bg);color:var(--danger);"><span class="icon"><svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg></span></div><div><div class="scard-title">Security</div><div class="scard-sub">Change your password and PIN</div></div></div>
           <div class="scard-body">
-            <div class="form-group">
-              <div class="form-label">Current Password</div>
-              <input class="form-input" type="password" placeholder="••••••••">
+            <div class="form-group"><div class="form-label">Current Password</div><input class="form-input" type="password" placeholder="••••••••"></div>
+            <div class="form-row">
+              <div class="form-group"><div class="form-label">New Password</div><input class="form-input" type="password" placeholder="••••••••"></div>
+              <div class="form-group"><div class="form-label">Confirm Password</div><input class="form-input" type="password" placeholder="••••••••"></div>
             </div>
             <div class="form-row">
-              <div class="form-group">
-                <div class="form-label">New Password</div>
-                <input class="form-input" type="password" placeholder="••••••••">
-              </div>
-              <div class="form-group">
-                <div class="form-label">Confirm Password</div>
-                <input class="form-input" type="password" placeholder="••••••••">
-              </div>
-            </div>
-            <div class="form-row">
-              <div class="form-group">
-                <div class="form-label">POS PIN (4 digits)</div>
-                <input class="form-input" type="password" maxlength="4" placeholder="••••" inputmode="numeric">
-                <div class="form-hint">Used to quickly unlock the POS</div>
-              </div>
+              <div class="form-group"><div class="form-label">POS PIN (4 digits)</div><input class="form-input" type="password" maxlength="4" placeholder="••••" inputmode="numeric"><div class="form-hint">Quick unlock at the POS terminal</div></div>
             </div>
           </div>
         </div>
-
-        <div class="scard">
-          <div class="scard-hdr">
-            <div class="scard-hdr-icon" style="background:var(--warning-bg);color:var(--warning);"><span class="icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></span></div>
-            <div><div class="scard-title">Shift Settings</div><div class="scard-sub">Default opening float and shift behaviour</div></div>
-          </div>
-          <div class="scard-body">
-            <div class="form-row">
-              <div class="form-group">
-                <div class="form-label">Default Opening Float (LKR)</div>
-                <input class="form-input" type="number" value="5000" min="0">
-                <div class="form-hint">Cash in drawer at start of each shift</div>
-              </div>
-              <div class="form-group">
-                <div class="form-label">Shift Start Time</div>
-                <input class="form-input" type="time" value="08:00">
-              </div>
-            </div>
-            <div class="scard-row">
-              <div class="sr-info"><div class="sr-label">Require Shift Report at End</div><div class="sr-desc">Cashier must submit a shift report before logging out</div></div>
-              <label class="toggle"><input type="checkbox" id="tgl-shiftReport" checked><div class="toggle-track"></div><div class="toggle-thumb"></div></label>
-            </div>
-          </div>
-        </div>
-
-        <div class="save-bar">
-          <button class="btn-save" onclick="saveSection('account')">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
-            Save Account
-          </button>
-        </div>
+        <div class="save-bar"><button class="btn-save" onclick="saveSection('account')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg> Save Account</button></div>
       </div>
 
-      <!-- ════════ BILLING / PLAN ════════ -->
+      <!-- BILLING -->
       <div class="section" id="tab-billing">
         <div class="sec-hdr"><h2>Plan & Billing</h2><p>Manage your Ez POS subscription.</p></div>
-
         <div class="scard">
-          <div class="scard-hdr">
-            <div class="scard-hdr-icon" style="background:var(--primary-bg);color:var(--primary);"><span class="icon"><svg viewBox="0 0 24 24"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg></span></div>
-            <div><div class="scard-title">Current Plan</div><div class="scard-sub">Your subscription is active</div></div>
-          </div>
+          <div class="scard-hdr"><div class="scard-hdr-icon" style="background:var(--primary-bg);color:var(--primary);"><span class="icon"><svg viewBox="0 0 24 24"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg></span></div><div><div class="scard-title">Current Plan</div><div class="scard-sub">Your subscription is active</div></div></div>
           <div class="scard-body">
             <div class="mini-stats">
               <div class="mini-stat"><div class="mini-stat-val" style="color:var(--primary);">Starter</div><div class="mini-stat-lbl">Current Plan</div></div>
               <div class="mini-stat"><div class="mini-stat-val">12</div><div class="mini-stat-lbl">Days Left</div></div>
               <div class="mini-stat"><div class="mini-stat-val" style="color:var(--success);">Active</div><div class="mini-stat-lbl">Status</div></div>
             </div>
-            <div class="info-box" style="margin-top:4px;">
-              <span class="icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg></span>
-              <p>Your plan renews on <strong>Apr 30, 2026</strong>. Upgrade before then to keep everything running smoothly.</p>
-            </div>
+            <div class="info-box" style="margin-top:4px;"><span class="icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg></span><p>Your plan renews on <strong>Apr 30, 2026</strong>. Upgrade before then to keep everything running smoothly.</p></div>
           </div>
         </div>
-
         <div class="plan-cards">
           <div class="plan-card current">
             <div class="plan-badge">Current</div>
             <div class="plan-name">Starter</div>
-            <div class="plan-price">LKR 1,500<span>/mo</span></div>
-            <ul class="plan-features">
-              <li>1 Location</li>
-              <li>Up to 3 Users</li>
-              <li>Basic Reports</li>
-              <li>QR Menu</li>
-              <li>Receipt Printing</li>
-            </ul>
+            <div class="plan-price">LKR 3,500<span>/mo</span></div>
+            <ul class="plan-features"><li>1 Location</li><li>Up to 5 Users</li><li>Sales & Reports</li><li>QR Customer Menu</li><li>Receipt Printing</li><li>Product & Category Mgmt</li></ul>
           </div>
           <div class="plan-card">
             <div class="plan-name">Growth</div>
-            <div class="plan-price">LKR 3,500<span>/mo</span></div>
-            <ul class="plan-features">
-              <li>1 Location</li>
-              <li>Up to 10 Users</li>
-              <li>Advanced Reports</li>
-              <li>KOT Printing</li>
-              <li>Table Management</li>
-              <li>WhatsApp Receipts</li>
-            </ul>
+            <div class="plan-price">LKR 6,500<span>/mo</span></div>
+            <ul class="plan-features"><li>1 Location</li><li>Up to 15 Users</li><li>Everything in Starter</li><li>KOT – Kitchen Display</li><li>Table Management</li><li>Advanced Analytics</li><li>WhatsApp Receipts</li><li>Priority Support</li></ul>
           </div>
           <div class="plan-card">
             <div class="plan-name">Pro</div>
-            <div class="plan-price">LKR 6,500<span>/mo</span></div>
-            <ul class="plan-features">
-              <li>Multi-Location</li>
-              <li>Unlimited Users</li>
-              <li>Full Analytics</li>
-              <li>Priority Support</li>
-              <li>Custom Domain</li>
-              <li>API Access</li>
-            </ul>
+            <div class="plan-price">LKR 11,000<span>/mo</span></div>
+            <ul class="plan-features"><li>Multi-Location</li><li>Unlimited Users</li><li>Everything in Growth</li><li>Custom Domain & Branding</li><li>API Access</li><li>Dedicated Account Manager</li><li>24/7 Support</li></ul>
           </div>
         </div>
-
-        <div class="save-bar">
-          <button class="btn-save" onclick="alert('Our team will contact you to upgrade!')">Upgrade Plan →</button>
-        </div>
+        <div class="save-bar"><button class="btn-save" onclick="alert('Our team will contact you to upgrade!')">Upgrade Plan →</button></div>
       </div>
 
-      <!-- ════════ SUPPORT ════════ -->
+      <!-- SUPPORT -->
       <div class="section" id="tab-support">
         <div class="sec-hdr"><h2>Help & Support</h2><p>Get in touch with the Ez POS team.</p></div>
-
         <div class="scard">
-          <div class="scard-body" style="gap:12px;">
+          <div class="scard-body">
             <div class="contact-card">
               <div class="contact-avatar">EZ</div>
               <div style="flex:1;">
                 <div class="contact-name">Ez POS Support Team</div>
                 <div class="contact-role">Available Mon–Sat, 9AM–6PM</div>
                 <div class="contact-links">
-                  <a href="#" class="contact-link cl-wa">
-                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 11.5a8.38 8.38 0 01-.9 3.8 8.5 8.5 0 01-7.6 4.7 8.38 8.38 0 01-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 01-.9-3.8 8.5 8.5 0 014.7-7.6 8.38 8.38 0 013.8-.9h.5a8.48 8.48 0 018 8v.5z"/></svg>
-                    WhatsApp
-                  </a>
-                  <a href="mailto:support@ezpos.lk" class="contact-link cl-email">
-                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22 6 12 13 2 6"/></svg>
-                    Email Us
-                  </a>
+                  <a href="#" class="contact-link cl-wa"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 11.5a8.38 8.38 0 01-.9 3.8 8.5 8.5 0 01-7.6 4.7 8.38 8.38 0 01-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 01-.9-3.8 8.5 8.5 0 014.7-7.6 8.38 8.38 0 013.8-.9h.5a8.48 8.48 0 018 8v.5z"/></svg> WhatsApp</a>
+                  <a href="mailto:support@ezpos.lk" class="contact-link cl-email"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22 6 12 13 2 6"/></svg> Email Us</a>
                 </div>
               </div>
             </div>
           </div>
         </div>
-
         <div class="scard">
-          <div class="scard-hdr">
-            <div class="scard-hdr-icon" style="background:var(--bg);color:var(--muted);"><span class="icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg></span></div>
-            <div><div class="scard-title">About Ez POS</div><div class="scard-sub">Version and system info</div></div>
-          </div>
+          <div class="scard-hdr"><div class="scard-hdr-icon" style="background:var(--bg);color:var(--muted);"><span class="icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg></span></div><div><div class="scard-title">About Ez POS</div><div class="scard-sub">Version and system info</div></div></div>
           <div class="scard-body">
             <div class="scard-row"><div class="sr-info"><div class="sr-label">Version</div></div><span style="font-size:13px;font-weight:700;color:var(--muted);">v1.0.0-demo</span></div>
             <div class="scard-row"><div class="sr-info"><div class="sr-label">Build</div></div><span style="font-size:13px;font-weight:700;color:var(--muted);">2026.04.18</span></div>
             <div class="scard-row"><div class="sr-info"><div class="sr-label">Environment</div></div><span style="font-size:13px;font-weight:700;color:var(--warning);">Demo Mode</span></div>
           </div>
         </div>
-
         <div class="danger-zone">
           <div class="danger-zone-hdr"><h3>⚠ Danger Zone</h3></div>
           <div class="danger-zone-body">
-            <div class="scard-row">
-              <div class="sr-info"><div class="sr-label" style="color:var(--danger);">Clear All Sales Data</div><div class="sr-desc">Permanently delete all sales, orders, and reports. Cannot be undone.</div></div>
-              <button class="btn-danger-outline" onclick="alert('This would clear all data in production.')">Clear Data</button>
-            </div>
-            <div class="scard-row">
-              <div class="sr-info"><div class="sr-label" style="color:var(--danger);">Delete Account</div><div class="sr-desc">Permanently delete your Ez POS account and all data.</div></div>
-              <button class="btn-danger-outline" onclick="alert('Please contact support to delete your account.')">Delete Account</button>
-            </div>
+            <div class="scard-row"><div class="sr-info"><div class="sr-label" style="color:var(--danger);">Clear All Sales Data</div><div class="sr-desc">Permanently delete all sales, orders, and reports.</div></div><button class="btn-danger-outline" onclick="alert('This would clear all data.')">Clear Data</button></div>
+            <div class="scard-row"><div class="sr-info"><div class="sr-label" style="color:var(--danger);">Delete Account</div><div class="sr-desc">Permanently delete your Ez POS account and all data.</div></div><button class="btn-danger-outline" onclick="alert('Contact support to delete your account.')">Delete Account</button></div>
           </div>
         </div>
       </div>
@@ -923,155 +535,108 @@ html,body{height:100%;font-family:system-ui,-apple-system,sans-serif;background:
 
 <script>
 (function(){
+  const sidebar = document.getElementById('sidebar');
+  const overlay = document.getElementById('sidebarOverlay');
 
-/* ── SIDEBAR ── */
-document.getElementById('menuBtn').addEventListener('click', function(){
-  const sb = document.getElementById('sidebar');
-  const ov = document.getElementById('sidebarOverlay');
-  if(window.innerWidth < 768){
-    const open = sb.classList.toggle('open');
-    ov.classList.toggle('open', open);
-  }
-});
-document.getElementById('sidebarOverlay').addEventListener('click', function(){
-  document.getElementById('sidebar').classList.remove('open');
-  this.classList.remove('open');
-});
-document.getElementById('logoutBtn').addEventListener('click', function(){
-  if(confirm('Logout?')) window.location.href='login.html';
-});
-
-/* ── TABS ── */
-function switchTab(id, btn){
-  document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
-  document.querySelectorAll('.stab').forEach(b=>b.classList.remove('active'));
-  document.getElementById('tab-'+id).classList.add('active');
-  btn.classList.add('active');
-}
-window.switchTab = switchTab;
-
-/* ── SAVE FEEDBACK ── */
-function saveSection(name){
-  const btns = document.querySelectorAll('#tab-'+name+' .btn-save');
-  btns.forEach(btn=>{
-    btn.classList.add('saved');
-    btn.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg> Saved!`;
-    setTimeout(()=>{
-      btn.classList.remove('saved');
-      btn.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg> Save Changes`;
-    }, 2200);
+  document.getElementById('menuBtn').addEventListener('click', function(){
+    const w = window.innerWidth;
+    if(w < 768){
+      const open = sidebar.classList.toggle('open');
+      overlay.classList.toggle('open', open);
+    } else if(w < 1024){
+      sidebar.classList.toggle('open-desk');
+    } else {
+      sidebar.classList.toggle('collapsed');
+    }
   });
-}
-window.saveSection = saveSection;
 
-/* ── LOGO UPLOAD ── */
-function handleLogoUpload(e){
-  const file = e.target.files[0];
-  if(!file) return;
-  if(file.size > 2*1024*1024){ alert('Image too large. Max 2MB.'); return; }
-  const reader = new FileReader();
-  reader.onload = function(ev){
-    const src = ev.target.result;
-    // Business tab preview
-    const prev = document.getElementById('logoPreview');
-    const img = document.getElementById('logoImg');
-    img.src = src; img.style.display='block';
-    prev.querySelector('.icon').style.display='none';
-    prev.querySelector('.upload-hint').style.display='none';
-    document.getElementById('removeLogoBtn').style.display='flex';
-    // Receipt preview
-    const rpImg = document.getElementById('rp-logo-img');
-    rpImg.src = src; rpImg.style.display='block';
-    document.getElementById('rp-logo-text').style.display='none';
-    updateReceiptPreview();
-  };
-  reader.readAsDataURL(file);
-}
-window.handleLogoUpload = handleLogoUpload;
+  overlay.addEventListener('click', function(){
+    sidebar.classList.remove('open');
+    overlay.classList.remove('open');
+  });
 
-function removeLogo(){
-  document.getElementById('logoImg').src=''; document.getElementById('logoImg').style.display='none';
-  document.getElementById('logoPreview').querySelector('.icon').style.display='';
-  document.getElementById('logoPreview').querySelector('.upload-hint').style.display='';
-  document.getElementById('removeLogoBtn').style.display='none';
-  document.getElementById('rp-logo-img').src=''; document.getElementById('rp-logo-img').style.display='none';
+  document.getElementById('logoutBtn').addEventListener('click', function(){
+    if(confirm('Logout?')) window.location.href = 'login.html';
+  });
+
+  function switchTab(id, btn){
+    document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+    document.querySelectorAll('.stab').forEach(b => b.classList.remove('active'));
+    document.getElementById('tab-' + id).classList.add('active');
+    btn.classList.add('active');
+  }
+  window.switchTab = switchTab;
+
+  function saveSection(name){
+    const btn = document.querySelector('#tab-' + name + ' .save-bar .btn-save');
+    if(!btn) return;
+    const orig = btn.innerHTML;
+    btn.classList.add('saved');
+    btn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg> Saved!';
+    setTimeout(() => { btn.classList.remove('saved'); btn.innerHTML = orig; }, 2200);
+  }
+  window.saveSection = saveSection;
+
+  function handleLogoUpload(e){
+    const file = e.target.files[0];
+    if(!file) return;
+    if(file.size > 2*1024*1024){ alert('Max 2MB.'); return; }
+    const reader = new FileReader();
+    reader.onload = function(ev){
+      const src = ev.target.result;
+      const img = document.getElementById('logoImg');
+      img.src = src; img.style.display = 'block';
+      document.getElementById('logoPreview').querySelector('.icon').style.display = 'none';
+      document.getElementById('logoPreview').querySelector('.upload-hint').style.display = 'none';
+      document.getElementById('removeLogoBtn').style.display = 'flex';
+      const rpImg = document.getElementById('rp-logo-img');
+      rpImg.src = src; rpImg.style.display = 'block';
+    };
+    reader.readAsDataURL(file);
+  }
+  window.handleLogoUpload = handleLogoUpload;
+
+  function removeLogo(){
+    ['logoImg','rp-logo-img'].forEach(id=>{ const el=document.getElementById(id); el.src=''; el.style.display='none'; });
+    document.getElementById('logoPreview').querySelector('.icon').style.display = '';
+    document.getElementById('logoPreview').querySelector('.upload-hint').style.display = '';
+    document.getElementById('removeLogoBtn').style.display = 'none';
+  }
+  window.removeLogo = removeLogo;
+
+  function updateReceiptPreview(){
+    const get = id => document.getElementById(id);
+    get('rp-bizname').textContent = get('bizName').value || 'Your Business';
+    const addr = get('bizAddress').value;
+    const addrEl = get('rp-addr');
+    addrEl.textContent = addr;
+    addrEl.style.display = (get('tgl-rcptAddr').checked && addr) ? '' : 'none';
+    const ph = get('bizPhone').value;
+    get('rp-phone').textContent = ph ? 'Tel: '+ph : '';
+    const rpImg = get('rp-logo-img');
+    rpImg.style.display = (get('tgl-rcptLogo').checked && rpImg.src && rpImg.src !== window.location.href) ? 'block' : 'none';
+    get('rp-cashier-row').style.display = get('tgl-cashierName').checked ? '' : 'none';
+    get('rp-table-cell').style.display  = get('tgl-tableNo').checked ? '' : 'none';
+    get('rp-discount-row').style.display = get('tgl-discount').checked ? '' : 'none';
+    get('rp-tax-row').style.display     = get('tgl-tax').checked ? '' : 'none';
+    const footer = get('rcptFooter') ? get('rcptFooter').value : '';
+    get('rp-footer').textContent = footer; get('rp-footer').style.display = footer ? '' : 'none';
+    const note = get('rcptNote') ? get('rcptNote').value : '';
+    get('rp-note').textContent = note; get('rp-note').style.display = note ? '' : 'none';
+  }
+  window.updateReceiptPreview = updateReceiptPreview;
+
+  function toggleWifiField(){
+    document.getElementById('wifiField').style.display = document.getElementById('tgl-wifi').checked ? '' : 'none';
+  }
+  window.toggleWifiField = toggleWifiField;
+
+  function togglePrinterIP(){
+    document.getElementById('printerIPField').style.display = document.getElementById('printerConn').value.includes('Network') ? '' : 'none';
+  }
+  window.togglePrinterIP = togglePrinterIP;
+
   updateReceiptPreview();
-}
-window.removeLogo = removeLogo;
-
-/* ── RECEIPT PREVIEW ── */
-function updateReceiptPreview(){
-  const bizName = document.getElementById('bizName').value || 'Your Business';
-  const addr    = document.getElementById('bizAddress').value || '';
-  const phone   = document.getElementById('bizPhone').value || '';
-  const footer  = document.getElementById('rcptFooter') ? document.getElementById('rcptFooter').value : '';
-  const note    = document.getElementById('rcptNote') ? document.getElementById('rcptNote').value : '';
-
-  document.getElementById('rp-bizname').textContent = bizName;
-
-  const showAddr = document.getElementById('tgl-rcptAddr').checked;
-  const addrEl = document.getElementById('rp-addr');
-  addrEl.textContent = addr; addrEl.style.display = showAddr && addr ? '' : 'none';
-  document.getElementById('rp-phone').textContent = phone ? 'Tel: '+phone : '';
-
-  // Logo toggle
-  const showLogo = document.getElementById('tgl-rcptLogo').checked;
-  const logoImg = document.getElementById('rp-logo-img');
-  const logoText = document.getElementById('rp-logo-text');
-  if(showLogo){
-    if(logoImg.src && logoImg.src !== window.location.href){ logoImg.style.display='block'; logoText.style.display='none'; }
-    else { logoImg.style.display='none'; logoText.style.display='none'; }
-  } else { logoImg.style.display='none'; logoText.style.display='none'; }
-
-  // Cashier
-  const cashierRow = document.getElementById('rp-cashier-row');
-  cashierRow.style.display = document.getElementById('tgl-cashierName').checked ? '' : 'none';
-
-  // Table
-  const tableCell = document.getElementById('rp-table-cell');
-  tableCell.style.display = document.getElementById('tgl-tableNo').checked ? '' : 'none';
-
-  // Discount
-  document.getElementById('rp-discount-row').style.display = document.getElementById('tgl-discount').checked ? '' : 'none';
-
-  // Tax
-  document.getElementById('rp-tax-row').style.display = document.getElementById('tgl-tax').checked ? '' : 'none';
-
-  // Footer
-  const footerEl = document.getElementById('rp-footer');
-  footerEl.textContent = footer;
-  footerEl.style.display = footer ? '' : 'none';
-
-  // Note
-  const noteEl = document.getElementById('rp-note');
-  noteEl.textContent = note;
-  noteEl.style.display = note ? '' : 'none';
-}
-window.updateReceiptPreview = updateReceiptPreview;
-
-/* ── WIFI FIELD ── */
-function toggleWifiField(){
-  const show = document.getElementById('tgl-wifi').checked;
-  document.getElementById('wifiField').style.display = show ? '' : 'none';
-}
-window.toggleWifiField = toggleWifiField;
-
-/* ── PRINTER FIELDS ── */
-function togglePrinterIP(){
-  const val = document.getElementById('printerConn').value;
-  document.getElementById('printerIPField').style.display = val.includes('Network') ? '' : 'none';
-}
-window.togglePrinterIP = togglePrinterIP;
-
-function toggleKOTPrinter(){
-  const show = document.getElementById('tgl-kotPrinter').checked;
-  document.getElementById('kotPrinterFields').style.display = show ? '' : 'none';
-}
-window.toggleKOTPrinter = toggleKOTPrinter;
-
-/* ── INIT ── */
-updateReceiptPreview();
-
 })();
 </script>
 </body>
